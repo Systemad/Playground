@@ -1,4 +1,5 @@
 using API.Extensions;
+using API.Features.Quiz.QuizApi;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.UI;
 using Newtonsoft.Json;
@@ -6,6 +7,7 @@ using NSwag.AspNetCore;
 using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
+using Refit;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration["postgres"];
@@ -38,6 +40,9 @@ builder.Services.AddRouting(options =>
     options.LowercaseUrls = true;
     options.LowercaseQueryStrings = true;
 });
+
+builder.Services.AddRefitClient<IQuizPostApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri("https://quizapi.io"));
+
 // Add services to the container.
 builder.Services.AddAppAuthentication(builder.Configuration);
 builder.Services.AddSignalR();
