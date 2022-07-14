@@ -1,13 +1,11 @@
-﻿using API.Features.Quiz.QuizApi;
+﻿using API.Features.Quiz.API;
 using Orleans;
 
 namespace API.Features.Quiz;
 
-public interface IQuizGrain : IGrainWithGuidKey
+public interface IQuizGrain : IMultiplayerGrain
 {
-    Task<GameState> AddPlayer(Guid playerId);
-    Task<AnswerResult> SetAnswer(Answer answer);
-    Task<GameState> GetGameState();
+    Task SubmitAnswer(MakeAnswer answer);
+    Task SetGamePreference(QuizPost quizPost);
     Task<QuizSummary> GetSummary();
-    Task SetLobbyName(string name);
 }

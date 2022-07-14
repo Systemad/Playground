@@ -3,16 +3,24 @@
 [Serializable]
 public enum GameState
 {
-    AwaitingPlayer = 1,
-    InProgress = 2,
-    Finished = 3,
-    Canceled = 4
+    AwaitingPlayers,
+    Ready,
+    InProgress,
+    Finished,
+    Canceled,
 }
 
 [Serializable]
 public enum GameOutcome
 {
-    Win = 1,
-    Loss = 2,
-    Draw = 3
+    Win,
+    Loss,
+    Draw
+}
+
+[Serializable]
+public enum GameMode
+{
+    Quiz,
+    TicTacToe
 }

@@ -1,5 +1,5 @@
 using API.Extensions;
-using API.Features.Quiz.QuizApi;
+using API.Features.Quiz.API;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.UI;
 using Newtonsoft.Json;

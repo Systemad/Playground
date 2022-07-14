@@ -30,6 +30,14 @@ public enum Answer
     D
 }
 
+[Serializable]
+public struct MakeAnswer
+{
+    public Guid PlayerId { get; set; }
+    public int QuestionId { get; set; }
+    public Answer Answer { get; set; }
+}
+
 public enum Difficulty
 {
     [EnumMember(Value = "easy")]
