@@ -5,7 +5,7 @@ namespace API.Features.Lobby;
 
 public interface ILobbyGrain : IGrainWithIntegerKey
 {
-    Task AddGame(Guid gameId, string name);
+    Task AddGame(GameSummary summary);
     Task RemoveGame(Guid gameId);
 
     Task<Game[]> GetGames();
@@ -16,6 +16,6 @@ public interface ILobbyGrain : IGrainWithIntegerKey
 public class Game
 {
     public Guid GameId { get; set; }
-    public string? GameName { get; set; }
-    //public GameType GameType { get; set; }
+    public string? Name { get; set; }
+    public GameMode Mode { get; set; }
 }

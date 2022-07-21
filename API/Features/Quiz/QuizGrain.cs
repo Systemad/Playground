@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using API.Features.Lobby;
 using API.Features.Quiz.API;
 using API.Features.SignalR;
@@ -14,23 +15,25 @@ public class QuizGrain : Grain, IQuizGrain
     private const int MaxCapacity = 4;
     private HashSet<Guid> _playersIds = new();
     private ConcurrentDictionary<Guid, int> _playerScores = new();
-    
-    
+
     private GameState _gameState;
     private Guid _ownerId;
     private string _lobbyName = null!;
     private QuizPost _gamePreference;
-    
-    private ConcurrentDictionary<int, Root> _questions;
+
+    private Root[] _questions;
     private readonly IQuizClient _quizClient;
     private int _quizStep = 0;
     
-    // TODO: Fix timer, and make timesUp false when running
-    // Temp
-    private ConcurrentDictionary<Guid, bool> _answeredStates;
-    private bool timesUp;
 
-    private IHubContext<GlobalHub> _hubContext;
+    private ConcurrentDictionary<Guid, bool> _answeredStates;
+    private Root _currentQuestion;
+
+    //private IDisposable _timer;
+    private int _answered;
+    private bool _timerActive;
+
+    private readonly IHubContext<GlobalHub> _hubContext;
     public QuizGrain(IQuizClient quizClient, IHubContext<GlobalHub> hubContext)
     {
         _quizClient = quizClient;
@@ -39,6 +42,7 @@ public class QuizGrain : Grain, IQuizGrain
     
     public override Task OnActivateAsync()
     {
+        _answered = 0;
         _playersIds = new HashSet<Guid>();
         _gameState = GameState.AwaitingPlayers;
         return base.OnActivateAsync();
@@ -70,41 +74,41 @@ public class QuizGrain : Grain, IQuizGrain
         return Task.FromResult(_gameState);
     }
 
-    public async Task SubmitAnswer(MakeAnswer answer)
+    public async Task SubmitAnswer(Guid playerId, Answer answer)
     {
-        var question = _questions[answer.QuestionId];
-        switch (answer.Answer)
+        
+        if (!_timerActive || _gameState != GameState.InProgress) throw new ArgumentException("Game is over");
+        
+        if (_answeredStates.TryGetValue(playerId, out bool hasAnswered))
+            throw new ArgumentException("Question already answered");
+        
+    
+        if(IsCorrect(answer))
         {
-            case Answer.A:
-                _answeredStates[answer.PlayerId] = bool.Parse(question.correct_answers.answer_a_correct);
-                break;
-            case Answer.B:
-                _answeredStates[answer.PlayerId] = bool.Parse(question.correct_answers.answer_b_correct);
-                break;
-            case Answer.C:
-                _answeredStates[answer.PlayerId] = bool.Parse(question.correct_answers.answer_c_correct);
-                break;
-            case Answer.D:
-                _answeredStates[answer.PlayerId] = bool.Parse(question.correct_answers.answer_d_correct);
-                break;
+            _playerScores.AddOrUpdate(playerId, 1, (_, count) => count + 1);
+            _answeredStates[playerId] = true;
+        }
+        
+        _answered++;
+        if (_answered == _playersIds.Count)
+        {
+            await NextQuestion();
         }
 
-        if (timesUp)
+        /*
+         Do this after rounds ends and before nest starts
+        if (_gameActive && IsCorrect(answer))
         {
             foreach (var (key, value) in _answeredStates)
             {
-                if(value)
-                    _playerScores.AddOrUpdate(key, 1, (_, count) => count + 1);
-                
-                await _hubContext.Clients.Client(key.ToString()).SendAsync("isCorrect", value);      
+                send with signalr true of false, wether is was correct
             }
         }
+        */
+
     }
 
-    public Task<GameState> GetGameState()
-    {
-        return Task.FromResult(_gameState);
-    }
+    public Task<GameState> GetGameState() => Task.FromResult(_gameState);
 
     public Task<QuizSummary> GetSummary()
     {
@@ -117,16 +121,22 @@ public class QuizGrain : Grain, IQuizGrain
         return Task.CompletedTask;
     }
     
-    // TODO: Fix?? non async
     public async Task<GameState> StartGame(Guid playerId)
     {
         if (_gameState != GameState.Ready) throw new ArgumentException("Game is not ready");
-
         if (playerId != _ownerId) throw new ArgumentException("Not player id");
-        
+        _questions = await _quizClient.GetQuizzes(_gamePreference);
+        _currentQuestion = _questions[0];
         _gameState = GameState.InProgress;
         _quizStep = 0;
-        _questions = new ConcurrentDictionary<int, Root>(await _quizClient.GetQuizzes(_gamePreference));
+
+        /*
+        _timer = RegisterTimer(null,
+            null,
+            TimeSpan.FromSeconds(10),
+            TimeSpan.FromSeconds(1));
+        */
+        
         return _gameState;
     }
     
@@ -146,5 +156,53 @@ public class QuizGrain : Grain, IQuizGrain
             _gameState = GameState.Ready;
         }
         return Task.CompletedTask;
+    }
+
+    private bool IsCorrect(Answer answer)
+    {
+        bool correct = false;
+        switch (answer)
+        {
+            case Answer.A:
+                correct = bool.Parse(_currentQuestion.correct_answers.answer_a_correct);
+                break;
+            case Answer.B:
+                correct = bool.Parse(_currentQuestion.correct_answers.answer_b_correct);
+                break;
+            case Answer.C:
+                correct = bool.Parse(_currentQuestion.correct_answers.answer_c_correct);
+                break;
+            case Answer.D:
+                correct = bool.Parse(_currentQuestion.correct_answers.answer_d_correct);
+                break;
+        }
+        return correct;
+    }
+
+    private async Task StopGame()
+    {
+        //_timer.Dispose();
+        //_timerActive = false;
+        _gameState = GameState.Finished;
+        await _hubContext.Clients.Group(this.GetPrimaryKey().ToString()).SendAsync("gameOver", true);
+    }
+    
+    private async Task NextQuestion()
+    {
+        //_timer.Dispose();
+        //_timerActive = false;
+
+        if (_quizStep == _questions.Length)
+            await StopGame();
+
+        _quizStep++;
+        _currentQuestion = _questions[_quizStep];
+        /* Implement timer at later stage
+        _timer = RegisterTimer(null,
+            null,
+            TimeSpan.FromSeconds(10),
+            TimeSpan.FromSeconds(1));
+        */
+        await _hubContext.Clients.Group(this.GetPrimaryKey().ToString()).SendAsync("startNextRound", true);
     }
 }

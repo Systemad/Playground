@@ -5,7 +5,7 @@ namespace API.Features.Quiz.API;
 public interface IQuizPostApi
 {
     [Post("/api/v1/questions")]
-    Task<IEnumerable<Root>> GetQuestions([Body(BodySerializationMethod.UrlEncoded)] QuizPost quizPost);
+    Task<Root[]> GetQuestions([Body(BodySerializationMethod.UrlEncoded)] QuizPost quizPost);
 }
 
 // https://quizapi.io/api/v1/questions?apiKey={APIKey}&limit={amount}&category={category}&difficulty={difficulty};

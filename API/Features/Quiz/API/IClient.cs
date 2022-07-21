@@ -2,5 +2,5 @@
 
 public interface IQuizClient
 {
-    Task<Dictionary<int, Root>> GetQuizzes(QuizPost quizPost);
+    Task<Root[]> GetQuizzes(QuizPost quizPost);
 }

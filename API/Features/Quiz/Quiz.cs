@@ -34,7 +34,7 @@ public enum Answer
 public struct MakeAnswer
 {
     public Guid PlayerId { get; set; }
-    public int QuestionId { get; set; }
+    //public int QuestionId { get; set; }
     public Answer Answer { get; set; }
 }
 

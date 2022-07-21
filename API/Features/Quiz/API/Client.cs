@@ -11,14 +11,11 @@ public class QuizClient : IQuizClient
         _quizPostApi = quizPostApi;
     }
 
-    public async Task<Dictionary<int, Root>> GetQuizzes(QuizPost quizPost)
+    public async Task<Root[]> GetQuizzes(QuizPost quizPost)
     {
         var apiKey = "grabapikeyfrom config";
         quizPost.ApiKey = apiKey;
-        var post = await _quizPostApi.GetQuestions(quizPost);
-        Dictionary<int, Root> _questions = 
-            post.ToDictionary(question => question.id, question => question);
-
-        return _questions;
+        var question = await _quizPostApi.GetQuestions(quizPost);
+        return question;
     }
 }
