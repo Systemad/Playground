@@ -1,12 +1,12 @@
+// MSAL imports
+import { AuthenticationResult,EventMessage, EventType, PublicClientApplication } from "@azure/msal-browser";
 import { ChakraProvider } from '@chakra-ui/react';
 import React from 'react';
 import ReactDOM from 'react-dom';
-
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import App from './App';
 import Theme from "./theme"
-
-// MSAL imports
-import { PublicClientApplication, EventType, EventMessage, AuthenticationResult } from "@azure/msal-browser";
 import { msalConfig } from "./utils/auth/AuthConfig";
 
 export const msalInstance = new PublicClientApplication(msalConfig);
@@ -24,6 +24,21 @@ msalInstance.addEventCallback((event: EventMessage) => {
   }
 });
 
+const container = document.getElementById('root');
+const root = createRoot(container!);
+root.render(
+  <>
+    <React.StrictMode>
+      <ChakraProvider theme={Theme} >
+        <BrowserRouter>
+          <App pca={msalInstance} />
+        </BrowserRouter>
+      </ChakraProvider>
+    </React.StrictMode>
+  </>
+);
+
+/*
 ReactDOM.render(
     <React.StrictMode>
       <ChakraProvider theme={Theme} >
@@ -32,3 +47,4 @@ ReactDOM.render(
     </React.StrictMode>,
   document.getElementById('root'),
 );
+*/
