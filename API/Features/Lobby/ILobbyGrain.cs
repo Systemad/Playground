@@ -5,10 +5,10 @@ namespace API.Features.Lobby;
 
 public interface ILobbyGrain : IGrainWithIntegerKey
 {
-    Task AddGame(GameSummary summary);
+    Task AddGame(GameLobbySummary summary);
     Task RemoveGame(Guid gameId);
 
-    Task<Game[]> GetGames();
+    Task<GameLobbySummary[]> GetGames();
 }
 
 [Immutable]

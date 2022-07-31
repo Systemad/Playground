@@ -1,0 +1,278 @@
+{
+  "x-generator": "NSwag v13.16.1.0 (NJsonSchema v10.7.2.0 (Newtonsoft.Json v13.0.0.0))",
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Playground API",
+    "description": "Backend API for Playground",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "https://localhost:7069"
+    }
+  ],
+  "paths": {
+    "/api/v1/quiz/create/{name}": {
+      "post": {
+        "tags": [
+          "Quiz"
+        ],
+        "operationId": "Quiz_CreateGame",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/quiz/id:guid/start": {
+      "post": {
+        "tags": [
+          "Quiz"
+        ],
+        "operationId": "Quiz_StartGame",
+        "parameters": [
+          {
+            "name": "gameId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameState"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/quiz/id:guid/settings": {
+      "post": {
+        "tags": [
+          "Quiz"
+        ],
+        "operationId": "Quiz_SetGameSettings",
+        "parameters": [
+          {
+            "name": "gameId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "settings",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuizSettingsModel"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/lobby/games": {
+      "get": {
+        "tags": [
+          "Lobby"
+        ],
+        "operationId": "Lobby_GetGames",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GameSummary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GameState": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "AwaitingPlayers",
+          "Ready",
+          "InProgress",
+          "Finished",
+          "Canceled"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "QuizSettingsModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "difficulty": {
+            "$ref": "#/components/schemas/Difficulty"
+          }
+        }
+      },
+      "Category": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Linux",
+          "DevOps",
+          "Networking",
+          "Programming",
+          "Cloud"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "Difficulty": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Easy",
+          "Medium",
+          "Hard"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "GameSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/GameMode"
+          },
+          "players": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "state": {
+            "$ref": "#/components/schemas/GameState"
+          }
+        }
+      },
+      "GameMode": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Quiz",
+          "TicTacToe"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "oauth2",
+        "description": "Type into the text box: Bearer {your JWT token}.",
+        "name": "Authorization",
+        "scheme": "Bearer",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "https://danovas.b2clogin.com/danovas.onmicrosoft.com/B2C_1_signupsignin1/oauth2/v2.0/authorize",
+            "tokenUrl": "https://danovas.b2clogin.com/danovas.onmicrosoft.com/B2C_1_signupsignin1/oauth2/v2.0/token",
+            "scopes": {
+              "https://danovas.onmicrosoft.com/89be5e10-1770-45d7-813a-d47242ae2163/API.Access": "Access the api as the signed-in user"
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearer": []
+    }
+  ]
+}

@@ -10,7 +10,7 @@ public static class CorsServiceExtension
                 builder =>
                 {
                     builder.AllowAnyOrigin()
-                        .WithOrigins("https://localhost:3000")
+                        .WithOrigins("https://localhost:5173")
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();

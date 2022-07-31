@@ -31,10 +31,9 @@ public enum Answer
 }
 
 [Serializable]
-public struct MakeAnswer
+public struct AnswerModel
 {
-    public Guid PlayerId { get; set; }
-    //public int QuestionId { get; set; }
+    public Guid GameId { get; set; }
     public Answer Answer { get; set; }
 }
 
@@ -64,14 +63,16 @@ public enum AnswerResult
     Incorrect = 2
 }
 
+
 [Serializable]
-public struct QuizSummary
+public struct QuizRuntime
 {
-    public Guid GameId { get; set; }
+    public Guid Id { get; set; }
+    public Guid Name { get; set; }
     public GameState State { get; set; }
     public Category Category { get; set; }
-    public int CorrectAnswers { get; set; }
-    public int InCorrectAnswers { get; set; }
+    public int Questions { get; set; }
+    public int QuestionStep { get; set; }
     public int NumberOfPlayers { get; set; }
-    public string[] Usernames { get; set; } // TODO: Replace with Accounts?
+    public Player.Player[] Players { get; set; }
 }

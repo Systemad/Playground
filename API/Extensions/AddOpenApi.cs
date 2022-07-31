@@ -11,8 +11,8 @@ public static class AddOpenApi
         {
             configure.DocumentName = "v1";
             configure.Version = "v1";
-            configure.Title = "Lookup API";
-            configure.Description = "Backend API for Lookup";
+            configure.Title = "Playground API";
+            configure.Description = "Backend API for Playground";
             configure.AddSecurity("bearer", Enumerable.Empty<string>(), new OpenApiSecurityScheme
             {
                 Type = OpenApiSecuritySchemeType.OAuth2,
@@ -30,7 +30,7 @@ public static class AddOpenApi
                         Scopes = new Dictionary<string, string>
                         {
                             {
-                                configuration["Swagger:Scope1"],
+                                configuration["Swagger:Scope"],
                                 "Access the api as the signed-in user"
                             }
                         }

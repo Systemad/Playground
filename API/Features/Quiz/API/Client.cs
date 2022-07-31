@@ -11,11 +11,19 @@ public class QuizClient : IQuizClient
         _quizPostApi = quizPostApi;
     }
 
-    public async Task<Root[]> GetQuizzes(QuizPost quizPost)
+    public async Task<Root[]> GetQuizzes(QuizSettings quizPost)
     {
         var apiKey = "grabapikeyfrom config";
-        quizPost.ApiKey = apiKey;
-        var question = await _quizPostApi.GetQuestions(quizPost);
+
+        var qPost = new QuizPost
+        {
+            ApiKey = apiKey,
+            Limit = quizPost.Questions,
+            Category = quizPost.Category,
+            Difficulty = quizPost.Difficulty
+        };
+        
+        var question = await _quizPostApi.GetQuestions(qPost);
         return question;
     }
 }

@@ -1,14 +1,18 @@
 ﻿using System.Net;
 using System.Security.Claims;
-using API.Features.Lobby;
 using API.Features.Quiz.API;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web.Resource;
 using Orleans;
 
 namespace API.Features.Quiz;
 
-[Route("api/quiz")]
+[Authorize]
+[RequiredScope("API.Access")]
+[Route("api/v{version:apiVersion}/quiz")]
 [ApiController]
+[ApiVersion("1.0")]
 public class QuizController : ControllerBase
 {
     private readonly IGrainFactory _factory;
@@ -38,10 +42,19 @@ public class QuizController : ControllerBase
 
     [HttpPost("id:guid/settings", Name = "Set Game settings")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<ActionResult> SetGameSettings(Guid gameId, [FromBody] QuizPost settings)
+    public async Task<ActionResult> SetGameSettings(Guid gameId, [FromBody] QuizSettingsModel settings)
     {
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
-        await gameGrain.SetGamePreference(settings);
+        await gameGrain.SetGameSettings(settings);
         return Ok();
+    }
+    
+    [HttpGet("id:guid/settings", Name = "Get Game settings")]
+    [ProducesResponseType(typeof(QuizSettings), (int)HttpStatusCode.OK)]
+    public async Task<ActionResult> GetGameSettings(Guid gameId, [FromBody] QuizSettingsModel settings)
+    {
+        var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
+        var gameSettings = await gameGrain.GetGameSettings();
+        return Ok(gameSettings);
     }
 }

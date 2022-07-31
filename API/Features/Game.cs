@@ -25,10 +25,12 @@ public enum GameMode
     TicTacToe
 }
 
+// For lobby
 [Serializable]
-public struct GameSummary
+public struct GameLobbySummary
 {
     public Guid Id { get; set; }
+    public string Name { get; set; }
     public GameMode Mode { get; set; }
     public int Players { get; set; }
     public GameState State { get; set; }

@@ -1,5 +1,6 @@
 using API.Extensions;
 using API.Features.Quiz.API;
+using API.Features.SignalR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.UI;
 using Newtonsoft.Json;
@@ -19,7 +20,6 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
     //options.SerializerSettings. PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 });
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddApiVersioning(config =>
 {
     config.DefaultApiVersion = new ApiVersion(1, 0);
@@ -69,7 +69,7 @@ builder.Host.UseOrleans((context, silobuilder) =>
         silobuilder.Configure<ClusterOptions>(options =>
         {
             options.ClusterId = "dev";
-            options.ServiceId = "lookupservice";
+            options.ServiceId = "playgroundservice";
         });
         silobuilder.UseAdoNetClustering(opt =>
         {
@@ -110,7 +110,7 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();
-//app.MapHub<BaseHub>("/hub");
+app.MapHub<GlobalHub>("/hub");
 
 if (app.Environment.IsDevelopment())
 {

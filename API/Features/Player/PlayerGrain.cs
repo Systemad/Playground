@@ -4,15 +4,27 @@ namespace API.Features.Player;
 
 public class PlayerGrain : Grain, IPlayerGrain
 {
+    private string _username = null!;
+    private static string GrainType => nameof(PlayerGrain);
+    private Guid GrainKey => this.GetPrimaryKey();
     
-
     public Task SetUsername(string username)
     {
-        throw new NotImplementedException();
+        _username = username;
+        return Task.CompletedTask;
     }
 
-    public Task<string> GetUsername()
+    public Task<Player> GetPlayerInfo()
     {
-        throw new NotImplementedException();
+        var playerinfo = new Player
+        {
+            Id = GrainKey,
+            Username = _username
+        };
+
+        return Task.FromResult(playerinfo);
     }
+
+    public Task<string> GetUsername() => Task.FromResult(_username);
+    
 }

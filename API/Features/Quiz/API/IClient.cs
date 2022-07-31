@@ -2,5 +2,5 @@
 
 public interface IQuizClient
 {
-    Task<Root[]> GetQuizzes(QuizPost quizPost);
+    Task<List<Root>> GetQuizzes(QuizSettings quizPost);
 }

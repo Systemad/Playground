@@ -24,6 +24,14 @@ public class QuizPost
     public Difficulty Difficulty { get; set; }
 }
 
+public class QuizSettingsModel
+{
+    public string Name { get; set; }
+    public int Limit { get; set; }
+    public Category Category { get; set; }
+    public Difficulty Difficulty { get; set; }
+}
+
 public class Root
 {
     public int id { get; set; }

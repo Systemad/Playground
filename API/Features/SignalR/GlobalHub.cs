@@ -1,10 +1,12 @@
 ﻿using System.Security.Claims;
 using API.Features.Quiz;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Orleans;
 
 namespace API.Features.SignalR;
 
+[Authorize]
 public class GlobalHub : Hub
 {
     private readonly IGrainFactory _factory;
@@ -27,5 +29,12 @@ public class GlobalHub : Hub
         await Groups.RemoveFromGroupAsync(GetUserId.ToString(), gameId.ToString());
         var gameGrain = _factory.GetGrain<IMultiplayerGrain>(gameId);
         await gameGrain.RemovePlayer(GetUserId);
-    } 
+    }
+
+    public async Task SubmitAnswer(AnswerModel answerModel)
+    {
+        var gameGrain = _factory.GetGrain<IQuizGrain>(answerModel.GameId);
+        await gameGrain.SubmitAnswer(GetUserId, answerModel.Answer);
+    }
+    // TODO: Figure out seperate hubs or seperate classes with seperate functions for each feature
 }

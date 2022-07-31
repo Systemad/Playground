@@ -14,12 +14,18 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react';
+
 import { LobbyCard } from '../../../features/lobby';
+import { useLobbyGetGamesQuery } from '../../../features/lobby/lobbyAPI';
+import { UseLobbySocket } from '../../../utils/api/signalr/UseLobbySocket';
 
 // <LobbyCard title="Game1" gameMode="quiz" gameStatus="inprogress" players="1/4" />
 
 export const LobbyLayout = () => {
+
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const {data: lobbies} = useLobbyGetGamesQuery();
+  UseLobbySocket();
 
   return (
     <>
@@ -36,8 +42,9 @@ export const LobbyLayout = () => {
           justifyContent="center"
         >
           <Stack spacing={8} direction={['column', 'row']}>
-            <LobbyCard title="Game1" gameMode="quiz" gameStatus="inprogress" players="1/4" />
-            <LobbyCard title="Game1" gameMode="quiz" gameStatus="inprogress" players="1/4" difficulty="hard" />
+            {lobbies?.map((lobby) => (
+                <LobbyCard key={lobby.id} title={lobby.name} gameMode={lobby.mode} gameStatus={lobby.state} players={lobby.players} />
+            ))}
           </Stack>
         </Flex>
       </GridItem>

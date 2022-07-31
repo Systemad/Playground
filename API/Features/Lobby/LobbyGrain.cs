@@ -1,29 +1,50 @@
 ﻿using System.Collections.Concurrent;
-using System.Runtime.Caching;
+using Microsoft.AspNetCore.SignalR;
 using Orleans;
 using Orleans.Concurrency;
+using Action = API.Features.SignalR.Action;
 
 namespace API.Features.Lobby;
 
 [Reentrant]
 public class LobbyGrain : Grain, ILobbyGrain
 {
-    private readonly ConcurrentDictionary<Guid, GameSummary> _cache = new();
+    private readonly ConcurrentDictionary<Guid, GameLobbySummary> _cache = new();
+    private readonly IHubContext<Hub> _hubContext;
 
-    
-    public Task AddGame(GameSummary summary)
+    public LobbyGrain(IHubContext<Hub> hubContext)
     {
-        _cache.TryAdd(summary.Id, summary);
-        return Task.CompletedTask;
+        _hubContext = hubContext;
     }
 
-    public Task RemoveGame(Guid gameId)
+    public async Task AddGame(GameLobbySummary summary)
     {
-        _cache.TryRemove(gameId, out var remove);
-        return Task.CompletedTask;
+        try
+        {
+            _cache.TryAdd(summary.Id, summary);
+            await _hubContext.Clients.All.SendAsync(nameof(Action.AddGame), summary);
+        }
+        catch (Exception e)
+        {
+            //Console.WriteLine(e);
+            throw;
+        }
     }
 
-    public Task<Game[]> GetGames() =>
-        Task.FromResult(_cache.Select(x => new Game { GameId = Guid.Parse(x.Key), Name = x.Value as string })
-            .ToArray());
+    public async Task RemoveGame(Guid gameId)
+    {
+        try
+        {
+            _cache.TryRemove(gameId, out var remove);
+            await _hubContext.Clients.All.SendAsync(nameof(Action.RemoveGame), gameId);
+        }
+        catch (Exception e)
+        {
+            //Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    public Task<GameLobbySummary[]> GetGames() =>
+        Task.FromResult(_cache.Values.ToArray());
 }

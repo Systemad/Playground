@@ -5,7 +5,6 @@ import { LobbyLayout } from '../components/layouts/Lobby'
 import { Sidebar } from '../components/layouts/Sidebar'
 
 export const Lobby = () => {
-
   return(
     <AppLayout>
       <Sidebar/>

@@ -20,7 +20,7 @@ export const Sidebar = () => {
 
   return (
     <>
-      <GridItem pl='2' area={'nav'}>
+      <GridItem area={'nav'}>
         <Drawer
           variant="permanent"
           isOpen={true}

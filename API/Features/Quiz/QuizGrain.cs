@@ -1,31 +1,28 @@
 ﻿using System.Collections.Concurrent;
-using System.Diagnostics;
 using API.Features.Lobby;
 using API.Features.Quiz.API;
+using API.Features.Quiz.States;
 using API.Features.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using Orleans;
 using Orleans.Concurrency;
+using Orleans.Runtime;
 
 namespace API.Features.Quiz;
 
+// TODO: Remove lots of private fields
+// Switch to persistent state
+// and use Class to store everything??
+// Either way, private fields needs to clean up, 
+// and clean up QuizSettings, SettingsModel, Summary etc
 [Reentrant]
 public class QuizGrain : Grain, IQuizGrain
 {
     private const int MaxCapacity = 4;
-    private HashSet<Guid> _playersIds = new();
-    private ConcurrentDictionary<Guid, int> _playerScores = new();
-
-    private GameState _gameState;
-    private Guid _ownerId;
-    private string _lobbyName = null!;
-    private QuizPost _gamePreference;
-
-    private Root[] _questions;
+    
     private readonly IQuizClient _quizClient;
     private int _quizStep = 0;
     
-
     private ConcurrentDictionary<Guid, bool> _answeredStates;
     private Root _currentQuestion;
 
@@ -33,51 +30,85 @@ public class QuizGrain : Grain, IQuizGrain
     private int _answered;
     private bool _timerActive;
 
+    private readonly IPersistentState<QuizState> _quizState;
+    private readonly IPersistentState<QuizSettingState> _quizSettingsState;
+
+    private static string GrainType => nameof(QuizGrain);
+    private Guid GrainKey => this.GetPrimaryKey();
     private readonly IHubContext<GlobalHub> _hubContext;
-    public QuizGrain(IQuizClient quizClient, IHubContext<GlobalHub> hubContext)
+    public QuizGrain(
+        [PersistentState("quiz", "quizStore")] IPersistentState<QuizSettingState> quizSettingsState,
+        [PersistentState("settings", "settingsStore")] IPersistentState<QuizState> quizState,
+        IQuizClient quizClient,
+        IHubContext<GlobalHub> hubContext)
     {
         _quizClient = quizClient;
         _hubContext = hubContext;
+        _quizSettingsState = quizSettingsState;
+        _quizState = quizState;
     }
     
     public override Task OnActivateAsync()
     {
         _answered = 0;
-        _playersIds = new HashSet<Guid>();
-        _gameState = GameState.AwaitingPlayers;
+        _quizState.State.GameState = GameState.AwaitingPlayers;
         return base.OnActivateAsync();
     }
     
-    public async Task CreateGame(Guid gameOwnerId, string name)
+    public async Task CreateGame(Guid gameOwnerId, string name, QuizSettingsModel quizModel)
     {
-        _ownerId = gameOwnerId;
-        _lobbyName = name;
+        _quizState.State.OwnerUserId = gameOwnerId;
+        _quizState.State.Name = name;
+        // FIX
+        _quizSettingsState.State = CreateGameSettings(gameOwnerId, quizModel);
+
+        var gameSummary = new GameLobbySummary
+        {
+            Id = GrainKey,
+            Name = _quizState.State.Name,
+            Mode = GameMode.Quiz,
+            Players = _quizState.State.PlayerScores.Count,
+            State = _quizState.State.GameState
+        };
+        
         var lobbyGrain = GrainFactory.GetGrain<ILobbyGrain>(0);
-        await lobbyGrain.AddGame(this.GetPrimaryKey(), name);
+        await lobbyGrain.AddGame(gameSummary);
     }
 
+    // TODO: CHECK everything and use StateWriteAsync!!!
     public Task<GameState> AddPlayer(Guid playerId)
     {
         Task.Run(CheckAndUpdateStatus);
-        if (!(_playersIds.Count <= MaxCapacity)) throw new ArgumentException("Game is full");
-        _playersIds.Add(playerId);
-        return Task.FromResult(_gameState);
+        if (!(_quizState.State.PlayerScores.Count <= MaxCapacity)) throw new ArgumentException("Game is full");
+        _quizState.State.PlayerScores.TryAdd(playerId, 0);
+        return Task.FromResult(_quizState.State.GameState);
     }
     
     public Task<GameState> RemovePlayer(Guid playerId)
     {
         Task.Run(CheckAndUpdateStatus);
-        
-        if(_gameState != GameState.AwaitingPlayers)
-            _playersIds.Remove(playerId);
-        
-        return Task.FromResult(_gameState);
+        if (_quizState.State.GameState == GameState.AwaitingPlayers) return Task.FromResult(_quizState.State.GameState);
+        try
+        {
+            _quizState.State.PlayerScores.TryRemove(playerId, out var removed); 
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        return Task.FromResult(_quizState.State.GameState);
+    }
+
+    public Task CreateGame(Guid gameOwner, string name)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task SubmitAnswer(Guid playerId, Answer answer)
     {
         
-        if (!_timerActive || _gameState != GameState.InProgress) throw new ArgumentException("Game is over");
+        if (!_timerActive || _quizState.State.GameState != GameState.InProgress) throw new ArgumentException("Game is over");
         
         if (_answeredStates.TryGetValue(playerId, out bool hasAnswered))
             throw new ArgumentException("Question already answered");
@@ -85,12 +116,12 @@ public class QuizGrain : Grain, IQuizGrain
     
         if(IsCorrect(answer))
         {
-            _playerScores.AddOrUpdate(playerId, 1, (_, count) => count + 1);
+            _quizState.State.PlayerScores.AddOrUpdate(playerId, 1, (_, count) => count + 1);
             _answeredStates[playerId] = true;
         }
         
         _answered++;
-        if (_answered == _playersIds.Count)
+        if (_answered == _quizState.State.PlayerScores.Count)
         {
             await NextQuestion();
         }
@@ -108,26 +139,42 @@ public class QuizGrain : Grain, IQuizGrain
 
     }
 
-    public Task<GameState> GetGameState() => Task.FromResult(_gameState);
+    public Task<GameState> GetGameState() => Task.FromResult(_quizState.State.GameState);
 
-    public Task<QuizSummary> GetSummary()
+    // Fix?? Split to new class??
+    public Task<QuizSettingState> GetGameSettings()
+    {
+        var gameSettings = new QuizSettingState
+        {
+            State = _quizSettingsState.State.State,
+            Category = _quizSettingsState.State.Category,
+            Questions = _quizState.State.Questions.Count,
+        };
+        return Task.FromResult(gameSettings);
+    }
+
+    // This is the game info you see while in the game, and it updates frequently after evey qustion etc
+    public Task<QuizRuntime> GetGameSummary()
     {
         throw new NotImplementedException();
     }
 
-    public Task SetGameName(string name)
+    public async Task SetGameName(string name)
     {
-        _lobbyName = name;
-        return Task.CompletedTask;
+        _quizState.State.Name = name;
+        await _quizState.WriteStateAsync();
     }
     
     public async Task<GameState> StartGame(Guid playerId)
     {
-        if (_gameState != GameState.Ready) throw new ArgumentException("Game is not ready");
-        if (playerId != _ownerId) throw new ArgumentException("Not player id");
-        _questions = await _quizClient.GetQuizzes(_gamePreference);
-        _currentQuestion = _questions[0];
-        _gameState = GameState.InProgress;
+        await _quizSettingsState.ReadStateAsync();
+        if (_quizState.State.GameState != GameState.Ready) throw new ArgumentException("Game is not ready");
+        if (playerId != _quizState.State.OwnerUserId) throw new ArgumentException("Not player id");
+        
+        // FIX
+        _questions = await _quizClient.GetQuizzes(_gameSettings);
+        _currentQuestion = _quizState.State.Questions[0];
+        _quizState.State.GameState = GameState.InProgress;
         _quizStep = 0;
 
         /*
@@ -136,24 +183,27 @@ public class QuizGrain : Grain, IQuizGrain
             TimeSpan.FromSeconds(10),
             TimeSpan.FromSeconds(1));
         */
-        
-        return _gameState;
+        await _quizSettingsState.WriteStateAsync();
+        return _quizState.State.GameState;
     }
     
-    public Task SetGamePreference(QuizPost quizPost)
+    // For updating after creating game
+    public Task SetGameSettings(QuizSettingsModel quizPost)
     {
-        _gamePreference = quizPost;
+        _quizSettingsState.State.Category = quizPost.Category;
+        _quizSettingsState.State.Difficulty = quizPost.Difficulty;
         return Task.CompletedTask;
     }
 
     private Task CheckAndUpdateStatus()
     {
-        if (_gameState is GameState.Finished) throw new ApplicationException("Game finished");
-        if (_gameState is GameState.InProgress) throw new ApplicationException("Game is in progress");
+        var state = _quizState.State.GameState;
+        if (state is GameState.Finished) throw new ApplicationException("Game finished");
+        if (state is GameState.InProgress) throw new ApplicationException("Game is in progress");
 
-        if (_gameState is GameState.AwaitingPlayers && _playersIds.Count >= 2)
+        if (state is GameState.AwaitingPlayers && _quizState.State.PlayerScores.Count >= 2)
         {
-            _gameState = GameState.Ready;
+            state = GameState.Ready;
         }
         return Task.CompletedTask;
     }
@@ -183,8 +233,8 @@ public class QuizGrain : Grain, IQuizGrain
     {
         //_timer.Dispose();
         //_timerActive = false;
-        _gameState = GameState.Finished;
-        await _hubContext.Clients.Group(this.GetPrimaryKey().ToString()).SendAsync("gameOver", true);
+        _quizState.State.GameState = GameState.Finished;
+        await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync("gameOver", true);
     }
     
     private async Task NextQuestion()
@@ -192,17 +242,17 @@ public class QuizGrain : Grain, IQuizGrain
         //_timer.Dispose();
         //_timerActive = false;
 
-        if (_quizStep == _questions.Length)
+        if (_quizStep == _quizState.State.Questions.Count)
             await StopGame();
 
         _quizStep++;
-        _currentQuestion = _questions[_quizStep];
+        _currentQuestion = _quizState.State.Questions[_quizStep];
         /* Implement timer at later stage
         _timer = RegisterTimer(null,
             null,
             TimeSpan.FromSeconds(10),
             TimeSpan.FromSeconds(1));
         */
-        await _hubContext.Clients.Group(this.GetPrimaryKey().ToString()).SendAsync("startNextRound", true);
+        await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync("startNextRound", true);
     }
 }

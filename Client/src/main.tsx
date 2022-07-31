@@ -4,8 +4,11 @@ import { ChakraProvider } from '@chakra-ui/react';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux'
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
 import App from './App';
+import {store} from "./providers/store"
 import Theme from "./theme"
 import { msalConfig } from "./utils/auth/AuthConfig";
 
@@ -31,7 +34,9 @@ root.render(
     <React.StrictMode>
       <ChakraProvider theme={Theme} >
         <BrowserRouter>
-          <App pca={msalInstance} />
+          <Provider store={store}>
+            <App pca={msalInstance} />
+          </Provider>
         </BrowserRouter>
       </ChakraProvider>
     </React.StrictMode>

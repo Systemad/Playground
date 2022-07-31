@@ -14,9 +14,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => (
     height="100vh"
     min-height='100vh'
     templateColumns={'200px auto'}
-    templateRows="auto 1fr"
-    bg="brandGray.light"
-  >
+    bg="brandGray.light">
     {children}
   </Grid>
 );

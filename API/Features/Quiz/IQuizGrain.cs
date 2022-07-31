@@ -6,6 +6,7 @@ namespace API.Features.Quiz;
 public interface IQuizGrain : IMultiplayerGrain
 {
     Task SubmitAnswer(Guid playerId, Answer answer);
-    Task SetGamePreference(QuizPost quizPost);
-    Task<QuizSummary> GetSummary();
+    Task SetGameSettings(QuizSettingsModel quizPost);
+    Task<QuizSettings> GetGameSettings();
+    Task<QuizRuntime> GetGameSummary();
 }
