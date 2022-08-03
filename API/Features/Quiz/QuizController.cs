@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Security.Claims;
 using API.Features.Quiz.API;
+using API.Features.Quiz.States;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
@@ -50,11 +51,20 @@ public class QuizController : ControllerBase
     }
     
     [HttpGet("id:guid/settings", Name = "Get Game settings")]
-    [ProducesResponseType(typeof(QuizSettings), (int)HttpStatusCode.OK)]
-    public async Task<ActionResult> GetGameSettings(Guid gameId, [FromBody] QuizSettingsModel settings)
+    [ProducesResponseType(typeof(QuizSettingState), (int)HttpStatusCode.OK)]
+    public async Task<ActionResult> GetGameSettings(Guid gameId)
     {
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
         var gameSettings = await gameGrain.GetGameSettings();
+        return Ok(gameSettings);
+    }
+    
+    [HttpGet("id:guid/runtime", Name = "Get Game runtime")]
+    [ProducesResponseType(typeof(QuizRuntime), (int)HttpStatusCode.OK)]
+    public async Task<ActionResult> GetGameRuntime(Guid gameId)
+    {
+        var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
+        var gameSettings = await gameGrain.GetGameSummary();
         return Ok(gameSettings);
     }
 }

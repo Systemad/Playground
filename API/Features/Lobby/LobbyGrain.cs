@@ -1,8 +1,8 @@
 ﻿using System.Collections.Concurrent;
+using API.Features.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using Orleans;
 using Orleans.Concurrency;
-using Action = API.Features.SignalR.Action;
 
 namespace API.Features.Lobby;
 
@@ -16,13 +16,13 @@ public class LobbyGrain : Grain, ILobbyGrain
     {
         _hubContext = hubContext;
     }
-
-    public async Task AddGame(GameLobbySummary summary)
+    
+    public async Task RemoveGame(Guid gameId)
     {
         try
         {
-            _cache.TryAdd(summary.Id, summary);
-            await _hubContext.Clients.All.SendAsync(nameof(Action.AddGame), summary);
+            _cache.TryRemove(gameId, out var remove);
+            await _hubContext.Clients.All.SendAsync(nameof(LobbyEvents.RemoveGame), gameId);
         }
         catch (Exception e)
         {
@@ -31,17 +31,20 @@ public class LobbyGrain : Grain, ILobbyGrain
         }
     }
 
-    public async Task RemoveGame(Guid gameId)
+    public async Task AddOrUpdateGame(Guid gameId, GameLobbySummary summary)
     {
-        try
+        if (_cache.TryGetValue(gameId, out GameLobbySummary retrieved))
         {
-            _cache.TryRemove(gameId, out var remove);
-            await _hubContext.Clients.All.SendAsync(nameof(Action.RemoveGame), gameId);
+            if (!_cache.TryUpdate(gameId, summary, retrieved))
+            {
+                throw new ArgumentException("Game could not be updates");
+            }
+            await _hubContext.Clients.All.SendAsync(nameof(LobbyEvents.EditGame), summary);
         }
-        catch (Exception e)
+        else
         {
-            //Console.WriteLine(e);
-            throw;
+            _cache.TryAdd(gameId, summary);
+            await _hubContext.Clients.All.SendAsync(nameof(LobbyEvents.AddGame), summary);
         }
     }
 

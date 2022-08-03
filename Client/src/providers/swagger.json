@@ -117,6 +117,76 @@
             "bearer": []
           }
         ]
+      },
+      "get": {
+        "tags": [
+          "Quiz"
+        ],
+        "operationId": "Quiz_GetGameSettings",
+        "parameters": [
+          {
+            "name": "gameId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuizSettingState"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/quiz/id:guid/runtime": {
+      "get": {
+        "tags": [
+          "Quiz"
+        ],
+        "operationId": "Quiz_GetGameRuntime",
+        "parameters": [
+          {
+            "name": "gameId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuizRuntime"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
       }
     },
     "/api/v1/lobby/games": {
@@ -133,7 +203,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/GameSummary"
+                    "$ref": "#/components/schemas/GameLobbySummary"
                   }
                 }
               }
@@ -172,6 +242,9 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "name": {
+            "type": "string"
+          },
           "limit": {
             "type": "integer",
             "format": "int32"
@@ -216,7 +289,60 @@
           2
         ]
       },
-      "GameSummary": {
+      "QuizSettingState": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "difficulty": {
+            "$ref": "#/components/schemas/Difficulty"
+          },
+          "questions": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "QuizRuntime": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questionStep": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfPlayers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "players": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Player"
+            }
+          }
+        }
+      },
+      "Player": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "GameLobbySummary": {
         "type": "object",
         "additionalProperties": false,
         "properties": {

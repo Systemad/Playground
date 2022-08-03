@@ -1,8 +1,10 @@
-﻿namespace API.Features.Quiz.API;
+﻿using API.Features.Quiz.States;
+
+namespace API.Features.Quiz.API;
 
 public class QuizClient : IQuizClient
 {
-    public IEnumerable<Root>? QuizResponses { get; set; }
+    public List<Root>? QuizResponses { get; set; }
 
     private readonly IQuizPostApi _quizPostApi;
     
@@ -11,7 +13,7 @@ public class QuizClient : IQuizClient
         _quizPostApi = quizPostApi;
     }
 
-    public async Task<Root[]> GetQuizzes(QuizSettings quizPost)
+    public async Task<List<Root>> GetQuizzes(QuizSettingState quizPost)
     {
         var apiKey = "grabapikeyfrom config";
 
@@ -22,8 +24,8 @@ public class QuizClient : IQuizClient
             Category = quizPost.Category,
             Difficulty = quizPost.Difficulty
         };
-        
+
         var question = await _quizPostApi.GetQuestions(qPost);
-        return question;
+        return question.ToList();
     }
 }

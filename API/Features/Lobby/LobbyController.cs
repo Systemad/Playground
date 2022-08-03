@@ -21,7 +21,7 @@ public class LobbyController : ControllerBase
     public LobbyController(IGrainFactory factory) => _factory = factory;
 
     [HttpGet("games", Name = "Get Games")]
-    [ProducesResponseType(typeof(IEnumerable<GameSummary>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<GameLobbySummary>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetGames()
     {
         var lobbyGrain = _factory.GetGrain<ILobbyGrain>(0);

@@ -15,9 +15,9 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
-import { LobbyCard } from '../../../features/lobby';
-import { useLobbyGetGamesQuery } from '../../../features/lobby/lobbyAPI';
-import { UseLobbySocket } from '../../../utils/api/signalr/UseLobbySocket';
+import { LobbyCard } from '../index';
+import { useLobbyGetGamesQuery } from '../lobbyAPI';
+import { UseLobbySocket } from '../hooks/UseLobbySocket';
 
 // <LobbyCard title="Game1" gameMode="quiz" gameStatus="inprogress" players="1/4" />
 

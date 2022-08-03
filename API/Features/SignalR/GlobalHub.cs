@@ -36,5 +36,5 @@ public class GlobalHub : Hub
         var gameGrain = _factory.GetGrain<IQuizGrain>(answerModel.GameId);
         await gameGrain.SubmitAnswer(GetUserId, answerModel.Answer);
     }
-    // TODO: Figure out seperate hubs or seperate classes with seperate functions for each feature
+    // TODO: Figure out separate hubs or separate classes with separate functions for each feature
 }

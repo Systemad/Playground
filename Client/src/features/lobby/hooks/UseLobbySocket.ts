@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 
-import { GameSummary, lobbySplitApi } from '../../../features/lobby/lobbyAPI';
 import { useAppDispatch } from '../../../providers/store';
-import connection from "./Socket"
+import connection from "../../../utils/api/signalr/Socket"
+import { GameLobbySummary, lobbySplitApi } from '../lobbyAPI';
 
 enum LobbyActions
 {
@@ -15,10 +15,10 @@ export function UseLobbySocket(): void {
   const dispatch = useAppDispatch();
 
   useEffect((): any => {
-    connection.on(LobbyActions.AddGame, (game: GameSummary) => {
+    connection.on(LobbyActions.AddGame, (game: GameLobbySummary) => {
       const patchCollection = dispatch(
-        lobbySplitApi.util.updateQueryData("lobbyGetGames", undefined, (draftLobbies) => {
-          draftLobbies.push(game);
+        lobbySplitApi.util.updateQueryData('lobbyGetGames', undefined, (draft) => {
+          draft.push(game);
         })
       )
     })
@@ -31,11 +31,11 @@ export function UseLobbySocket(): void {
       )
     });
 
-    connection.on(LobbyActions.EditGame, (game: GameSummary) => {
+    connection.on(LobbyActions.EditGame, (game: GameLobbySummary) => {
       const patchCollection = dispatch(
-        lobbySplitApi.util.updateQueryData('lobbyGetGames', undefined, (draftLobbies) => {
-          let gameIndex = draftLobbies.findIndex((l) => l.id === game.id);
-          draftLobbies[gameIndex] = game;
+        lobbySplitApi.util.updateQueryData('lobbyGetGames', undefined, (draft) => {
+          let gameIndex = draft.findIndex((l) => l.id === game.id);
+          draft[gameIndex] = game;
         })
       )
     });

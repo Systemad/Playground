@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using API.Features.Quiz.API;
 
 namespace API.Features.Quiz;
 
@@ -67,12 +68,18 @@ public enum AnswerResult
 [Serializable]
 public struct QuizRuntime
 {
+    public bool GameActive { get; set; }
+    public Root CurrentQuestion { get; set; }
+    public int Questions { get; set; }
+    public int QuestionStep { get; set; }
+    public int NumberOfPlayers { get; set; }
+    public List<Player.Player> Players { get; set; }
+}
+
+public class QuizInfo
+{
     public Guid Id { get; set; }
     public Guid Name { get; set; }
     public GameState State { get; set; }
     public Category Category { get; set; }
-    public int Questions { get; set; }
-    public int QuestionStep { get; set; }
-    public int NumberOfPlayers { get; set; }
-    public Player.Player[] Players { get; set; }
 }

@@ -9,9 +9,9 @@ const injectedRtkApi = api.injectEndpoints({
   overrideExisting: false,
 });
 export { injectedRtkApi as lobbySplitApi };
-export type LobbyGetGamesApiResponse = /** status 200  */ GameSummary[];
+export type LobbyGetGamesApiResponse = /** status 200  */ GameLobbySummary[];
 export type LobbyGetGamesApiArg = void;
-export type GameSummary = {
+export type GameLobbySummary = {
   id?: string;
   name?: string;
   mode?: GameMode;

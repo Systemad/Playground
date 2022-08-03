@@ -32,6 +32,24 @@ const injectedRtkApi = api.injectEndpoints({
         params: { gameId: queryArg.gameId },
       }),
     }),
+    quizGetGameSettings: build.query<
+      QuizGetGameSettingsApiResponse,
+      QuizGetGameSettingsApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/v1/quiz/id:guid/settings`,
+        params: { gameId: queryArg.gameId },
+      }),
+    }),
+    quizGetGameRuntime: build.query<
+      QuizGetGameRuntimeApiResponse,
+      QuizGetGameRuntimeApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/v1/quiz/id:guid/runtime`,
+        params: { gameId: queryArg.gameId },
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -49,13 +67,40 @@ export type QuizSetGameSettingsApiArg = {
   gameId?: string;
   quizSettingsModel: QuizSettingsModel;
 };
+export type QuizGetGameSettingsApiResponse =
+  /** status 200  */ QuizSettingState;
+export type QuizGetGameSettingsApiArg = {
+  gameId?: string;
+};
+export type QuizGetGameRuntimeApiResponse = /** status 200  */ QuizRuntime;
+export type QuizGetGameRuntimeApiArg = {
+  gameId?: string;
+};
 export type QuizSettingsModel = {
+  name?: string;
   limit?: number;
   category?: Category;
   difficulty?: Difficulty;
+};
+export type QuizSettingState = {
+  category?: Category;
+  difficulty?: Difficulty;
+  questions?: number;
+};
+export type Player = {
+  id?: string;
+  name?: string;
+};
+export type QuizRuntime = {
+  questions?: number;
+  questionStep?: number;
+  numberOfPlayers?: number;
+  players?: Player[];
 };
 export const {
   useQuizCreateGameMutation,
   useQuizStartGameMutation,
   useQuizSetGameSettingsMutation,
+  useQuizGetGameSettingsQuery,
+  useQuizGetGameRuntimeQuery,
 } = injectedRtkApi;

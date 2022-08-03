@@ -1,6 +1,8 @@
-﻿namespace API.Features.Quiz.API;
+﻿using API.Features.Quiz.States;
+
+namespace API.Features.Quiz.API;
 
 public interface IQuizClient
 {
-    Task<List<Root>> GetQuizzes(QuizSettings quizPost);
+    Task<List<Root>> GetQuizzes(QuizSettingState quizPost);
 }

@@ -3,28 +3,29 @@ import { useEffect, useState } from 'react';
 import connection from '../utils/api/signalr/Socket';
 
 
-enum TimerActions
+enum Events
 {
   StartTimer = "StartTimer",
   StopTimer = "StopTimer",
-  ResetTimer = "ResetTimer"
+  ResetTimer = "ResetTimer",
 }
-// TODO: Implement timer hook or extract and make timer in own component!!
+// TODO: No timer implemented in backend, so ignore for now!
 export function UseTimer(duration: number) {
 
   const [isRunning, setIsRunning] = useState(false);
 
   useEffect((): any => {
-    connection.on(TimerActions.StartTimer, (timer: boolean) => {
+    connection.on(Events.StartTimer, (timer: boolean) => {
         setIsRunning(true);
     })
 
-    connection.on(TimerActions.StopTimer, (timer: boolean) => {
+    connection.on(Events.StopTimer, (timer: boolean) => {
       setIsRunning(false);
     })
 
-    connection.on(TimerActions.ResetTimer, (timer: boolean) => {
+    connection.on(Events.ResetTimer, (timer: boolean) => {
       setIsRunning(true);
     });
+
   }, [isRunning])
 }
