@@ -7,5 +7,7 @@ public enum QuizEvents
     
     StartGame,
     EndGame,
+    
+    RoundResults,
     NextQuestion,
 }

@@ -15,32 +15,37 @@ Stack,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react';
+import { useParams } from 'react-router-dom';
 
-import { LobbyCard } from '../../lobby';
-import { useLobbyGetGamesQuery } from '../../lobby/lobbyAPI';
+import { MyParams } from '../../../utils/routerParams';
+import { useQuizGetGameRuntimeQuery } from '../api/quizAPI';
+import { UseQuizSocket } from '../hooks/UseQuizSocket';
+import { Answers } from './Answers';
+import { Question } from './Question';
 
 // <LobbyCard title="Game1" gameMode="quiz" gameStatus="inprogress" players="1/4" />
 
 export const QuizLayout = () => {
 
+  const { gameId } = useParams<keyof MyParams>() as MyParams;
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const {data: lobbies} = useLobbyGetGamesQuery();
-  UseLobbySocket();
+  const {data: quiz} = useQuizGetGameRuntimeQuery({gameId: gameId});
+  UseQuizSocket(gameId)
 
   return (
     <>
       <GridItem bg='papayawhip' area={'main'}>
         <Flex h="10vh">
           <Text color="gray.50" size="lg">
-            Question {questionIndex + 1}/{questions?.length}
+            Question {(quiz?.questionStep!) + 1}/{quiz?.questions}
           </Text>
           <Spacer />
           <Text color="gray.50">Score: {score}</Text>
         </Flex>
         <Stack textAlign="center" h="60vh">
           <Question
-            key={questions?.[questionIndex].id}
-            question={questions?.[questionIndex].question}
+            key={quiz?.questionStep}
+            question={quiz!.currentQuestion!.question!}
           />
           <Answers
             correctAnswer={questions?.[questionIndex].answer}

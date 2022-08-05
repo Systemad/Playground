@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useAppDispatch } from '../../../providers/store';
 import connection from "../../../utils/api/signalr/Socket"
-import { lobbySplitApi } from '../../lobby/lobbyAPI';
-import { Player, quizSplitApi } from '../quizAPI';
+import { Player, quizSplitApi } from '../api/quizAPI';
 import { Root } from '../Question';
 
 enum QuizEvents
@@ -13,13 +12,16 @@ enum QuizEvents
 
     StartGame = "StartGame",
     EndGame = "EndGame",
-    NextQuestion = "NextQuestion",
+
+    RoundResults = "RoundResults",
+    NextQuestion = "NextQuestion"
 }
 
 export function UseQuizSocket(gameId: string): void {
   const dispatch = useAppDispatch();
-  const [currentQuestion, setCurrentQuestion] = useState({});
-  const [gameActive, setGameActive] = useState(false);
+
+  //const [currentQuestion, setCurrentQuestion] = useState({});
+  //const [gameActive, setGameActive] = useState(false);
 
   useEffect((): any => {
     connection.on(QuizEvents.PlayerAdded, (player: Player) => {
@@ -48,24 +50,33 @@ export function UseQuizSocket(gameId: string): void {
     })
     connection.on(QuizEvents.StartGame, (question: Root) => {
       if(question){
-        setCurrentQuestion(question);
-        setGameActive(true);
+        quizSplitApi.util.updateQueryData('quizGetGameRuntime', {gameId: gameId}, (draft) => {
+            draft.currentQuestion = question;
+            draft.gameActive = true;
+        })
       }
     })
 
     connection.on(QuizEvents.EndGame, () => {
-      setGameActive(false);
-      setCurrentQuestion({});
+      quizSplitApi.util.updateQueryData('quizGetGameRuntime', {gameId: gameId}, (draft) => {
+        draft.gameActive = false;
+      })
+      // navigate gameid/results, end just fetch endresults, make new APi for results
     })
     connection.on(QuizEvents.NextQuestion, (question: Root) => {
       const patchCollection = dispatch(
         quizSplitApi.util.updateQueryData('quizGetGameRuntime', {gameId: gameId}, (draft) => {
           if(draft.questionStep)
             draft.questionStep++;
+          draft.currentQuestion = question;
         })
       )
-      if(question)
-        setCurrentQuestion(question);
+    })
+
+    // Move this to parent questions
+    // Inside each question component, have function to change answer into green
+    // useRef, to call child function from parent
+    connection.on(QuizEvents.RoundResults, () => {
 
     })
   }, [connection])

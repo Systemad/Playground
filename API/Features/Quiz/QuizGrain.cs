@@ -21,7 +21,7 @@ public class QuizGrain : Grain, IQuizGrain
     private ConcurrentDictionary<Guid, bool> _answeredStates;
     
     private int _quizStep = 0;
-    private Root _currentQuestion;
+    private Result _currentQuestion;
 
     //private IDisposable _timer;
     private int _answered;
@@ -87,7 +87,7 @@ public class QuizGrain : Grain, IQuizGrain
         return _quizState.State.GameState;
     }
 
-    public async Task SubmitAnswer(Guid playerId, Answer answer)
+    public async Task SubmitAnswer(Guid playerId, string answer)
     {
         if (_quizState.State.GameState == GameState.InProgress)
         {
@@ -139,7 +139,6 @@ public class QuizGrain : Grain, IQuizGrain
     public async Task<QuizRuntime> GetGameSummary()
     {
         var playerids = _quizState.State.PlayerScores.Keys;
-        var active = _quizState.State.GameState == GameState.InProgress ? true : false;
         var players = new List<Player.Player>();
         await Parallel.ForEachAsync(playerids,
             async (id, _) =>
@@ -228,26 +227,7 @@ public class QuizGrain : Grain, IQuizGrain
         await lobbyGrain.AddOrUpdateGame(gameSummary.Id, gameSummary);
     }
 
-    private bool IsCorrect(Answer answer)
-    {
-        bool correct = false;
-        switch (answer)
-        {
-            case Answer.A:
-                correct = bool.Parse(_currentQuestion.correct_answers.answer_a_correct);
-                break;
-            case Answer.B:
-                correct = bool.Parse(_currentQuestion.correct_answers.answer_b_correct);
-                break;
-            case Answer.C:
-                correct = bool.Parse(_currentQuestion.correct_answers.answer_c_correct);
-                break;
-            case Answer.D:
-                correct = bool.Parse(_currentQuestion.correct_answers.answer_d_correct);
-                break;
-        }
-        return correct;
-    }
+    private bool IsCorrect(string answer) => answer == _currentQuestion.correct_answer;
 
     private async Task StopGame()
     {
@@ -268,15 +248,28 @@ public class QuizGrain : Grain, IQuizGrain
         }
         else
         {
-            _quizStep++;
-            _currentQuestion = _quizState.State.Questions[_quizStep];
+
             /* Implement timer at later stage
             _timer = RegisterTimer(null,
                 null,
                 TimeSpan.FromSeconds(10),
                 TimeSpan.FromSeconds(1));
             */
-        
+            // Send to each client true or false, whether their answer was correct
+            foreach (var (key, value) in _answeredStates)
+            {
+                await _hubContext.Clients.User(key.ToString())   // Countdown to next question - Next Question 
+                    .SendAsync(nameof(QuizEvents.RoundResults), value);
+            }
+            // clear states
+            _answeredStates.Clear();
+            // add step and set next question
+            _quizStep++;
+            _currentQuestion = _quizState.State.Questions[_quizStep];
+            
+            // Delay to let clients handle the qusetion answer, then send next question
+            await Task.Delay(5000);
+
             await _hubContext.Clients.Group(GrainKey.ToString())   // Countdown to next question - Next Question 
                 .SendAsync(nameof(QuizEvents.NextQuestion), _currentQuestion);
         }

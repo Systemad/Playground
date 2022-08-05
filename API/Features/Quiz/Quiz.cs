@@ -35,7 +35,7 @@ public enum Answer
 public struct AnswerModel
 {
     public Guid GameId { get; set; }
-    public Answer Answer { get; set; }
+    public string Answer { get; set; }
 }
 
 public enum Difficulty
@@ -66,10 +66,10 @@ public enum AnswerResult
 
 
 [Serializable]
-public struct QuizRuntime
+public class QuizRuntime
 {
     public bool GameActive { get; set; }
-    public Root CurrentQuestion { get; set; }
+    public Result CurrentQuestion { get; set; }
     public int Questions { get; set; }
     public int QuestionStep { get; set; }
     public int NumberOfPlayers { get; set; }
