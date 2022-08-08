@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Security.Claims;
 using API.Features.Quiz.API;
-using API.Features.Quiz.States;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
@@ -65,6 +64,15 @@ public class QuizController : ControllerBase
     {
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
         var gameSettings = await gameGrain.GetGameSummary();
+        return Ok(gameSettings);
+    }
+    
+    [HttpGet("id:guid/score", Name = "Get Game scoreboard")]
+    [ProducesResponseType(typeof(Dictionary<Guid, PlayerRuntime>), (int)HttpStatusCode.OK)]
+    public async Task<ActionResult> GetGameScoreboard(Guid gameId)
+    {
+        var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
+        var gameSettings = await gameGrain.GetGameSettings();
         return Ok(gameSettings);
     }
 }

@@ -87,34 +87,13 @@ export type QuizSettingState = {
   difficulty?: Difficulty;
   questions?: number;
 };
-export type Answers = {
-  answer_a?: string;
-  answer_b?: string;
-  answer_c?: string;
-  answer_d?: string;
-  answer_e?: any;
-  answer_f?: any;
-};
-export type CorrectAnswers = {
-  answer_a_correct?: string;
-  answer_b_correct?: string;
-  answer_c_correct?: string;
-  answer_d_correct?: string;
-  answer_e_correct?: string;
-  answer_f_correct?: string;
-};
-export type Root = {
-  id?: number;
-  question?: string;
-  description?: string;
-  answers?: Answers;
-  multiple_correct_answers?: string;
-  correct_answers?: CorrectAnswers;
-  explanation?: string;
-  tip?: any;
-  tags?: any[];
+export type Result = {
   category?: string;
+  type?: string;
   difficulty?: string;
+  question?: string;
+  correct_answer?: string;
+  incorrect_answers?: string[];
 };
 export type Player = {
   id?: string;
@@ -122,7 +101,7 @@ export type Player = {
 };
 export type QuizRuntime = {
   gameActive?: boolean;
-  currentQuestion?: Root;
+  currentQuestion?: Result;
   questions?: number;
   questionStep?: number;
   numberOfPlayers?: number;

@@ -72,12 +72,5 @@ export function UseQuizSocket(gameId: string): void {
         })
       )
     })
-
-    // Move this to parent questions
-    // Inside each question component, have function to change answer into green
-    // useRef, to call child function from parent
-    connection.on(QuizEvents.RoundResults, () => {
-
-    })
   }, [connection])
 }

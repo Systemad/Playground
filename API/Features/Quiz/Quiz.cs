@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Collections.Concurrent;
+using System.Runtime.Serialization;
 using API.Features.Quiz.API;
 
 namespace API.Features.Quiz;
@@ -60,10 +61,17 @@ public enum AnsweredState
 [Serializable]
 public enum AnswerResult
 {
-    Correct = 1,
-    Incorrect = 2
+    Correct,
+    Incorrect,
 }
 
+public class PlayerRuntime
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public int Score { get; set; }
+    public bool Answered { get; set; }
+}
 
 [Serializable]
 public class QuizRuntime

@@ -313,7 +313,7 @@
             "type": "boolean"
           },
           "currentQuestion": {
-            "$ref": "#/components/schemas/Root"
+            "$ref": "#/components/schemas/Result"
           },
           "questions": {
             "type": "integer",
@@ -335,86 +335,30 @@
           }
         }
       },
-      "Root": {
+      "Result": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "question": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "answers": {
-            "$ref": "#/components/schemas/Answers"
-          },
-          "multiple_correct_answers": {
-            "type": "string"
-          },
-          "correct_answers": {
-            "$ref": "#/components/schemas/Correct_Answers"
-          },
-          "explanation": {
-            "type": "string"
-          },
-          "tip": {},
-          "tags": {
-            "type": "array",
-            "items": {}
-          },
           "category": {
+            "type": "string"
+          },
+          "type": {
             "type": "string"
           },
           "difficulty": {
             "type": "string"
-          }
-        }
-      },
-      "Answers": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "answer_a": {
+          },
+          "question": {
             "type": "string"
           },
-          "answer_b": {
+          "correct_answer": {
             "type": "string"
           },
-          "answer_c": {
-            "type": "string"
-          },
-          "answer_d": {
-            "type": "string"
-          },
-          "answer_e": {},
-          "answer_f": {}
-        }
-      },
-      "Correct_Answers": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "answer_a_correct": {
-            "type": "string"
-          },
-          "answer_b_correct": {
-            "type": "string"
-          },
-          "answer_c_correct": {
-            "type": "string"
-          },
-          "answer_d_correct": {
-            "type": "string"
-          },
-          "answer_e_correct": {
-            "type": "string"
-          },
-          "answer_f_correct": {
-            "type": "string"
+          "incorrect_answers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

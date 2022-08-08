@@ -1,6 +1,4 @@
 ﻿using API.Features.Quiz.API;
-using API.Features.Quiz.States;
-using Orleans;
 
 namespace API.Features.Quiz;
 
@@ -10,4 +8,5 @@ public interface IQuizGrain : IMultiplayerGrain
     Task SetGameSettings(QuizSettingsModel quizPost);
     Task<QuizSettingState> GetGameSettings();
     Task<QuizRuntime> GetGameSummary();
+    Task<Dictionary<Guid, PlayerRuntime>> GetGameScoreboard();
 }

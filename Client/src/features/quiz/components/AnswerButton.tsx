@@ -1,11 +1,25 @@
 import { Box } from '@chakra-ui/react';
-import React from 'react';
+import React, { useState } from 'react';
+
+import connection from '../../../utils/api/signalr/Socket';
 
 export type Props = {
   children: React.ReactNode;
+  [x:string]: any;
 }
 
-export const AnswerButton = ({ children, ...props } : Props) => {
+export const AnswerButton: React.FC<Props> = (props) => {
+
+  const [color, setColor] = useState('blue.900');
+  connection.on("RoundResults", (correct: string) => {
+    if(correct === props.children){
+      setColor('green.900');
+    } else {
+      setColor('red.900');
+    }
+  })
+
+  
   return (
     <Box
       as="button"
@@ -13,7 +27,7 @@ export const AnswerButton = ({ children, ...props } : Props) => {
         whiteSpace: 'normal',
         wordWrap: 'break-word',
       }}
-      color="blue.900"
+      color={color}
       backgroundColor="#949BFF"
       _hover={{
         background: '#707AFF',
@@ -33,7 +47,7 @@ export const AnswerButton = ({ children, ...props } : Props) => {
       transition="all 0.2s cubic-bezier(.08,.52,.52,1)"
       {...props}
     >
-      {children}
+      {props.children}
     </Box>
   );
 };
