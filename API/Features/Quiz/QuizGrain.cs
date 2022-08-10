@@ -36,7 +36,7 @@ public class QuizGrain : Grain, IQuizGrain
     private readonly IHubContext<GlobalHub> _hubContext;
     public QuizGrain(
         [PersistentState("quiz", "quizStore")] IPersistentState<QuizSettingState> quizSettingsState,
-        [PersistentState("settings", "settingsStore")] IPersistentState<QuizState> quizState,
+        [PersistentState("settings", "settingStore")] IPersistentState<QuizState> quizState,
         IQuizClient quizClient,
         IHubContext<GlobalHub> hubContext)
     {
@@ -51,10 +51,13 @@ public class QuizGrain : Grain, IQuizGrain
         await base.OnActivateAsync();
     }
     
-    public async Task CreateGame(Guid ownerId, string name)
+    public async Task CreateGame(Guid ownerId, QuizSettingsModel settings)
     {
         _quizState.State.OwnerUserId = ownerId;
-        _quizState.State.Name = name;
+        _quizState.State.Name = settings.Name;
+        _quizSettingsState.State.Category = settings.Category;
+        _quizSettingsState.State.Difficulty = settings.Difficulty;
+        _quizSettingsState.State.Questions = settings.Questions;
         _quizState.State.GameState = GameState.AwaitingPlayers;
         await _quizState.WriteStateAsync();
         await UpdateGameToLobby();
@@ -196,7 +199,6 @@ public class QuizGrain : Grain, IQuizGrain
         return _quizState.State.GameState;
     }
     
-    // For updating after creating game
     public async Task SetGameSettings(QuizSettingsModel quizPost)
     {
         _quizSettingsState.State.Category = quizPost.Category;
@@ -276,22 +278,18 @@ public class QuizGrain : Grain, IQuizGrain
                 TimeSpan.FromSeconds(10),
                 TimeSpan.FromSeconds(1));
             */
-            // Send to each client true or false, whether their answer was correct
-            foreach (var (key, value) in _answeredStates)
+            foreach (var player in _answeredStates)
             {
-                await _hubContext.Clients.User(key.ToString())   // Countdown to next question - Next Question 
+                await _hubContext.Clients.User(player.Key.ToString())
                     .SendAsync(nameof(QuizEvents.RoundResults), _currentQuestion.correct_answer);
             }
-            // clear states
             _answeredStates.Clear();
-            // add step and set next question
             _quizStep++;
             _currentQuestion = _quizState.State.Questions[_quizStep];
             
-            // Delay to let clients handle the qusetion answer, then send next question
             await Task.Delay(5000);
             _currentQuestion.incorrect_answers.Add(_currentQuestion.correct_answer);
-            await _hubContext.Clients.Group(GrainKey.ToString())   // Countdown to next question - Next Question 
+            await _hubContext.Clients.Group(GrainKey.ToString())
                 .SendAsync(nameof(QuizEvents.NextQuestion), _currentQuestion);
         }
     }

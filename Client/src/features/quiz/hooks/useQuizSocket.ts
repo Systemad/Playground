@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useAppDispatch } from '../../../providers/store';
 import connection from "../../../utils/api/signalr/Socket"
-import { Player, quizSplitApi } from '../api/quizAPI';
-import { Root } from '../Question';
+import { Player, quizSplitApi, Result } from '../api/quizAPI';
 
 enum QuizEvents
 {
@@ -48,7 +47,7 @@ export function UseQuizSocket(gameId: string): void {
         })
       )
     })
-    connection.on(QuizEvents.StartGame, (question: Root) => {
+    connection.on(QuizEvents.StartGame, (question: Result) => {
       if(question){
         quizSplitApi.util.updateQueryData('quizGetGameRuntime', {gameId: gameId}, (draft) => {
             draft.currentQuestion = question;
@@ -63,7 +62,7 @@ export function UseQuizSocket(gameId: string): void {
       })
       // navigate gameid/results, end just fetch endresults, make new APi for results
     })
-    connection.on(QuizEvents.NextQuestion, (question: Root) => {
+    connection.on(QuizEvents.NextQuestion, (question: Result) => {
       const patchCollection = dispatch(
         quizSplitApi.util.updateQueryData('quizGetGameRuntime', {gameId: gameId}, (draft) => {
           if(draft.questionStep)

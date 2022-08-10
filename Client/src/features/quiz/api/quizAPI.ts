@@ -1,4 +1,4 @@
-import { Category, Difficulty, GameState } from '../../enums';
+import { Difficulty, GameState } from '../../enums';
 import { emptySplitApi as api } from "..\\..\\..\\providers\\emptyApi";
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
@@ -7,8 +7,9 @@ const injectedRtkApi = api.injectEndpoints({
       QuizCreateGameApiArg
     >({
       query: (queryArg) => ({
-        url: `/api/v1/quiz/create/${queryArg.name}`,
+        url: `/api/v1/quiz/create`,
         method: "POST",
+        body: queryArg.quizSettingsModel,
       }),
     }),
     quizStartGame: build.mutation<
@@ -50,13 +51,22 @@ const injectedRtkApi = api.injectEndpoints({
         params: { gameId: queryArg.gameId },
       }),
     }),
+    quizGetGameScoreboard: build.query<
+      QuizGetGameScoreboardApiResponse,
+      QuizGetGameScoreboardApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/api/v1/quiz/id:guid/score`,
+        params: { gameId: queryArg.gameId },
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 export { injectedRtkApi as quizSplitApi };
-export type QuizCreateGameApiResponse = unknown;
+export type QuizCreateGameApiResponse = /** status 200  */ string;
 export type QuizCreateGameApiArg = {
-  name: string | null;
+  quizSettingsModel: QuizSettingsModel;
 };
 export type QuizStartGameApiResponse = /** status 200  */ GameState;
 export type QuizStartGameApiArg = {
@@ -76,14 +86,20 @@ export type QuizGetGameRuntimeApiResponse = /** status 200  */ QuizRuntime;
 export type QuizGetGameRuntimeApiArg = {
   gameId?: string;
 };
+export type QuizGetGameScoreboardApiResponse = /** status 200  */ {
+  [key: string]: PlayerRuntime;
+};
+export type QuizGetGameScoreboardApiArg = {
+  gameId?: string;
+};
 export type QuizSettingsModel = {
   name?: string;
-  limit?: number;
-  category?: Category;
+  questions?: number;
+  category?: string;
   difficulty?: Difficulty;
 };
 export type QuizSettingState = {
-  category?: Category;
+  category?: string;
   difficulty?: Difficulty;
   questions?: number;
 };
@@ -107,10 +123,17 @@ export type QuizRuntime = {
   numberOfPlayers?: number;
   players?: Player[];
 };
+export type PlayerRuntime = {
+  id?: string;
+  name?: string;
+  score?: number;
+  answered?: boolean;
+};
 export const {
   useQuizCreateGameMutation,
   useQuizStartGameMutation,
   useQuizSetGameSettingsMutation,
   useQuizGetGameSettingsQuery,
   useQuizGetGameRuntimeQuery,
+  useQuizGetGameScoreboardQuery,
 } = injectedRtkApi;

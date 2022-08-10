@@ -8,7 +8,6 @@ public interface IQuizPostApi
     Task<Root> GetQuestions([Body(BodySerializationMethod.UrlEncoded)] QuizPost quizPost);
 }
 
-// https://quizapi.io/api/v1/questions?apiKey={APIKey}&limit={amount}&category={category}&difficulty={difficulty};
 public class QuizPost
 {
     [AliasAs("token")]
@@ -21,7 +20,7 @@ public class QuizPost
     public int Amount { get; set; }
 
     [AliasAs("category")]
-    public Category Category { get; set; }
+    public string Category { get; set; }
     
     [AliasAs("difficulty")]
     public Difficulty Difficulty { get; set; }
@@ -30,8 +29,8 @@ public class QuizPost
 public class QuizSettingsModel
 {
     public string Name { get; set; }
-    public int Limit { get; set; }
-    public Category Category { get; set; }
+    public int Questions { get; set; }
+    public string Category { get; set; }
     public Difficulty Difficulty { get; set; }
 }
 

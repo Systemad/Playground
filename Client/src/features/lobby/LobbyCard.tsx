@@ -1,30 +1,19 @@
 import {
   Box,
-  BoxProps,
   Button,
   chakra,
-  CloseButton,
-  Drawer, DrawerBody, DrawerCloseButton,
-  DrawerContent, DrawerFooter, DrawerHeader,
   Flex,
-  FlexProps, FormLabel, GridItem,
-  Heading,
-  Icon,
-  IconButton,   Image,
-Input, InputGroup, InputLeftAddon, InputRightAddon,
-  Link, Select, Stack,
-  Text, Textarea,
-  useColorModeValue,
-  useDisclosure,
 } from '@chakra-ui/react';
+
+import { Difficulty, GameMode, GameState } from '../enums';
 import { GameStatusButton } from './GameStatusButton';
 
 type Props = {
   title: string,
-  gameMode: string,
-  players: string,
-  gameStatus: string,
-  difficulty?: string,
+  gameMode: GameMode,
+  players: number,
+  gameStatus: GameState,
+  difficulty?: Difficulty,
 }
 export const LobbyCard = ({title, gameMode, players, gameStatus, difficulty} : Props) => {
 
@@ -50,7 +39,7 @@ export const LobbyCard = ({title, gameMode, players, gameStatus, difficulty} : P
                     color: "gray.400",
                   }}
                 >
-                  Date created
+                  {title}
                 </chakra.span>
                 <Flex>
                   { difficulty &&
@@ -64,7 +53,7 @@ export const LobbyCard = ({title, gameMode, players, gameStatus, difficulty} : P
                         fontWeight="700"
                         rounded="md"
                       >
-                        {difficulty}
+                        {difficulty.toString()}
                       </Box>
                   </>
                   }
@@ -78,7 +67,7 @@ export const LobbyCard = ({title, gameMode, players, gameStatus, difficulty} : P
                     fontWeight="700"
                     rounded="md"
                   >
-                    {gameMode}
+                    {gameMode.toString()}
                   </Box>
                 </Flex>
               </Flex>

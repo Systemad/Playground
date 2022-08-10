@@ -41,7 +41,7 @@ builder.Services.AddRouting(options =>
     options.LowercaseQueryStrings = true;
 });
 
-builder.Services.AddRefitClient<IQuizPostApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri("https://quizapi.io"));
+builder.Services.AddRefitClient<IQuizPostApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri("https://opentdb.com/"));
 
 // Add services to the container.
 builder.Services.AddAppAuthentication(builder.Configuration);
@@ -82,8 +82,8 @@ builder.Host.UseOrleans((context, silobuilder) =>
             opt.ConnectionString = connectionString;
         });
     }
-    //silobuilder.AddMemoryGrainStorage("AccountState");
-    //silobuilder.AddMemoryGrainStorage("GlobalState");
+    silobuilder.AddMemoryGrainStorage("quizStore");
+    silobuilder.AddMemoryGrainStorage("settingStore");
     silobuilder.ConfigureLogging(
         log => log
             .AddFilter("Orleans.Runtime.Management.ManagementGrain", LogLevel.Warning)

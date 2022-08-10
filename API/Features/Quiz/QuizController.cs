@@ -21,13 +21,13 @@ public class QuizController : ControllerBase
     
     public QuizController(IGrainFactory factory) => _factory = factory;
 
-    [HttpPost("create/{name}", Name = "Create game")]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> CreateGame([FromRoute] string name)
+    [HttpPost("create", Name = "Create game")]
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> CreateGame([FromBody] QuizSettingsModel settings)
     {
         var gameGuid = Guid.NewGuid();
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameGuid);
-        await gameGrain.CreateGame(GetUserId, name);
+        await gameGrain.CreateGame(GetUserId, settings);
         return Ok(gameGuid);
     }
 
@@ -72,7 +72,7 @@ public class QuizController : ControllerBase
     public async Task<ActionResult> GetGameScoreboard(Guid gameId)
     {
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
-        var gameSettings = await gameGrain.GetGameSettings();
+        var gameSettings = await gameGrain.GetGameScoreboard();
         return Ok(gameSettings);
     }
 }

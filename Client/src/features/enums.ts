@@ -13,15 +13,6 @@ export enum GameState
   Canceled,
 }
 
-export enum Category
-{
-  Linux,
-  DevOps,
-  Networking,
-  Programming,
-  Cloud
-}
-
 export enum Answer
 {
   A,

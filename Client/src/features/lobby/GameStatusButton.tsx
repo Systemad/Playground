@@ -1,9 +1,11 @@
-import { Box, Button, chakra,Flex, Icon } from '@chakra-ui/react';
-import { BsLightningFill, IoMdAlert,IoMdCheckmarkCircle } from 'react-icons/all';
+import { Box, chakra, Flex, Icon } from '@chakra-ui/react';
+import { BsLightningFill, IoMdAlert, IoMdCheckmarkCircle } from 'react-icons/all';
+
+import { GameState } from '../enums';
 
 type Props = {
-  gameStatus: string,
-  players: string,
+  gameStatus: GameState,
+  players: number,
 }
 
 export const GameStatusButton = ({gameStatus, players} : Props) => {
@@ -20,17 +22,14 @@ export const GameStatusButton = ({gameStatus, players} : Props) => {
         overflow="hidden"
       >
         <Flex justifyContent="center" alignItems="center" w={12} bg="green.500">
-          {gameStatus === "full" &&
-            <Icon as={BsLightningFill} color="white" boxSize={6} />
+          {gameStatus === GameState.InProgress &&
+            <Icon as={BsLightningFill} color="red" boxSize={6} />
           }
-          {gameStatus === "awaitingPlayers" &&
-            <Icon as={IoMdAlert} color="white" boxSize={6} />
+          {gameStatus === GameState.AwaitingPlayers &&
+            <Icon as={IoMdAlert} color="green" boxSize={6} />
           }
-          {gameStatus === "inprogress" &&
-            <Icon as={IoMdAlert} color="white" boxSize={6} />
-          }
-          {gameStatus === "ready" &&
-            <Icon as={IoMdCheckmarkCircle} color="white" boxSize={6} />
+          {gameStatus === GameState.Ready &&
+            <Icon as={IoMdCheckmarkCircle} color="green" boxSize={6} />
           }
         </Flex>
 
@@ -43,7 +42,7 @@ export const GameStatusButton = ({gameStatus, players} : Props) => {
               }}
               fontWeight="bold"
             >
-              {gameStatus} - {players}
+              {gameStatus.toString()} - {players}
             </chakra.span>
           </Box>
         </Box>

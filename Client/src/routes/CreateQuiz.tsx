@@ -2,13 +2,13 @@ import React from 'react';
 
 import { AppLayout } from '../components/AppLayout';
 import { Sidebar } from '../components/layouts/Sidebar'
-import { LobbyLayout } from '../features/lobby/components'
+import { CreateQuizLayout } from '../features/quiz/layouts/CreateQuizLayout';
 
-export const Lobby = () => {
+export const CreateQuiz = () => {
   return(
     <AppLayout>
       <Sidebar/>
-      <LobbyLayout/>
+      <CreateQuizLayout/>
     </AppLayout>
   );
 };

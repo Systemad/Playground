@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { useAppDispatch } from '../../../providers/store';
 import connection from "../../../utils/api/signalr/Socket"
 import { Player, quizSplitApi } from '../api/quizAPI';
-import { Root } from '../Question';
 
 enum ScoreboardEvents
 {

@@ -19,7 +19,10 @@ export const AnswerButton: React.FC<Props> = (props) => {
     }
   })
 
-  
+  connection.on("NextRound", () => {
+      setColor('blue.900');
+  })
+
   return (
     <Box
       as="button"

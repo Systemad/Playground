@@ -18,7 +18,7 @@ public class QuizState
 [Serializable]
 public class QuizSettingState
 {
-    public Category Category { get; set; }
+    public string Category { get; set; }
     public Difficulty Difficulty { get; set; }
     public int Questions { get; set; }
 }

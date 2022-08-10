@@ -1,25 +1,11 @@
 import {
-  Box,
-  BoxProps,
-  Button,
-  CloseButton,
-  Drawer, DrawerBody, DrawerCloseButton,
-  DrawerContent, DrawerFooter, DrawerHeader,
-  Flex,
-  FlexProps, FormLabel, GridItem,
-  Icon,
-  IconButton, Input, InputGroup, InputLeftAddon, InputRightAddon,
-  Link, Select, Stack,
-  Text, Textarea,
-  useColorModeValue,
+  Flex, GridItem, Stack,
   useDisclosure,
 } from '@chakra-ui/react';
 
-import { LobbyCard } from '../index';
-import { useLobbyGetGamesQuery } from '../lobbyAPI';
+import { useLobbyGetGamesQuery } from '../api/lobbyAPI';
 import { UseLobbySocket } from '../hooks/UseLobbySocket';
-
-// <LobbyCard title="Game1" gameMode="quiz" gameStatus="inprogress" players="1/4" />
+import { LobbyCard } from '../index';
 
 export const LobbyLayout = () => {
 
@@ -43,7 +29,7 @@ export const LobbyLayout = () => {
         >
           <Stack spacing={8} direction={['column', 'row']}>
             {lobbies?.map((lobby) => (
-                <LobbyCard key={lobby.id} title={lobby.name} gameMode={lobby.mode} gameStatus={lobby.state} players={lobby.players} />
+                <LobbyCard key={lobby.id} title={lobby!.name!} gameMode={lobby!.mode!} gameStatus={lobby!.state!} players={lobby!.players!} />
             ))}
           </Stack>
         </Flex>

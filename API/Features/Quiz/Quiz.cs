@@ -4,24 +4,6 @@ using API.Features.Quiz.API;
 
 namespace API.Features.Quiz;
 
-[Serializable]
-public enum Category
-{
-    [EnumMember(Value = "linux")]
-    Linux,
-    
-    [EnumMember(Value = "devops")]
-    DevOps,
-    
-    [EnumMember(Value = "networking")]
-    Networking,
-    
-    [EnumMember(Value = "programming")]
-    Programming,
-    
-    [EnumMember(Value = "cloud")]
-    Cloud
-}
 
 [Serializable]
 public enum Answer
@@ -89,5 +71,5 @@ public class QuizInfo
     public Guid Id { get; set; }
     public Guid Name { get; set; }
     public GameState State { get; set; }
-    public Category Category { get; set; }
+    public string Category { get; set; }
 }
