@@ -12,9 +12,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => (
                   "nav main"
                   "nav main"`}
     height="100vh"
-    min-height='100vh'
     templateColumns={'200px auto'}
-    bg="brandGray.light">
+    templateRows="100vh">
     {children}
   </Grid>
 );

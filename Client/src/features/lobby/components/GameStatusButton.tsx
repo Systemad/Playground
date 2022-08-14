@@ -1,7 +1,7 @@
 import { Box, chakra, Flex, Icon } from '@chakra-ui/react';
 import { BsLightningFill, IoMdAlert, IoMdCheckmarkCircle } from 'react-icons/all';
 
-import { GameState } from '../enums';
+import { GameState } from '../../enums';
 
 type Props = {
   gameStatus: GameState,
@@ -42,7 +42,7 @@ export const GameStatusButton = ({gameStatus, players} : Props) => {
               }}
               fontWeight="bold"
             >
-              {gameStatus.toString()} - {players}
+              {GameState[gameStatus]} - {players} / {"3"}
             </chakra.span>
           </Box>
         </Box>

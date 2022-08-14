@@ -5,7 +5,7 @@ import React from 'react';
 import { AppLayout } from '../components/AppLayout';
 import { SignInButton } from '../components/common/SignInSignButton';
 import { LandingLayout } from '../components/layouts/LandingLayout';
-import { Lobby } from './Lobby';
+import { Lobby } from '../features/lobby/routes/Lobby';
 
 export const Home = () => {
   const {login, result, error} = useMsalAuthentication(InteractionType.Redirect);

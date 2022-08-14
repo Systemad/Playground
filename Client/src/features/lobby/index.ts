@@ -1,1 +1,1 @@
-export * from './LobbyCard'
+export * from './layouts/LobbyLayout'

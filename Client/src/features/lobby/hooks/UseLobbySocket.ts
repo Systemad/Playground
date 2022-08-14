@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { useAppDispatch } from '../../../providers/store';
 import connection from "../../../utils/api/signalr/Socket"
-import { GameLobbySummary, lobbySplitApi } from '../lobbyAPI';
+import { GameLobbySummary, lobbySplitApi } from '../api/lobbyAPI';
 
 enum LobbyActions
 {
