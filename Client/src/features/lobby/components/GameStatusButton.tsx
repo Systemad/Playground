@@ -8,44 +8,60 @@ type Props = {
   players: number,
 }
 
-export const GameStatusButton = ({gameStatus, players} : Props) => {
+export const GameStatusButton = ({ gameStatus, players }: Props) => {
+
+  let button;
+
+  switch (gameStatus) {
+    case GameState.AwaitingPlayers:
+      button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
+      break;
+    case GameState.Ready:
+      button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
+      break;
+    case GameState.Finished:
+      button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
+      break;
+    case GameState.Canceled:
+      button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
+      break;
+    case GameState.InProgress:
+      button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
+      break;
+    default:
+      button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
+
+  }
 
   return (
-      <Flex
-        maxW="sm"
-        w="full"
-        bg="gray.400"
-        _dark={{
-          bg: "gray.200",
-        }}
-        rounded="lg"
-        overflow="hidden"
-      >
-        <Flex justifyContent="center" alignItems="center" w={12} bg="green.500">
-          {gameStatus === GameState.InProgress &&
-            <Icon as={BsLightningFill} color="red" boxSize={6} />
-          }
-          {gameStatus === GameState.AwaitingPlayers &&
-            <Icon as={IoMdAlert} color="green" boxSize={6} />
-          }
-          {gameStatus === GameState.Ready &&
-            <Icon as={IoMdCheckmarkCircle} color="green" boxSize={6} />
-          }
-        </Flex>
+    <Flex
+      maxW='sm'
+      w='full'
+      bg='gray.400'
+      _dark={{
+        bg: 'gray.200',
+      }}
+      rounded='lg'
+      overflow='hidden'
+      maxH="40px"
+    >
+      <Flex justifyContent='center' alignItems='center' w={12} bg='green.500'>
+        {button}
+      </Flex>
 
-        <Box mx={-3} py={2} px={4}>
-          <Box mx={3}>
-            <chakra.span
-              color="white"
-              _dark={{
-                color: "black.400",
-              }}
-              fontWeight="bold"
-            >
-              {GameState[gameStatus]} - {players} / {"3"}
-            </chakra.span>
-          </Box>
+      <Box mx={-3} py={2} px={4}>
+        <Box mx={3}>
+          <chakra.span
+            color='white'
+            _dark={{
+              color: 'black.400',
+            }}
+            fontWeight='bold'
+          >
+            {GameState[gameStatus]} - {players} / {'4'}
+          </chakra.span>
         </Box>
+      </Box>
     </Flex>
   );
-}
+};

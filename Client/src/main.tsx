@@ -5,16 +5,15 @@ import {
   EventType,
   PublicClientApplication,
 } from "@azure/msal-browser";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
 import React from "react";
-import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 
 import App from "./App";
 import { store } from "./providers/store";
-import Theme from "./theme";
+import theme from "./theme";
 import { msalConfig } from "./utils/auth/AuthConfig";
 
 export const msalInstance = new PublicClientApplication(msalConfig);
@@ -37,9 +36,10 @@ const root = createRoot(container!);
 root.render(
   <>
     <React.StrictMode>
-      <ChakraProvider theme={Theme}>
+      <ChakraProvider theme={theme}>
         <BrowserRouter>
           <Provider store={store}>
+            <ColorModeScript initialColorMode={theme.config.initialColorMode} />
             <App pca={msalInstance} />
           </Provider>
         </BrowserRouter>

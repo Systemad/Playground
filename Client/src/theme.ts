@@ -1,10 +1,9 @@
-import { extendTheme } from "@chakra-ui/react";
+import { extendTheme, ThemeConfig } from "@chakra-ui/react";
 
-import Drawer from "./theme/drawer/drawer";
-
-const theme = extendTheme({
+const config: ThemeConfig = {
   initialColorMode: "dark",
-  components: {},
-});
+  useSystemColorMode: false,
+};
 
+const theme = extendTheme({ config });
 export default theme;

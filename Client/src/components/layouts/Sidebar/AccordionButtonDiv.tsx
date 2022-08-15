@@ -13,7 +13,7 @@ export const AccordionButtonDiv = (props: any) => {
       role="group"
       fontWeight="bold"
       transition=".15s ease"
-      color={useColorModeValue('inherit', 'gray.800')}
+      color="whiteAlpha.900"
     >
       {icon && (
         <Icon

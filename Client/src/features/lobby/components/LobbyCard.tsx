@@ -19,9 +19,26 @@ type Props = {
 }
 export const LobbyCard = ({ title, id, gameMode, players, gameStatus, difficulty, onClick }: Props) => {
 
+  let diff;
+
+  if (difficulty){
+    diff = <Box
+      px={3}
+      py={1}
+      bg='gray.600'
+      color='gray.100'
+      fontSize='sm'
+      fontWeight='700'
+      rounded='md'
+    >
+      {Difficulty[difficulty]}
+    </Box>
+  }
+
   return (
     <>
       <Box
+        position='relative'
         mx='auto'
         px={8}
         py={4}
@@ -31,7 +48,7 @@ export const LobbyCard = ({ title, id, gameMode, players, gameStatus, difficulty
         _dark={{
           bg: 'gray.800',
         }}
-        w='350px'
+        w='300px'
       >
         <Flex justifyContent='space-between' alignItems='center'>
           <chakra.span
@@ -45,22 +62,7 @@ export const LobbyCard = ({ title, id, gameMode, players, gameStatus, difficulty
             {title}
           </chakra.span>
           <Flex>
-            {difficulty &&
-              <>
-                <Box
-                  px={3}
-                  py={1}
-                  bg='gray.600'
-                  color='gray.100'
-                  fontSize='sm'
-                  fontWeight='700'
-                  rounded='md'
-                >
-                  {difficulty.toString()}
-                </Box>
-              </>
-            }
-
+            {diff}
             <Box
               px={3}
               py={1}
@@ -77,7 +79,7 @@ export const LobbyCard = ({ title, id, gameMode, players, gameStatus, difficulty
 
         <Flex justifyContent='space-between' alignItems='center' mt={4}>
           <GameStatusButton gameStatus={gameStatus} players={players} />
-          <Button textTransform="uppercase" colorScheme='teal' size='md' onClick={() => onClick(id)}>
+          <Button textTransform='uppercase' colorScheme='teal' size='md' onClick={() => onClick(id)}>
             Join
           </Button>
         </Flex>

@@ -8,6 +8,7 @@ export const NavItem = (props: any) => {
     <Flex
       align="center"
       px="4"
+      mx="2"
       py="3"
       cursor="pointer"
       role="group"
@@ -15,8 +16,8 @@ export const NavItem = (props: any) => {
       transition=".15s ease"
       color={useColorModeValue('inherit', 'gray.400')}
       _hover={{
-        bg: useColorModeValue('gray.100', 'gray.900'),
-        color: useColorModeValue('gray.900', 'gray.200')
+        bg: "gray.700",
+        color: "gray.100"
       }}
     >
       {icon && (
