@@ -1,31 +1,23 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { emptySplitApi as api } from '../../../providers/emptyApi';
-
-export const apiSlice = createApi({
-  reducerPath: 'api',
+export const opentdbSlice = createApi({
+  reducerPath: 'opentdbApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://opentdb.com',
+    baseUrl: 'https://opentdb.com/',
   }),
   endpoints: (builder) => ({
     getCategories: builder.query<QuizGetCategoriesResponse, QuizGetCategoriesApiArg>({
-      query: () => `/api_category.php`,
-      transformResponse: (response: {categories: {data: TriviaCategory[]}}) =>
-        response.categories.data,
+      query: () => ({ url: `api_category.php` })
     }),
   }),
-})
-export type QuizGetCategoriesResponse = /** status 200  */ TriviaCategory[];
-export type QuizGetCategoriesApiArg = void
-
-export const { useGetCategoriesQuery } = apiSlice;
-
-
-export interface Categories {
-  triviaCategories: TriviaCategory[];
+});
+export const { useGetCategoriesQuery } = opentdbSlice;
+export type QuizGetCategoriesResponse = Categories;
+export type QuizGetCategoriesApiArg = void;
+export type Categories = {
+  trivia_categories: TriviaCategory[];
 }
-
-export interface TriviaCategory {
-  id:   number;
+export type TriviaCategory = {
+  id: string;
   name: string;
-}
+};

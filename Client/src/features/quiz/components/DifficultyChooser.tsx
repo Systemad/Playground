@@ -1,16 +1,15 @@
 import { Select } from "@chakra-ui/react";
 import React from 'react';
 
-import { Difficulty } from '../../enums';
 import { DifficultyLevel } from '../layouts/CreateQuizLayout';
 
 type Props = {
   label: string,
-  categories: DifficultyLevel[],
+  difficulties: DifficultyLevel[],
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void,
 }
 
-export const DifficultyChooser = ({ label, categories, onChange }: Props) => (
+export const DifficultyChooser = ({ label, difficulties, onChange }: Props) => (
   <Select
     defaultValue={label}
     id={label}
@@ -20,12 +19,9 @@ export const DifficultyChooser = ({ label, categories, onChange }: Props) => (
     onChange={(e) => onChange(e)}
     style={{ textAlign: "center", textTransform: "capitalize" }}
   >
-    <option value={label} disabled>
-      {label}
-    </option>
-    {categories.map((category) => (
-      <option key={category.id} value={category.id} style={{ color: "#000" }}>
-        {category.name}
+    {difficulties.map((diff) => (
+      <option key={diff.id} value={diff.id}>
+        {diff.name}
       </option>
     ))}
   </Select>

@@ -1,9 +1,15 @@
-import { Flex, Icon, useColorModeValue } from '@chakra-ui/react';
+import { Flex, Icon, IconButton,useColorModeValue } from '@chakra-ui/react';
+import { MouseEventHandler, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-export const AccordionButtonDiv = (props: any) => {
+type Props = {
+  icon: any,
+  children: ReactNode,
+  route: string,
+}
+export const AccordionButtonDiv = ({icon, children, route} : Props) => {
   const color = useColorModeValue('gray.600', 'gray.300');
-
-  const { icon, children } = props;
+  const navigate = useNavigate();
   return (
     <Flex
       align="center"
@@ -15,16 +21,12 @@ export const AccordionButtonDiv = (props: any) => {
       transition=".15s ease"
       color="whiteAlpha.900"
     >
-      {icon && (
-        <Icon
+        <IconButton
+          aria-label={route}
+          onClick={() => navigate(`/${route}`)}
           mx="2"
           boxSize="4"
-          _groupHover={{
-            color: color
-          }}
-          as={icon}
         />
-      )}
       {children}
     </Flex>
   );

@@ -1,12 +1,26 @@
-import { Box, Button, GridItem, Heading, Progress,Stack, useToast } from '@chakra-ui/react';
-import { ChangeEvent } from 'react';
+import {
+  Box,
+  Button,
+  Checkbox,
+  Flex,
+  FormControl,
+  FormLabel,
+  GridItem, Heading,
+  Input,
+  Link,
+  Progress, Stack,
+  Text,
+  useColorModeValue,
+  useToast,
+} from '@chakra-ui/react';
+import React, { ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Difficulty } from '../../enums';
-import { useGetCategoriesQuery } from '../api/CategoryAPI';
+import { TriviaCategory, useGetCategoriesQuery } from '../api/CategoryAPI';
 import { QuizSettingsModel, useQuizCreateGameMutation } from '../api/quizAPI';
-import { CategoryChooser } from '../components/CategoryChooser';
 import { DifficultyChooser } from '../components/DifficultyChooser';
+import { SelectionChooser } from '../components/SelectionChooser';
 
 export interface DifficultyLevel {
   id: string;
@@ -17,16 +31,21 @@ export const CreateQuizLayout = () => {
   let content;
 
   let settings: QuizSettingsModel = {
-    name: "aaa",
-    questions: 1,
-    category: "1",
-    difficulty: Difficulty.Easy
-  }
+    name: 'aaa',
+    questions: 10,
+    category: '',
+    difficulty: Difficulty.Easy,
+  };
+
+  const [value, setValue] = React.useState('');
+  const handleChange = (event: any) => {
+    setValue(event.target.value);
+    settings.name = value;
+  };
 
   const navigate = useNavigate();
-  const toast = useToast()
+  const toast = useToast();
   const [create, result] = useQuizCreateGameMutation();
-
 
   const difficulties: DifficultyLevel[] = [
     { id: 'easy', name: 'Easy' },
@@ -35,80 +54,101 @@ export const CreateQuizLayout = () => {
   ];
 
   const {
-    data: categories,
+    data,
     isLoading,
     isSuccess,
     isError,
     error,
   } = useGetCategoriesQuery();
 
-  const handleCategoryChange = ({ target: { value }, }: ChangeEvent<HTMLInputElement>) => settings.category = value;
-  const handleDifficultyChange = ({ target: { value }, }: ChangeEvent<HTMLSelectElement>) =>
-  {
-    if(value === 'easy')
+  const handleCategoryChange = ({ target: { value } }: ChangeEvent<HTMLSelectElement>) => settings.category = value;
+  const handleDifficultyChange = ({ target: { value } }: ChangeEvent<HTMLSelectElement>) => {
+    if (value === 'easy')
       settings.difficulty = Difficulty.Easy;
-    if(value === 'medium')
+    if (value === 'medium')
       settings.difficulty = Difficulty.Medium;
-    if(value === 'hard')
+    if (value === 'hard')
       settings.difficulty = Difficulty.Hard;
-  }
+  };
 
   const handleCreateQuiz = async () => {
     try {
-      await create({quizSettingsModel: settings});
-      if(result)
-        navigate(`quiz/${result}`);
-
-
-    }catch{
+      await create({ quizSettingsModel: settings }).unwrap();
+      if (result.status)
+        navigate(`quiz/${result.requestId}`);
+    } catch {
       toast({
         title: 'An error occurred',
-        description: "We couldn't save your post, try again!",
+        description: 'We couldn\'t create your quiz, try again!',
         status: 'error',
-        duration: 2000,
+        duration: 5000,
         isClosable: true,
-      })
+      });
     }
-  }
+  };
 
   if (isLoading) {
-    content = <Progress size='xs' isIndeterminate />;
+    content = <Progress size='xl' isIndeterminate />;
   } else if (isSuccess) {
     content = (
       <>
-        <CategoryChooser label="category" categories={categories} onChange={handleDifficultyChange} />
-        <DifficultyChooser label="difficulty" categories={difficulties} onChange={handleDifficultyChange} />
-
-        <Button onClick={() => handleCreateQuiz()} w={['100%']}>
-          Create quiz
-        </Button>
+        <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
+          <Stack align={'center'}>
+            <Heading fontSize={'4xl'}>Create Quiz</Heading>
+          </Stack>
+          <Box
+            rounded={'lg'}
+            bg={useColorModeValue('white', 'gray.700')}
+            boxShadow={'lg'}
+            p={8}>
+            <Stack spacing={4}>
+              <Heading fontSize={'1xl'}>Name</Heading>
+              <Input
+                value={value}
+                onChange={handleChange}
+                placeholder='Enter name for quiz'
+                size='md'
+              />
+              <Heading fontSize={'1xl'}>Category</Heading>
+              <SelectionChooser label='category' selections={data!.trivia_categories}
+                                onChange={handleCategoryChange} />
+              <Heading fontSize={'1xl'}>Difficulty</Heading>
+              <SelectionChooser label='difficulty' selections={difficulties} onChange={handleDifficultyChange} />
+              <Stack spacing={10}>
+                <Button
+                  onClick={handleCreateQuiz}
+                  bg={'purple.400'}
+                  color={'white'}
+                  _hover={{
+                    bg: 'purple.500',
+                  }}>
+                  Create Quiz
+                </Button>
+              </Stack>
+            </Stack>
+          </Box>
+        </Stack>
       </>
     );
   } else if (isError) {
+    const errMsg = 'error' in error ? error.error : JSON.stringify(error);
     content = (
-      <Heading as="h1" color="gray.50" textAlign="center">
-        {"error"}
+      <Heading as='h1' color='gray.50' textAlign='center'>
+        {errMsg}
       </Heading>
     );
   }
 
   return (
     <>
-      <GridItem bg='papayawhip' area={'main'}>
-        <Stack spacing={8} p={2} h="95vh" align="center" justify="center">
-          <Box>
-            <img
-              width="640"
-              height="360"
-              src=""
-              alt="quizler"
-            />
-          </Box>
-          <Stack align="center" spacing={3} h={256}>
-            {content}
-          </Stack>
-        </Stack>
+      <GridItem>
+        <Flex
+          minH={'100vh'}
+          align={'center'}
+          justify={'center'}>
+          {content}
+        </Flex>
       </GridItem>
     </>
-  )
-}
+  );
+};

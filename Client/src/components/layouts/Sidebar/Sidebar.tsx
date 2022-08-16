@@ -3,7 +3,7 @@ import {
   AccordionItem, AccordionPanel,
   Box,
   BoxProps,
-  Button,
+  Button, ButtonProps,
   Divider,
   Drawer,
   DrawerContent,
@@ -17,11 +17,11 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { AiOutlineHome } from 'react-icons/ai';
+import { BsFillMoonFill, BsFillSunFill, BsMoonStarsFill, BsSun } from 'react-icons/all';
 import { RiFlashlightFill } from 'react-icons/ri';
 
 import { AccordionButtonDiv } from './AccordionButtonDiv';
 import { NavItem } from './NavItem';
-import { BsFillMoonFill, BsFillSunFill } from 'react-icons/all';
 
 export const Sidebar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -63,11 +63,11 @@ const SidebarContent = ({ ...props }: BoxProps) => (
     <VStack h='full' w='full' alignItems='flex-start' justify='space-between'>
       <Box w='full'>
         <Flex px='4' py='5' align='center'>
-          <Icon color="whiteAlpha.900" as={RiFlashlightFill} h={8} w={8} />
+          <Icon color='whiteAlpha.900' as={RiFlashlightFill} h={8} w={8} />
           <Text
             fontSize='2xl'
             ml='2'
-            color="whiteAlpha.900"
+            color='whiteAlpha.900'
             fontWeight='semibold'
           >
             Playground
@@ -83,7 +83,7 @@ const SidebarContent = ({ ...props }: BoxProps) => (
           <Accordion defaultIndex={[0]} allowMultiple>
             <GameSection />
             <ProfileSection />
-            <NightButton/>
+            <NightButton />
           </Accordion>
         </Flex>
       </Box>
@@ -98,12 +98,12 @@ const GameSection = () => {
         <h5 color='whiteAlpha.100'>
           <AccordionButton bg='#2E3440'>
             <Box flex='1' textAlign='left'>
-              <AccordionButtonDiv icon={AiOutlineHome}>Games</AccordionButtonDiv>
+              <AccordionButtonDiv route='quiz' icon={AiOutlineHome}>Games</AccordionButtonDiv>
             </Box>
-            <AccordionIcon/>
+            <AccordionIcon />
           </AccordionButton>
         </h5>
-        <AccordionPanel pb={4} color="whiteAlpha.900">
+        <AccordionPanel pb={4} color='whiteAlpha.900'>
           <NavItem icon={AiOutlineHome}>Quiz</NavItem>
         </AccordionPanel>
       </AccordionItem>
@@ -119,7 +119,7 @@ const ProfileSection = () => {
         <h5 color='white'>
           <AccordionButton bg='#2E3440'>
             <Box flex='1' textAlign='left'>
-              <AccordionButtonDiv icon={AiOutlineHome}>Profile</AccordionButtonDiv>
+              <AccordionButtonDiv route='profile' icon={AiOutlineHome}>Profile</AccordionButtonDiv>
             </Box>
             <AccordionIcon />
           </AccordionButton>
@@ -133,13 +133,18 @@ const ProfileSection = () => {
   );
 };
 
-function NightButton() {
-  const { colorMode, toggleColorMode } = useColorMode()
+function NightButton(props: ButtonProps) {
+  const { colorMode, toggleColorMode } = useColorMode();
   return (
-    <header>
-      <Button onClick={toggleColorMode}>
-        {colorMode === 'light' ? <BsFillMoonFill/> : <BsFillSunFill/>}
+    <Flex justifyContent='center' alignItems='center'>
+      <Button
+        aria-label='Toggle Color Mode'
+        onClick={toggleColorMode}
+        _focus={{ boxShadow: 'none' }}
+        w='fit-content'
+        {...props}>
+        {colorMode === 'light' ? <BsMoonStarsFill /> : <BsSun />}
       </Button>
-    </header>
-  )
+    </Flex>
+  );
 }
