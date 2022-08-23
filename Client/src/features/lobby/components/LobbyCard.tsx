@@ -5,7 +5,7 @@ import {
   Flex,
 } from '@chakra-ui/react';
 
-import { Difficulty, GameMode, GameState } from '../../enums';
+import { GameMode, GameState } from '../../enums';
 import { GameStatusButton } from './GameStatusButton';
 
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
   gameMode: GameMode,
   players: number,
   gameStatus: GameState,
-  difficulty?: Difficulty,
+  difficulty?: string,
   onClick: (id: string) => any,
 }
 export const LobbyCard = ({ title, id, gameMode, players, gameStatus, difficulty, onClick }: Props) => {
@@ -31,7 +31,7 @@ export const LobbyCard = ({ title, id, gameMode, players, gameStatus, difficulty
       fontWeight='700'
       rounded='md'
     >
-      {Difficulty[difficulty]}
+      {difficulty}
     </Box>
   }
 

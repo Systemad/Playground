@@ -14,6 +14,7 @@ export const Answers = ({ choices, onClick, disabled } : Props) => (
       return (
         <AnswerButton
           name={answer}
+          choice={answer}
           key={index + answer}
           fontSize="sm"
           w={['100%']}

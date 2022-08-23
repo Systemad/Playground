@@ -12,10 +12,7 @@ export const Lobby = () => {
   return(
     <>
       <AuthenticatedTemplate>
-        <AppLayout>
-          <Sidebar/>
           <LobbyLayout/>
-        </AppLayout>
       </AuthenticatedTemplate>
 
       <UnauthenticatedTemplate>

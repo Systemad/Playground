@@ -1,36 +1,13 @@
-﻿using System.Collections.Concurrent;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using API.Features.Quiz.API;
 
 namespace API.Features.Quiz;
-
-
-[Serializable]
-public enum Answer
-{
-    A,
-    B,
-    C, 
-    D
-}
 
 [Serializable]
 public struct AnswerModel
 {
     public Guid GameId { get; set; }
     public string Answer { get; set; }
-}
-
-public enum Difficulty
-{
-    [EnumMember(Value = "easy")]
-    Easy,
-    
-    [EnumMember(Value = "medium")]
-    Medium,
-    
-    [EnumMember(Value = "hard")]
-    Hard
 }
 
 [Serializable]

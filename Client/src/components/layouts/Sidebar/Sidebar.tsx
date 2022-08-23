@@ -1,10 +1,8 @@
 import {
-  Accordion, AccordionButton, AccordionIcon,
-  AccordionItem, AccordionPanel,
   Box,
   BoxProps,
   Button, ButtonProps,
-  Divider,
+  Collapse,
   Drawer,
   DrawerContent,
   DrawerOverlay,
@@ -16,15 +14,134 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import { AiOutlineHome } from 'react-icons/ai';
-import { BsFillMoonFill, BsFillSunFill, BsMoonStarsFill, BsSun } from 'react-icons/all';
+import { AiFillHome, AiOutlineHome } from 'react-icons/ai';
+import {
+  BsFillMoonFill,
+  BsFillSunFill,
+  BsMoonStarsFill,
+  BsSun,
+  FaUserCircle,
+  MdGames,
+  MdKeyboardArrowRight,
+} from 'react-icons/all';
 import { RiFlashlightFill } from 'react-icons/ri';
-
-import { AccordionButtonDiv } from './AccordionButtonDiv';
-import { NavItem } from './NavItem';
+import { useNavigate } from 'react-router-dom';
 
 export const Sidebar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: gamesIsOpen, onToggle: gamesOnToggle } = useDisclosure();
+  const { isOpen: profileIsOpen, onToggle: profileOnToggle } = useDisclosure();
+
+  const navigate = useNavigate();
+  const color = useColorModeValue('gray.600', 'gray.300');
+
+  const NavItem = ({ ...props }) => {
+    const { icon, children, ...rest } = props;
+    return (
+      <Flex
+        align='center'
+        px='4'
+        mx='2'
+        rounded='md'
+        py='3'
+        cursor='pointer'
+        color='whiteAlpha.700'
+        _hover={{
+          bg: 'blackAlpha.300',
+          color: 'whiteAlpha.900',
+        }}
+        role='group'
+        fontWeight='semibold'
+        transition='.15s ease'
+        {...rest}
+      >
+        {icon && (
+          <Icon
+            mr='2'
+            boxSize='4'
+            _groupHover={{
+              color: 'gray.300',
+            }}
+            as={icon}
+          />
+        )}
+        {children}
+      </Flex>
+    );
+  };
+  const SidebarContent = ({ ...props }: BoxProps) => (
+    <Box
+      as='nav'
+      pos='fixed'
+      top='0'
+      left='0'
+      zIndex='sticky'
+      h='full'
+      // pb="10"
+      overflowX='hidden'
+      overflowY='auto'
+      bg='#3B4252'
+      w='60'
+      {...props}
+    >
+      <VStack h='full' w='full' alignItems='flex-start' justify='space-between'>
+        <Box w='full'>
+          <Flex px='4' py='5' align='center'>
+            <Icon color='whiteAlpha.900' as={RiFlashlightFill} h={8} w={8} />
+            <Text
+              fontSize='2xl'
+              ml='2'
+              color='whiteAlpha.900'
+              fontWeight='semibold'
+            >
+              Playground
+            </Text>
+          </Flex>
+          <NavItem color='whiteAlpha.900' icon={AiFillHome} onClick={() => navigate("/")}>
+            Home
+          </NavItem>
+          <Flex
+            direction='column'
+            as='nav'
+            fontSize='md'
+            color='gray.600'
+            aria-label='Main Navigation'
+          >
+            <NavItem color='whiteAlpha.900' icon={MdGames} onClick={gamesOnToggle}>Games
+              <Icon
+                as={MdKeyboardArrowRight}
+                ml='auto'
+              />
+            </NavItem>
+            <Collapse in={gamesIsOpen} animateOpacity>
+              <NavItem pl='12' py='2' onClick={() => navigate('/quiz')}>
+                Quiz
+              </NavItem>
+              <NavItem pl='12' py='2' onClick={() => navigate('/guessing')}>
+                Guessing Games
+              </NavItem>
+            </Collapse>
+
+            <NavItem color='whiteAlpha.900' icon={FaUserCircle} onClick={profileOnToggle}>Profile
+              <Icon
+                as={MdKeyboardArrowRight}
+                ml='auto'
+              />
+            </NavItem>
+            <Collapse in={profileIsOpen} animateOpacity>
+              <NavItem pl='12' py='2'>
+                My Profile
+              </NavItem>
+              <NavItem pl='12' py='2'>
+                My Settings
+              </NavItem>
+            </Collapse>
+
+          </Flex>
+        </Box>
+      </VStack>
+    </Box>
+  );
 
   return (
     <>
@@ -39,96 +156,6 @@ export const Sidebar = () => {
           </Drawer>
         </Box>
       </GridItem>
-    </>
-  );
-};
-
-const SidebarContent = ({ ...props }: BoxProps) => (
-  <Box
-    as='nav'
-    pos='fixed'
-    top='0'
-    left='0'
-    zIndex='sticky'
-    h='full'
-    // pb="10"
-    overflowX='hidden'
-    overflowY='auto'
-    bg={useColorModeValue('#3B4252', '#3B4252')}
-    borderColor={useColorModeValue('inherit', 'gray.700')}
-    borderRightWidth='1px'
-    w='60'
-    {...props}
-  >
-    <VStack h='full' w='full' alignItems='flex-start' justify='space-between'>
-      <Box w='full'>
-        <Flex px='4' py='5' align='center'>
-          <Icon color='whiteAlpha.900' as={RiFlashlightFill} h={8} w={8} />
-          <Text
-            fontSize='2xl'
-            ml='2'
-            color='whiteAlpha.900'
-            fontWeight='semibold'
-          >
-            Playground
-          </Text>
-        </Flex>
-        <Flex
-          direction='column'
-          as='nav'
-          fontSize='md'
-          color='gray.600'
-          aria-label='Main Navigation'
-        >
-          <Accordion defaultIndex={[0]} allowMultiple>
-            <GameSection />
-            <ProfileSection />
-            <NightButton />
-          </Accordion>
-        </Flex>
-      </Box>
-    </VStack>
-  </Box>
-);
-
-const GameSection = () => {
-  return (
-    <>
-      <AccordionItem borderColor='#2E3440'>
-        <h5 color='whiteAlpha.100'>
-          <AccordionButton bg='#2E3440'>
-            <Box flex='1' textAlign='left'>
-              <AccordionButtonDiv route='quiz' icon={AiOutlineHome}>Games</AccordionButtonDiv>
-            </Box>
-            <AccordionIcon />
-          </AccordionButton>
-        </h5>
-        <AccordionPanel pb={4} color='whiteAlpha.900'>
-          <NavItem icon={AiOutlineHome}>Quiz</NavItem>
-        </AccordionPanel>
-      </AccordionItem>
-    </>
-  );
-};
-
-const ProfileSection = () => {
-
-  return (
-    <>
-      <AccordionItem bg='#2E3440' borderColor='#2E3440'>
-        <h5 color='white'>
-          <AccordionButton bg='#2E3440'>
-            <Box flex='1' textAlign='left'>
-              <AccordionButtonDiv route='profile' icon={AiOutlineHome}>Profile</AccordionButtonDiv>
-            </Box>
-            <AccordionIcon />
-          </AccordionButton>
-        </h5>
-        <AccordionPanel pb={4}>
-          <NavItem icon={AiOutlineHome}>Statistics</NavItem>
-          <NavItem icon={AiOutlineHome}>Settings</NavItem>
-        </AccordionPanel>
-      </AccordionItem>
     </>
   );
 };

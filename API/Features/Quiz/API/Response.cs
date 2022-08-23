@@ -23,7 +23,7 @@ public class QuizPost
     public string Category { get; set; }
     
     [AliasAs("difficulty")]
-    public Difficulty Difficulty { get; set; }
+    public string Difficulty { get; set; }
 }
 
 public class QuizSettingsModel
@@ -31,7 +31,7 @@ public class QuizSettingsModel
     public string Name { get; set; }
     public int Questions { get; set; }
     public string Category { get; set; }
-    public Difficulty Difficulty { get; set; }
+    public string Difficulty { get; set; }
 }
 
 // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);

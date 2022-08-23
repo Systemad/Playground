@@ -1,4 +1,4 @@
-import { Difficulty, GameState } from '../../enums';
+import { GameState } from '../../enums';
 import { emptySplitApi as api } from "..\\..\\..\\providers\\emptyApi";
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
@@ -96,11 +96,11 @@ export type QuizSettingsModel = {
   name?: string;
   questions?: number;
   category?: string;
-  difficulty?: Difficulty;
+  difficulty?: string;
 };
 export type QuizSettingState = {
   category?: string;
-  difficulty?: Difficulty;
+  difficulty?: string;
   questions?: number;
 };
 export type Result = {

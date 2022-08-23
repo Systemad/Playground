@@ -5,8 +5,10 @@ import { Box, useColorModeValue } from "@chakra-ui/react";
 import { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { Sidebar } from "./components/layouts/Sidebar";
 import { AppRoutes } from "./routes/Routes";
 import { CustomNavigationClient } from "./utils/auth/NavigationClient";
+import { AppLayout } from "./components/AppLayout";
 
 type AppProps = {
   pca: IPublicClientApplication;
@@ -20,9 +22,15 @@ function App({ pca }: AppProps) {
   return (
     <>
       <MsalProvider instance={pca}>
-        <Layout>
-          <AppRoutes />
-        </Layout>
+        <AppLayout>
+          <Sidebar />
+
+          <Box ml={{ base: 0, md: 60 }} transition=".3s ease">
+            <Box as="main" p="4">
+              <AppRoutes />
+            </Box>
+          </Box>
+        </AppLayout>
       </MsalProvider>
     </>
   );
@@ -45,6 +53,7 @@ const Layout = ({ children }: LayoutProps) => {
       transition="0.5s ease-out"
     >
       <Box height="100vh" maxHeight="100vh" as="main">
+        <Sidebar />
         {children}
       </Box>
     </Box>

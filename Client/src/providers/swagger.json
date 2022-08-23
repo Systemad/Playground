@@ -281,23 +281,9 @@
             "type": "string"
           },
           "difficulty": {
-            "$ref": "#/components/schemas/Difficulty"
+            "type": "string"
           }
         }
-      },
-      "Difficulty": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Easy",
-          "Medium",
-          "Hard"
-        ],
-        "enum": [
-          0,
-          1,
-          2
-        ]
       },
       "GameState": {
         "type": "integer",
@@ -325,7 +311,7 @@
             "type": "string"
           },
           "difficulty": {
-            "$ref": "#/components/schemas/Difficulty"
+            "type": "string"
           },
           "questions": {
             "type": "integer",
@@ -451,11 +437,13 @@
         "description": "",
         "x-enumNames": [
           "Quiz",
-          "TicTacToe"
+          "TicTacToe",
+          "Guessing"
         ],
         "enum": [
           0,
-          1
+          1,
+          2
         ]
       }
     },

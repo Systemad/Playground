@@ -41,7 +41,8 @@ builder.Services.AddRouting(options =>
     options.LowercaseQueryStrings = true;
 });
 
-builder.Services.AddRefitClient<IQuizPostApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri("https://opentdb.com/"));
+//builder.Services.AddRefitClient<IQuizPostApi>()
+//    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://opentdb.com/"));
 
 // Add services to the container.
 builder.Services.AddAppAuthentication(builder.Configuration);
@@ -82,6 +83,13 @@ builder.Host.UseOrleans((context, silobuilder) =>
             opt.ConnectionString = connectionString;
         });
     }
+
+    silobuilder.ConfigureServices(sv =>
+    {
+        sv.AddSingleton<IQuizClient, QuizClient>();
+        sv.AddRefitClient<IQuizPostApi>()
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://opentdb.com/"));
+    });
     silobuilder.AddMemoryGrainStorage("quizStore");
     silobuilder.AddMemoryGrainStorage("settingStore");
     silobuilder.ConfigureLogging(
@@ -99,6 +107,7 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
 app.UseCors("CorsPolicy");
 app.UseHttpsRedirection();
 app.UseStaticFiles();

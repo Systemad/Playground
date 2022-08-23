@@ -1,4 +1,4 @@
-import { Flex, Spacer, Text } from '@chakra-ui/react';
+import { Flex, Spacer, Text, useColorModeValue } from '@chakra-ui/react';
 
 type Props = {
   step: number,
@@ -6,15 +6,15 @@ type Props = {
 }
 export const Scoreboard = ({step, total} : Props) => {
 
+  const text = useColorModeValue('black', 'white');
   //useQuizScoreboard();
 
   return(
     <Flex h="10vh">
-      <Text color="gray.50" size="lg">
+      <Text color="white" size="lg">
         Question {(step) + 1}/{total}
       </Text>
       <Spacer />
-
     </Flex>
 
   )

@@ -20,10 +20,3 @@ export enum Answer
   C,
   D
 }
-
-export enum Difficulty
-{
-  Easy,
-  Medium,
-  Hard
-}

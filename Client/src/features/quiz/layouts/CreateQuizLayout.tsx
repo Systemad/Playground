@@ -1,26 +1,21 @@
 import {
   Box,
   Button,
-  Checkbox,
   Flex,
-  FormControl,
-  FormLabel,
-  GridItem, Heading,
+  Heading,
   Input,
-  Link,
   Progress, Stack,
-  Text,
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react';
 import React, { ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Difficulty } from '../../enums';
-import { TriviaCategory, useGetCategoriesQuery } from '../api/CategoryAPI';
+import { SelectionChooser } from '../../../components/common/SelectionChooser';
+import { generateRandomNumber } from '../../../utils/randomNumber';
+import { useGetCategoriesQuery } from '../api/CategoryAPI';
 import { QuizSettingsModel, useQuizCreateGameMutation } from '../api/quizAPI';
-import { DifficultyChooser } from '../components/DifficultyChooser';
-import { SelectionChooser } from '../components/SelectionChooser';
+
 
 export interface DifficultyLevel {
   id: string;
@@ -31,13 +26,14 @@ export const CreateQuizLayout = () => {
   let content;
 
   let settings: QuizSettingsModel = {
-    name: 'aaa',
+    name: `Quiz #${generateRandomNumber()}`,
     questions: 10,
     category: '',
-    difficulty: Difficulty.Easy,
+    difficulty: 'Easy',
   };
 
   const [value, setValue] = React.useState('');
+
   const handleChange = (event: any) => {
     setValue(event.target.value);
     settings.name = value;
@@ -62,20 +58,13 @@ export const CreateQuizLayout = () => {
   } = useGetCategoriesQuery();
 
   const handleCategoryChange = ({ target: { value } }: ChangeEvent<HTMLSelectElement>) => settings.category = value;
-  const handleDifficultyChange = ({ target: { value } }: ChangeEvent<HTMLSelectElement>) => {
-    if (value === 'easy')
-      settings.difficulty = Difficulty.Easy;
-    if (value === 'medium')
-      settings.difficulty = Difficulty.Medium;
-    if (value === 'hard')
-      settings.difficulty = Difficulty.Hard;
-  };
+  const handleDifficultyChange = ({ target: { value } }: ChangeEvent<HTMLSelectElement>) => settings.difficulty = value;
 
   const handleCreateQuiz = async () => {
     try {
       await create({ quizSettingsModel: settings }).unwrap();
       if (result.status)
-        navigate(`quiz/${result.requestId}`);
+        navigate(`quiz/${result}`);
     } catch {
       toast({
         title: 'An error occurred',
@@ -93,15 +82,15 @@ export const CreateQuizLayout = () => {
     content = (
       <>
         <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
-          <Stack align={'center'}>
-            <Heading fontSize={'4xl'}>Create Quiz</Heading>
-          </Stack>
           <Box
             rounded={'lg'}
             bg={useColorModeValue('white', 'gray.700')}
             boxShadow={'lg'}
             p={8}>
             <Stack spacing={4}>
+              <Stack align={'center'}>
+                <Heading fontSize={'4xl'}>Create Quiz</Heading>
+              </Stack>
               <Heading fontSize={'1xl'}>Name</Heading>
               <Input
                 value={value}
@@ -141,14 +130,11 @@ export const CreateQuizLayout = () => {
 
   return (
     <>
-      <GridItem>
-        <Flex
-          minH={'100vh'}
-          align={'center'}
-          justify={'center'}>
-          {content}
-        </Flex>
-      </GridItem>
+      <Flex
+        align={'center'}
+        justify={'center'}>
+        {content}
+      </Flex>
     </>
   );
 };

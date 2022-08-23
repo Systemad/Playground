@@ -22,7 +22,8 @@ public enum GameOutcome
 public enum GameMode
 {
     Quiz,
-    TicTacToe
+    TicTacToe,
+    Guessing
 }
 
 // For lobby

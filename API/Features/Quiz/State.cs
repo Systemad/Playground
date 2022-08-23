@@ -19,6 +19,6 @@ public class QuizState
 public class QuizSettingState
 {
     public string Category { get; set; }
-    public Difficulty Difficulty { get; set; }
+    public string Difficulty { get; set; }
     public int Questions { get; set; }
 }
