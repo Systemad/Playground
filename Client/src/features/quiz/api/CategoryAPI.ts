@@ -7,7 +7,7 @@ export const opentdbSlice = createApi({
   }),
   endpoints: (builder) => ({
     getCategories: builder.query<QuizGetCategoriesResponse, QuizGetCategoriesApiArg>({
-      query: () => ({ url: `api_category.php` })
+      query: () => ({ url: 'api_category.php' })
     }),
   }),
 });

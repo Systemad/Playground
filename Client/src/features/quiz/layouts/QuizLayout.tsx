@@ -1,52 +1,44 @@
-import {
-  Box,
-  Stack,
-  useColorModeValue,
-  useDisclosure,
-} from '@chakra-ui/react';
-import { useState } from 'react';
+import { Box, SimpleGrid, Stack } from '@chakra-ui/react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Answers } from '../../../components/common/Answers';
-import connection from '../../../utils/api/signalr/Socket';
+import { AnswerButton } from '../../../components/common/AnswerButton';
 import { MyParams } from '../../../utils/routerParams';
-import { Player, QuizRuntime, Result, useQuizGetGameRuntimeQuery } from '../api/quizAPI';
+import { Player, QuizRuntime, Result } from '../api/quizAPI';
 import { Question } from '../components/Question';
 import { Scoreboard } from '../components/Scoreboard';
-import { UseQuizSocket } from '../hooks/useQuizSocket';
 
-let ps: Player = {
+const ps: Player = {
   id: '1212',
-  name: 'whatevs',
+  name: 'whatevs'
 };
 
-let p2: Player = {
+const p2: Player = {
   id: '19191',
-  name: 'nodeiaia',
+  name: 'nodeiaia'
 };
 
-let qs: Result = {
+const qs: Result = {
   category: 'Tech',
   type: 'noidea',
   difficulty: 'easy',
   question: 'Who won Hockey',
   correct_answer: 'Sweden',
-  incorrect_answers: ['Sweden', 'Finland', 'USA', 'Canada'],
+  incorrect_answers: ['Sweden', 'Finland', 'USA', 'Canada']
 };
 
-let quiz: QuizRuntime = {
+const quiz: QuizRuntime = {
   gameActive: true,
   currentQuestion: qs,
   questions: 10,
   questionStep: 1,
   numberOfPlayers: 2,
-  players: [ps, p2],
+  players: [ps, p2]
 };
 
 export const QuizLayout = () => {
 
   const [disabled, setDisabled] = useState<boolean>(false);
-
   const { gameId } = useParams<keyof MyParams>() as MyParams;
 
   /*
@@ -54,8 +46,11 @@ export const QuizLayout = () => {
     const {data: quiz} = useQuizGetGameRuntimeQuery({gameId: gameId});
   */
 
-  const handleAnswer = async (answer: string) => {
-
+  /*
+  const handleCategoryChange = ({ target: { value } }: ChangeEvent<HTMLSelectElement>) => settings.category = value;
+   */
+  const handleAnswer = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
     setDisabled(true);
     setTimeout(() => {
       setDisabled(false);
@@ -72,18 +67,28 @@ export const QuizLayout = () => {
   */
   return (
     <>
-      <Box w='full' mx='auto' my='auto' p={6}>
+      <Box w="full" mx="auto" my="auto" p={6}>
         <Scoreboard step={quiz!.questionStep!} total={quiz!.questions!} />
-        <Stack textAlign='center' h='60vh'>
+        <Stack textAlign="center" h="60vh">
           <Question
             key={quiz?.questionStep}
             question={quiz!.currentQuestion!.question!}
           />
-          <Answers
-            disabled={disabled}
-            choices={quiz?.currentQuestion?.incorrect_answers}
-            onClick={handleAnswer}
-          />
+
+          <SimpleGrid columns={[1, 2]} spacing={[4, 8]}>
+            {quiz?.currentQuestion?.incorrect_answers?.map((answer, index) => {
+              return (
+                <AnswerButton
+                  choice={answer}
+                  key={index + answer}
+                  onClick={handleAnswer(answer)}
+                  isDisabled={disabled}
+                >
+                  {answer}
+                </AnswerButton>
+              );
+            })}
+          </SimpleGrid>
         </Stack>
       </Box>
     </>

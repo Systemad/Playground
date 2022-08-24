@@ -1,9 +1,7 @@
-import { Box, Flex, SimpleGrid, Stack, Text } from '@chakra-ui/react';
+import { Box, SimpleGrid, Stack } from '@chakra-ui/react';
 import React from 'react';
 
-import { AppLayout } from '../../../components/AppLayout';
-import { Sidebar } from '../../../components/layouts/Sidebar'
-import { CreateQuizLayout, QuizLayout } from '../index';
+import { CreateQuizLayout } from '../index';
 
 export const QuizHome = () => {
   return(

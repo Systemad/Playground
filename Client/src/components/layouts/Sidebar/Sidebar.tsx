@@ -97,7 +97,7 @@ export const Sidebar = () => {
               Playground
             </Text>
           </Flex>
-          <NavItem color='whiteAlpha.900' icon={AiFillHome} onClick={() => navigate("/")}>
+          <NavItem color='whiteAlpha.900' icon={AiFillHome} onClick={() => navigate('/')}>
             Home
           </NavItem>
           <Flex

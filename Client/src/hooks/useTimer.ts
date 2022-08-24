@@ -5,9 +5,9 @@ import connection from '../utils/api/signalr/Socket';
 
 enum Events
 {
-  StartTimer = "StartTimer",
-  StopTimer = "StopTimer",
-  ResetTimer = "ResetTimer",
+  StartTimer = 'StartTimer',
+  StopTimer = 'StopTimer',
+  ResetTimer = 'ResetTimer',
 }
 // TODO: No timer implemented in backend, so ignore for now!
 export function UseTimer(duration: number) {
@@ -16,7 +16,7 @@ export function UseTimer(duration: number) {
 
   useEffect((): any => {
     connection.on(Events.StartTimer, (timer: boolean) => {
-        setIsRunning(true);
+      setIsRunning(true);
     })
 
     connection.on(Events.StopTimer, (timer: boolean) => {

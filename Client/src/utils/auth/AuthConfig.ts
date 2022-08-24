@@ -1,10 +1,10 @@
-import { BrowserCacheLocation, Configuration, LogLevel, RedirectRequest } from "@azure/msal-browser";
+import { BrowserCacheLocation, Configuration, LogLevel, RedirectRequest } from '@azure/msal-browser';
 
 const ua = window.navigator.userAgent;
-const msie = ua.indexOf("MSIE ");
-const msie11 = ua.indexOf("Trident/");
-const msedge = ua.indexOf("Edge/");
-const firefox = ua.indexOf("Firefox");
+const msie = ua.indexOf('MSIE ');
+const msie11 = ua.indexOf('Trident/');
+const msedge = ua.indexOf('Edge/');
+const firefox = ua.indexOf('Firefox');
 const isIE = msie > 0 || msie11 > 0;
 const isEdge = msedge > 0;
 const isFirefox = firefox > 0; // Only needed if you need to support the redirect flow in Firefox incognito
@@ -17,14 +17,14 @@ export const environment = {
 
 export const b2cPolicies = {
   names: {
-    signUpSignIn: "B2C_1_signupsignin1"
+    signUpSignIn: 'B2C_1_signupsignin1'
   },
   authorities: {
     signUpSignIn: {
-      authority: "https://danovas.b2clogin.com/danovas.onmicrosoft.com/B2C_1_signupsignin1",
+      authority: 'https://danovas.b2clogin.com/danovas.onmicrosoft.com/B2C_1_signupsignin1',
     }
   },
-  authorityDomain: "danovas.b2clogin.com"
+  authorityDomain: 'danovas.b2clogin.com'
 };
 
 // Config object to be passed to Msal on creation
@@ -54,5 +54,5 @@ export const msalConfig: Configuration = {
 
 // Add here scopes for id token to be used at MS Identity Platform endpoints.
 export const loginRequest: RedirectRequest = {
-  scopes: ["https://danovas.onmicrosoft.com/89be5e10-1770-45d7-813a-d47242ae2163/API.Access"]
+  scopes: ['https://danovas.onmicrosoft.com/89be5e10-1770-45d7-813a-d47242ae2163/API.Access']
 };

@@ -1,8 +1,8 @@
-import { useMsal } from "@azure/msal-react";
-import {Button} from "@chakra-ui/react";
-import { useState } from "react";
+import { useMsal } from '@azure/msal-react';
+import {Button} from '@chakra-ui/react';
+import { useState } from 'react';
 
-import {loginRequest} from "../../utils/auth/AuthConfig";
+import {loginRequest} from '../../utils/auth/AuthConfig';
 
 export const SignInButton = () => {
   const { instance } = useMsal();
@@ -12,16 +12,16 @@ export const SignInButton = () => {
   const handleLogin = (loginType: string) => {
     setAnchorEl(null);
 
-    if (loginType === "popup") {
+    if (loginType === 'popup') {
       instance.loginPopup(loginRequest);
-    } else if (loginType === "redirect") {
+    } else if (loginType === 'redirect') {
       instance.loginRedirect(loginRequest);
     }
   }
 
   return (
     <div>
-      <Button onClick={() => handleLogin("redirect")} key="loginRedirect">Sign in</Button>
+      <Button onClick={() => handleLogin('redirect')} key="loginRedirect">Sign in</Button>
     </div>
   )
 };

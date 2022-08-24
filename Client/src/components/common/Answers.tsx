@@ -1,11 +1,12 @@
 import { SimpleGrid } from '@chakra-ui/react';
+import React from 'react';
 
 import { AnswerButton } from './AnswerButton';
 
 export type Props = {
   disabled: boolean,
   choices: string[] | undefined,
-  onClick: (e: string) => void,
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 export const Answers = ({ choices, onClick, disabled } : Props) => (
@@ -13,12 +14,9 @@ export const Answers = ({ choices, onClick, disabled } : Props) => (
     {choices?.map((answer, index) => {
       return (
         <AnswerButton
-          name={answer}
           choice={answer}
           key={index + answer}
-          fontSize="sm"
-          w={['100%']}
-          onClick={() => onClick(answer)}
+          onClick={onClick(answer)}
           isDisabled={disabled}
         >
           {answer}

@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
 
 import { useAppDispatch } from '../../../providers/store';
-import connection from "../../../utils/api/signalr/Socket"
+import connection from '../../../utils/api/signalr/Socket'
 import { GameLobbySummary, lobbySplitApi } from '../api/lobbyAPI';
 
 enum LobbyActions
 {
-    AddGame = "AddGame",
-    RemoveGame = "RemoveGame",
-    EditGame = "EditGame"
+    AddGame = 'AddGame',
+    RemoveGame = 'RemoveGame',
+    EditGame = 'EditGame'
 }
 
 export function UseLobbySocket(): void {
@@ -34,7 +34,7 @@ export function UseLobbySocket(): void {
     connection.on(LobbyActions.EditGame, (game: GameLobbySummary) => {
       const patchCollection = dispatch(
         lobbySplitApi.util.updateQueryData('lobbyGetGames', undefined, (draft) => {
-          let gameIndex = draft.findIndex((l) => l.id === game.id);
+          const gameIndex = draft.findIndex((l) => l.id === game.id);
           draft[gameIndex] = game;
         })
       )

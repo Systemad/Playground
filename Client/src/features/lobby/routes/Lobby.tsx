@@ -12,7 +12,7 @@ export const Lobby = () => {
   return(
     <>
       <AuthenticatedTemplate>
-          <LobbyLayout/>
+        <LobbyLayout/>
       </AuthenticatedTemplate>
 
       <UnauthenticatedTemplate>

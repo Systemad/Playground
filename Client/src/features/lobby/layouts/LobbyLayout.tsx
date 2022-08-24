@@ -1,5 +1,6 @@
 import { Box, SimpleGrid, useDisclosure } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+
 import { useLobbyGetGamesQuery } from '../api/lobbyAPI';
 import { LobbyCard } from '../components/LobbyCard';
 import { UseLobbySocket } from '../hooks/UseLobbySocket';
@@ -21,12 +22,12 @@ export const LobbyLayout = () => {
         <SimpleGrid columns={[1, 2, 3]} spacing='15px'>
           {lobbies?.map((lobby) => (
             <LobbyCard key={lobby.id}
-                       id={lobby!.id!}
-                       title={lobby!.name!}
-                       gameMode={lobby!.mode!}
-                       gameStatus={lobby!.state!}
-                       players={lobby!.players!}
-                       onClick={joinGame} />
+              id={lobby!.id!}
+              title={lobby!.name!}
+              gameMode={lobby!.mode!}
+              gameStatus={lobby!.state!}
+              players={lobby!.players!}
+              onClick={joinGame} />
           ))}
         </SimpleGrid>
       </Box>

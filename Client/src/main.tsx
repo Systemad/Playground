@@ -4,17 +4,17 @@ import {
   EventMessage,
   EventType,
   PublicClientApplication,
-} from "@azure/msal-browser";
-import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
-import React from "react";
-import { createRoot } from "react-dom/client";
-import { Provider } from "react-redux";
-import { BrowserRouter } from "react-router-dom";
+} from '@azure/msal-browser';
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
 
-import App from "./App";
-import { store } from "./providers/store";
-import theme from "./theme";
-import { msalConfig } from "./utils/auth/AuthConfig";
+import App from './App';
+import { store } from './providers/store';
+import theme from './theme';
+import { msalConfig } from './utils/auth/AuthConfig';
 
 export const msalInstance = new PublicClientApplication(msalConfig);
 
@@ -31,7 +31,7 @@ msalInstance.addEventCallback((event: EventMessage) => {
   }
 });
 
-const container = document.getElementById("root");
+const container = document.getElementById('root');
 const root = createRoot(container!);
 root.render(
   <>

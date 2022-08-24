@@ -1,8 +1,8 @@
-import * as signalR from "@microsoft/signalr";
+import * as signalR from '@microsoft/signalr';
 
 import { acquireAccessToken, msalInstance } from '../../auth/MsalKey';
 
-const url = "https://localhost:7069/hub";
+const url = 'https://localhost:7069/hub';
 
 const connection = new signalR.HubConnectionBuilder()
   .withAutomaticReconnect()

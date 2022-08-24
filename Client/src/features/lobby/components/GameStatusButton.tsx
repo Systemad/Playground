@@ -13,23 +13,23 @@ export const GameStatusButton = ({ gameStatus, players }: Props) => {
   let button;
 
   switch (gameStatus) {
-    case GameState.AwaitingPlayers:
-      button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
-      break;
-    case GameState.Ready:
-      button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
-      break;
-    case GameState.Finished:
-      button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
-      break;
-    case GameState.Canceled:
-      button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
-      break;
-    case GameState.InProgress:
-      button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
-      break;
-    default:
-      button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
+  case GameState.AwaitingPlayers:
+    button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
+    break;
+  case GameState.Ready:
+    button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
+    break;
+  case GameState.Finished:
+    button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
+    break;
+  case GameState.Canceled:
+    button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
+    break;
+  case GameState.InProgress:
+    button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
+    break;
+  default:
+    button = <Icon as={BsLightningFill} color='red' boxSize={6} />;
 
   }
 

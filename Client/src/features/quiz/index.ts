@@ -1,2 +1,2 @@
-export * from "./layouts/CreateQuizLayout"
-export * from "./layouts/QuizLayout"
+export * from './layouts/CreateQuizLayout'
+export * from './layouts/QuizLayout'

@@ -1,11 +1,10 @@
-import { Box, Flex,Heading, Progress, Spacer, Stack, Text, useColorModeValue, useToast } from '@chakra-ui/react';
+import { Box, Progress, Text } from '@chakra-ui/react';
 
 type Props = {
   question: string
 }
 
 export const Question = ({ question }: Props) => {
-  const text = useColorModeValue('black', 'white');
   return (
     <Box borderRadius='md' bgColor='#4C566A' w='full' mx='auto' my='auto' p={6}>
       <Box>

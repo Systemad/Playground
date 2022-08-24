@@ -1,9 +1,9 @@
 import { GameMode, GameState } from '../../enums';
-import { emptySplitApi as api } from "..\\..\\..\\providers\\emptyApi";
+import { emptySplitApi as api } from '..\\..\\..\\providers\\emptyApi';
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
     lobbyGetGames: build.query<LobbyGetGamesApiResponse, LobbyGetGamesApiArg>({
-      query: () => ({ url: `/api/v1/lobby/games` }),
+      query: () => ({ url: '/api/v1/lobby/games' }),
     }),
   }),
   overrideExisting: false,

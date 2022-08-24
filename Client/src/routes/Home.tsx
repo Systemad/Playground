@@ -8,6 +8,8 @@ import { LandingLayout } from '../components/layouts/LandingLayout';
 import { Lobby } from '../features/lobby/routes/Lobby';
 
 export const Home = () => {
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {login, result, error} = useMsalAuthentication(InteractionType.Redirect);
 
   return(

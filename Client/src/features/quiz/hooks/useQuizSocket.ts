@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
 
 import { useAppDispatch } from '../../../providers/store';
-import connection from "../../../utils/api/signalr/Socket"
+import connection from '../../../utils/api/signalr/Socket'
 import { Player, quizSplitApi, Result } from '../api/quizAPI';
 
 enum QuizEvents
 {
-    PlayerAdded = "PlayerAdded",
-    PlayerRemoved = "PlayerRemoved",
+    PlayerAdded = 'PlayerAdded',
+    PlayerRemoved = 'PlayerRemoved',
 
-    StartGame = "StartGame",
-    EndGame = "EndGame",
+    StartGame = 'StartGame',
+    EndGame = 'EndGame',
 
-    RoundResults = "RoundResults",
-    NextQuestion = "NextQuestion"
+    RoundResults = 'RoundResults',
+    NextQuestion = 'NextQuestion'
 }
 
 export function UseQuizSocket(gameId: string): void {
@@ -31,7 +31,7 @@ export function UseQuizSocket(gameId: string): void {
       // index = index.Players.filter(x = x.playerId == playerId from socket);
       const patchCollection = dispatch(
         quizSplitApi.util.updateQueryData('quizGetGameRuntime', {gameId: gameId}, (draft) => {
-          let newplayer = draft.players?.filter(p => p.id == player.id);
+          const newplayer = draft.players?.filter(p => p.id == player.id);
           if(!newplayer)
             draft.players?.push(player);
         })
@@ -41,7 +41,7 @@ export function UseQuizSocket(gameId: string): void {
     connection.on(QuizEvents.PlayerRemoved, (playerId: string) => {
       const patchCollection = dispatch(
         quizSplitApi.util.updateQueryData('quizGetGameRuntime', {gameId: gameId}, (draft) => {
-          let player = draft.players?.filter(p => p.id == playerId);
+          const player = draft.players?.filter(p => p.id == playerId);
           if(draft.players && player)
             draft.players.filter(p => p.id == playerId);
         })
@@ -50,8 +50,8 @@ export function UseQuizSocket(gameId: string): void {
     connection.on(QuizEvents.StartGame, (question: Result) => {
       if(question){
         quizSplitApi.util.updateQueryData('quizGetGameRuntime', {gameId: gameId}, (draft) => {
-            draft.currentQuestion = question;
-            draft.gameActive = true;
+          draft.currentQuestion = question;
+          draft.gameActive = true;
         })
       }
     })

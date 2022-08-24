@@ -1,4 +1,4 @@
-import { Answer } from "../../../features/enums";
+import { Answer } from '../../../features/enums';
 
 export type MakeAnswer =
 {

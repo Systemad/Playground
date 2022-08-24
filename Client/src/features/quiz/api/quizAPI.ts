@@ -1,5 +1,5 @@
 import { GameState } from '../../enums';
-import { emptySplitApi as api } from "..\\..\\..\\providers\\emptyApi";
+import { emptySplitApi as api } from '..\\..\\..\\providers\\emptyApi';
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
     quizCreateGame: build.mutation<
@@ -7,8 +7,8 @@ const injectedRtkApi = api.injectEndpoints({
       QuizCreateGameApiArg
     >({
       query: (queryArg) => ({
-        url: `/api/v1/quiz/create`,
-        method: "POST",
+        url: '/api/v1/quiz/create',
+        method: 'POST',
         body: queryArg.quizSettingsModel,
       }),
     }),
@@ -17,8 +17,8 @@ const injectedRtkApi = api.injectEndpoints({
       QuizStartGameApiArg
     >({
       query: (queryArg) => ({
-        url: `/api/v1/quiz/id:guid/start`,
-        method: "POST",
+        url: '/api/v1/quiz/id:guid/start',
+        method: 'POST',
         params: { gameId: queryArg.gameId },
       }),
     }),
@@ -27,8 +27,8 @@ const injectedRtkApi = api.injectEndpoints({
       QuizSetGameSettingsApiArg
     >({
       query: (queryArg) => ({
-        url: `/api/v1/quiz/id:guid/settings`,
-        method: "POST",
+        url: '/api/v1/quiz/id:guid/settings',
+        method: 'POST',
         body: queryArg.quizSettingsModel,
         params: { gameId: queryArg.gameId },
       }),
@@ -38,7 +38,7 @@ const injectedRtkApi = api.injectEndpoints({
       QuizGetGameSettingsApiArg
     >({
       query: (queryArg) => ({
-        url: `/api/v1/quiz/id:guid/settings`,
+        url: '/api/v1/quiz/id:guid/settings',
         params: { gameId: queryArg.gameId },
       }),
     }),
@@ -47,7 +47,7 @@ const injectedRtkApi = api.injectEndpoints({
       QuizGetGameRuntimeApiArg
     >({
       query: (queryArg) => ({
-        url: `/api/v1/quiz/id:guid/runtime`,
+        url: '/api/v1/quiz/id:guid/runtime',
         params: { gameId: queryArg.gameId },
       }),
     }),
@@ -56,7 +56,7 @@ const injectedRtkApi = api.injectEndpoints({
       QuizGetGameScoreboardApiArg
     >({
       query: (queryArg) => ({
-        url: `/api/v1/quiz/id:guid/score`,
+        url: '/api/v1/quiz/id:guid/score',
         params: { gameId: queryArg.gameId },
       }),
     }),
