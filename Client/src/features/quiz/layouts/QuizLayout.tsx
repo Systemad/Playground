@@ -1,12 +1,13 @@
-import { Box, SimpleGrid, Stack } from '@chakra-ui/react';
+import { Box, Flex, ScaleFade, SimpleGrid, Spacer, Stack } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { AnswerButton } from '../../../components/common/AnswerButton';
+import connection from '../../../utils/api/signalr/Socket';
 import { MyParams } from '../../../utils/routerParams';
 import { Player, QuizRuntime, Result } from '../api/quizAPI';
+import { Chatbox } from '../components/Chatbox';
 import { Question } from '../components/Question';
-import { Scoreboard } from '../components/Scoreboard';
 
 const ps: Player = {
   id: '1212',
@@ -38,6 +39,7 @@ const quiz: QuizRuntime = {
 
 export const QuizLayout = () => {
 
+  const [preGame, setPreGame] = useState<boolean>(false);
   const [disabled, setDisabled] = useState<boolean>(false);
   const { gameId } = useParams<keyof MyParams>() as MyParams;
 
@@ -46,16 +48,8 @@ export const QuizLayout = () => {
     const {data: quiz} = useQuizGetGameRuntimeQuery({gameId: gameId});
   */
 
-  /*
-  const handleCategoryChange = ({ target: { value } }: ChangeEvent<HTMLSelectElement>) => settings.category = value;
-   */
-  const handleAnswer = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    setDisabled(true);
-    setTimeout(() => {
-      setDisabled(false);
-    }, 2500);
-
+  const handleAnswer = async (answer: string) => {
+    await connection.invoke('submitAnswer', answer);
   };
 
   /*
@@ -67,29 +61,51 @@ export const QuizLayout = () => {
   */
   return (
     <>
-      <Box w="full" mx="auto" my="auto" p={6}>
-        <Scoreboard step={quiz!.questionStep!} total={quiz!.questions!} />
-        <Stack textAlign="center" h="60vh">
-          <Question
-            key={quiz?.questionStep}
-            question={quiz!.currentQuestion!.question!}
-          />
+      <Box h="100%" bg="blue" w="full" mx="auto" my="auto" p={6}>
+        <ScaleFade initialScale={0.5} in={quiz.gameActive}>
+          <Stack textAlign="center" h="60vh">
+            <Question
+              key={quiz?.questionStep}
+              question={quiz!.currentQuestion!.question!}
+              step={quiz!.questionStep!}
+              total={quiz!.questionStep!}
+            />
 
-          <SimpleGrid columns={[1, 2]} spacing={[4, 8]}>
-            {quiz?.currentQuestion?.incorrect_answers?.map((answer, index) => {
-              return (
-                <AnswerButton
-                  choice={answer}
-                  key={index + answer}
-                  onClick={handleAnswer(answer)}
-                  isDisabled={disabled}
-                >
-                  {answer}
-                </AnswerButton>
-              );
-            })}
-          </SimpleGrid>
-        </Stack>
+            <SimpleGrid columns={[1, 2]} spacing={[4, 8]}>
+              {quiz?.currentQuestion?.incorrect_answers?.map((answer, index) => {
+                return (
+                  <AnswerButton
+                    choice={answer}
+                    key={index + answer}
+                    onClick={() => handleAnswer(answer)}
+                    isDisabled={disabled}
+                  >
+                    {answer}
+                  </AnswerButton>
+                );
+              })}
+            </SimpleGrid>
+          </Stack>
+        </ScaleFade>
+
+        <Flex borderRadius="md" mt={8} h="15vh" textAlign="center" w="full" mx="auto" bg="blue.200">
+          <Flex direction='row'>
+            <Box mr={10}>
+              <h1>Not ready</h1>
+            </Box>
+            <Box>
+              <h1>Not ready</h1>
+            </Box>
+            <Box>
+              <h1>Not ready</h1>
+            </Box>
+            <Box>
+              <h1>Not ready</h1>
+            </Box>
+          </Flex>
+          <Spacer />
+          <Chatbox/>
+        </Flex>
       </Box>
     </>
   );

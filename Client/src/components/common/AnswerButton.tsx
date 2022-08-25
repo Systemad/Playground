@@ -2,15 +2,15 @@ import { Button } from '@chakra-ui/react';
 import React, { useState } from 'react';
 
 import connection from '../../utils/api/signalr/Socket';
-
 //   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void,
 export type Props = {
   children: React.ReactNode;
   choice: string,
+  isDisabled: boolean;
   onClick: () => void;
 }
 
-export const AnswerButton = ({children, choice, onClick}: Props) => {
+export const AnswerButton = ({children, choice, isDisabled, onClick}: Props) => {
 
   const [color, setColor] = useState('#5E81AC');
 
@@ -27,6 +27,8 @@ export const AnswerButton = ({children, choice, onClick}: Props) => {
   });
 
   return (
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore no problem in operation, although type error appears.
     <Button
       fontSize="sm"
       name={choice}
@@ -38,13 +40,14 @@ export const AnswerButton = ({children, choice, onClick}: Props) => {
       color="white"
       backgroundColor={color}
       _hover={{
+        transform: 'scale(1.03)',
         background: '#81A1C1'
       }}
       p="28px"
       lineHeight="1.2"
       borderRadius="md"
       h="24px"
-      w={['100%', '50%']}
+      w={['100%']}
       display="inline-flex"
       outline="none"
       position="relative"
@@ -52,6 +55,7 @@ export const AnswerButton = ({children, choice, onClick}: Props) => {
       justifyContent="center"
       alignItems="center"
       transition="all 0.2s cubic-bezier(.08,.52,.52,1)"
+      isDisabled={isDisabled}
       onClick={() => onClick()}
     >
       {children}

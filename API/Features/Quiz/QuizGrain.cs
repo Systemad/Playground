@@ -65,7 +65,7 @@ public class QuizGrain : Grain, IQuizGrain
     
     public async Task<GameState> AddPlayer(Guid playerId)
     {
-        await CheckAndUpdateStatus();
+        //await CheckAndUpdateStatus();
         await PreparePlayer(playerId);
         await _quizState.WriteStateAsync();
         var player = GrainFactory.GetGrain<IPlayerGrain>(playerId);

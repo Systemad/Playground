@@ -4,9 +4,8 @@ import { useAppDispatch } from '../../../providers/store';
 import connection from '../../../utils/api/signalr/Socket';
 import { Player, quizSplitApi } from '../api/quizAPI';
 
-enum ScoreboardEvents
-{
-    UpdateScoreboard = 'UpdateScoreboard',
+enum ScoreboardEvents {
+  UpdateScoreboard = 'UpdateScoreboard',
 }
 
 export function UseQuizScoreboard(gameId: string): void {
@@ -23,12 +22,12 @@ export function UseQuizScoreboard(gameId: string): void {
       // const index = draft.findinedex(x=x.id == gameid);
       // index = index.Players.filter(x = x.playerId == playerId from socket);
       dispatch(
-        quizSplitApi.util.updateQueryData('quizGetGameRuntime', {gameId: gameId}, (draft) => {
+        quizSplitApi.util.updateQueryData('quizGetGameRuntime', { gameId: gameId }, (draft) => {
           const newplayer = draft.players?.filter(p => p.id == player.id);
-          if(!newplayer)
+          if (!newplayer)
             draft.players?.push(player);
         })
-      )
-    })
-  }, [connection])
+      );
+    });
+  });
 }

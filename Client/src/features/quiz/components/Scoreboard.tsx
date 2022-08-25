@@ -4,21 +4,20 @@ type Props = {
   step: number,
   total: number,
 }
-export const Scoreboard = ({step, total} : Props) => {
+export const Scoreboard = ({ step, total }: Props) => {
 
   const text = useColorModeValue('black', 'white');
   //useQuizScoreboard();
 
-  return(
+  return (
     <Flex h="10vh">
       <Text color="white" size="lg">
         Question {(step) + 1}/{total}
       </Text>
       <Spacer />
     </Flex>
-
-  )
-}
+  );
+};
 
 /*
       // TODO: Loop player, with use of dictioranry

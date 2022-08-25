@@ -17,17 +17,17 @@ public class GlobalHub : Hub
         _factory = factory;
     }
     
-    public async Task JoinGame(Guid gameId)
+    public async Task JoinGame(string gameId)
     {
-        await Groups.AddToGroupAsync(GetUserId.ToString(), gameId.ToString());
-        var gameGrain = _factory.GetGrain<IMultiplayerGrain>(gameId);
+        await Groups.AddToGroupAsync(GetUserId.ToString(), gameId);
+        var gameGrain = _factory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
         await gameGrain.AddPlayer(GetUserId);
     } 
     
-    public async Task LeaveGame(Guid gameId)
+    public async Task LeaveGame(string gameId)
     {
-        await Groups.RemoveFromGroupAsync(GetUserId.ToString(), gameId.ToString());
-        var gameGrain = _factory.GetGrain<IMultiplayerGrain>(gameId);
+        await Groups.RemoveFromGroupAsync(GetUserId.ToString(), gameId);
+        var gameGrain = _factory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
         await gameGrain.RemovePlayer(GetUserId);
     }
 

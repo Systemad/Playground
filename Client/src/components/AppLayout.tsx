@@ -1,4 +1,4 @@
-import { Box, Container, Grid, useColorModeValue } from '@chakra-ui/react';
+import { Box, useColorModeValue } from '@chakra-ui/react';
 import React from 'react';
 
 type AppLayoutProps = {
@@ -12,4 +12,4 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {children}
     </Box>
   );
-};
+}

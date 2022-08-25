@@ -64,7 +64,7 @@ export const CreateQuizLayout = () => {
     } catch {
       toast({
         title: 'An error occurred',
-        description: "We couldn't create your quiz, try again!",
+        description: 'We couldn\'t create your quiz, try again!',
         status: 'error',
         duration: 5000,
         isClosable: true
