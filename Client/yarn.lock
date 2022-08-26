@@ -1174,18 +1174,29 @@
     redux-thunk "^2.4.1"
     reselect "^4.1.5"
 
-"@rtk-query/codegen-openapi@^1.0.0-alpha.1":
-  version "1.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/@rtk-query/codegen-openapi/-/codegen-openapi-1.0.0-alpha.1.tgz#1b0f36014554d712af205107e5aa570b2c9eb92c"
-  integrity sha512-JmF6xa/4dKJICD+PLty+E9KUvbfCC7Ax/Frj2W5h/YsTAFWCODVBFuwAzpSqXq4iM5nyfB9BxIwLe8I6WN9gag==
+"@rtk-query/codegen-openapi@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@rtk-query/codegen-openapi/-/codegen-openapi-1.0.0.tgz#92455bfbe1531c7854a403f174adb7ee9274067e"
+  integrity sha512-mptXwJVtMLozWFSqxm7WKY6K8duWLsPgjmkGjqaEqo5qEWJlARur6SHoqugKh3fHSM7vPaCS3VcWJ5RCYjup9Q==
   dependencies:
     "@apidevtools/swagger-parser" "^10.0.2"
+    "@rtk-query/oazapfts-patched" "^3.6.0-2"
     commander "^6.2.0"
-    oazapfts "^3.5.0"
     prettier "^2.2.1"
     semver "^7.3.5"
     swagger2openapi "^7.0.4"
     typescript ">=4.1 <=4.5"
+
+"@rtk-query/oazapfts-patched@^3.6.0-2":
+  version "3.6.0-2"
+  resolved "https://registry.yarnpkg.com/@rtk-query/oazapfts-patched/-/oazapfts-patched-3.6.0-2.tgz#14b04b7b3edcb90527f5d038f2d8ce2190b6d7b6"
+  integrity sha512-9Y9j8BOvmb7WStrY2SomAk8syoAc8/8/EDS8OybG7G2mxy5aWH9qxNZgGxx9ODR4lQwbglan4+kTq0X6KqHUYA==
+  dependencies:
+    "@apidevtools/swagger-parser" "^10.0.1"
+    lodash "^4.17.20"
+    minimist "^1.2.5"
+    swagger2openapi "^7.0.7"
+    typescript "^4.1.2"
 
 "@tsconfig/node10@^1.0.7":
   version "1.0.9"
@@ -3159,17 +3170,6 @@ oas-validator@^5.0.8:
     reftools "^1.1.9"
     should "^13.2.1"
     yaml "^1.10.0"
-
-oazapfts@^3.5.0:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/oazapfts/-/oazapfts-3.6.0.tgz#7a650d9c27e12e86c5a88ebce94bdd1cac18573d"
-  integrity sha512-+KIm4CZE3TUThf4VXZdR5PoNEXmMO4WOBzrLJd5i4k37v2mdVK1ojFhEFwKxE6d4Dg/6tTZ/bQierZKxQUXw5Q==
-  dependencies:
-    "@apidevtools/swagger-parser" "^10.0.1"
-    lodash "^4.17.20"
-    minimist "^1.2.5"
-    swagger2openapi "^7.0.7"
-    typescript "^4.1.2"
 
 object-assign@^4.1.1:
   version "4.1.1"

@@ -1,7 +1,6 @@
-import { Answer } from '../../../features/enums';
+import { Answer } from '../../../features/enums'
 
-export type MakeAnswer =
-{
-    GameId: string;
-    Answer: Answer;
+export type MakeAnswer = {
+    GameId: string
+    Answer: Answer
 }

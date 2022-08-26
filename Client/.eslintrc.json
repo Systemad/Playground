@@ -1,66 +1,71 @@
 {
-  "root": true,
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion": 12,
-    "sourceType": "module",
-    "ecmaFeatures": {
-      "jsx": true
-    }
-  },
-  "ignorePatterns": ["node_modules/*", "*.css", "*.html", "app.tsx", "main.tx"],
-  "settings": {
-    "react": {
-      "version": "detect"
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 12,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true
+        }
     },
-    "import/resolver": {
-      "node": {
-        "paths": ["src"],
-        "extensions": [".js", ".jsx", ".ts", ".tsx"]
-      }
-    }
-  },
-  "env": {
-    "browser": true,
-    "amd": true,
-    "node": true
-  },
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended",
-    "prettier"
-  ],
-  "plugins": ["simple-import-sort", "@typescript-eslint"],
-  "rules": {
-    "indent": ["error", 2],
-    "linebreak-style": 0,
-    "quotes": ["error", "single", { "avoidEscape": true }],
-    "no-use-before-define": "off",
-    "@typescript-eslint/no-use-before-define": ["off"],
-    "react/jsx-filename-extension": [
-      "warn",
-      {
-        "extensions": [".tsx"]
-      }
+    "ignorePatterns": [
+        "node_modules/*",
+        "*.css",
+        "*.html",
+        "app.tsx",
+        "main.tx"
     ],
-    "no-console": "warn",
-    "no-unused-vars": "off",
-    "react/jsx-no-useless-fragment": "off",
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
-    "no-empty": "warn",
-    "react/react-in-jsx-scope": "off",
-    "simple-import-sort/imports": "error",
-    "simple-import-sort/exports": "error",
-    "import/prefer-default-export": "off",
-    "react/function-component-definition": [
-      2,
-      {
-        "namedComponents": "arrow-function",
-        "unnamedComponents": "arrow-function"
-      }
-    ]
-  }
+    "settings": {
+        "react": {
+            "version": "detect"
+        },
+        "import/resolver": {
+            "node": {
+                "paths": ["src"],
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            }
+        }
+    },
+    "env": {
+        "browser": true,
+        "amd": true,
+        "node": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:react/recommended",
+        "plugin:react-hooks/recommended",
+        "prettier"
+    ],
+    "plugins": ["simple-import-sort", "@typescript-eslint"],
+    "rules": {
+        "linebreak-style": 0,
+        "quotes": ["error", "single", { "avoidEscape": true }],
+        "no-use-before-define": "off",
+        "@typescript-eslint/no-use-before-define": ["off"],
+        "react/jsx-filename-extension": [
+            "warn",
+            {
+                "extensions": [".tsx"]
+            }
+        ],
+        "no-console": "warn",
+        "no-unused-vars": "off",
+        "react/jsx-no-useless-fragment": "off",
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn",
+        "no-empty": "warn",
+        "react/react-in-jsx-scope": "off",
+        "simple-import-sort/imports": "error",
+        "simple-import-sort/exports": "error",
+        "import/prefer-default-export": "off",
+        "react/function-component-definition": [
+            2,
+            {
+                "namedComponents": "arrow-function",
+                "unnamedComponents": "arrow-function"
+            }
+        ]
+    }
 }

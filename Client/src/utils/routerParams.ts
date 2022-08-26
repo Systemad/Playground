@@ -1,3 +1,3 @@
 export type MyParams = {
-  gameId: string
-};
+    gameId: string
+}
