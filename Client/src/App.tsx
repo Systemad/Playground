@@ -39,10 +39,13 @@ function App({ pca }: AppProps) {
                 <AppLayout>
                     <Sidebar />
 
-                    <Box ml={{ base: 0, md: 60 }} transition=".3s ease">
-                        <Box as="main" p="4">
-                            <AppRoutes />
-                        </Box>
+                    <Box
+                        h="100vh"
+                        ml={{ base: 0, md: 60 }}
+                        p="4"
+                        transition=".3s ease"
+                    >
+                        <AppRoutes />
                     </Box>
                 </AppLayout>
             </MsalProvider>
@@ -51,25 +54,3 @@ function App({ pca }: AppProps) {
 }
 
 export default App
-
-type LayoutProps = {
-    children: ReactNode
-}
-
-const Layout = ({ children }: LayoutProps) => {
-    const backgroundColor = useColorModeValue('gray.100', 'gray.800')
-
-    return (
-        <Box
-            height="100vh"
-            maxHeight="100vh"
-            backgroundColor={backgroundColor}
-            transition="0.5s ease-out"
-        >
-            <Box height="100vh" maxHeight="100vh" as="main">
-                <Sidebar />
-                {children}
-            </Box>
-        </Box>
-    )
-}

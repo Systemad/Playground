@@ -8,7 +8,6 @@ import {
     DrawerContent,
     DrawerOverlay,
     Flex,
-    GridItem,
     Icon,
     Text,
     useColorMode,
@@ -170,17 +169,15 @@ export const Sidebar = () => {
 
     return (
         <>
-            <GridItem area={'nav'}>
-                <Box bg="#2E3440">
-                    <SidebarContent display={{ base: 'none', md: 'unset' }} />
-                    <Drawer isOpen={isOpen} onClose={onClose} placement="left">
-                        <DrawerOverlay />
-                        <DrawerContent>
-                            <SidebarContent w="full" borderRight="none" />
-                        </DrawerContent>
-                    </Drawer>
-                </Box>
-            </GridItem>
+            <Box bg="#2E3440">
+                <SidebarContent display={{ base: 'none', md: 'unset' }} />
+                <Drawer isOpen={isOpen} onClose={onClose} placement="left">
+                    <DrawerOverlay />
+                    <DrawerContent>
+                        <SidebarContent w="full" borderRight="none" />
+                    </DrawerContent>
+                </Drawer>
+            </Box>
         </>
     )
 }

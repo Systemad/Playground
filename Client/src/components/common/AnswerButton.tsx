@@ -19,7 +19,7 @@ export const AnswerButton = ({
     const [color, setColor] = useState('#5E81AC')
 
     connection.on('RoundResults', (correct: string) => {
-        if (choice == correct) {
+        if (choice === correct) {
             setColor('#8FBCBB')
         } else {
             setColor('#BF616A')
@@ -34,7 +34,7 @@ export const AnswerButton = ({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore no problem in operation, although type error appears.
         <Button
-            fontSize="sm"
+            fontSize="md"
             name={choice}
             as="button"
             style={{
@@ -50,7 +50,7 @@ export const AnswerButton = ({
             p="28px"
             lineHeight="1.2"
             borderRadius="md"
-            h="24px"
+            h="70px"
             w={['100%']}
             display="inline-flex"
             outline="none"

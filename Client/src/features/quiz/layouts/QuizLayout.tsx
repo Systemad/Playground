@@ -10,10 +10,10 @@ import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { AnswerButton } from '../../../components/common/AnswerButton'
+import { PlayerInfo } from '../../../components/common/PlayerInfo'
 import connection from '../../../utils/api/signalr/Socket'
 import { MyParams } from '../../../utils/routerParams'
 import { Player, QuizRuntime, Result } from '../api/quizAPI'
-import { Chatbox } from '../components/Chatbox'
 import { Question } from '../components/Question'
 
 const ps: Player = {
@@ -67,62 +67,35 @@ export const QuizLayout = () => {
   */
     return (
         <>
-            <Box h="100%" bg="blue" w="full" mx="auto" my="auto" p={6}>
-                <ScaleFade initialScale={0.5} in={quiz.gameActive}>
-                    <Stack textAlign="center" h="60vh">
-                        <Question
-                            key={quiz?.questionStep}
-                            question={quiz?.currentQuestion?.question}
-                            step={quiz?.questionStep}
-                            total={quiz?.questionStep}
-                        />
+            <ScaleFade initialScale={0.5} in={quiz.gameActive}>
+                <Question
+                    key={quiz?.questionStep}
+                    question={quiz?.currentQuestion?.question}
+                    step={quiz?.questionStep}
+                    total={quiz?.questionStep}
+                />
 
-                        <SimpleGrid columns={[1, 2]} spacing={[4, 8]}>
-                            {quiz?.currentQuestion?.incorrect_answers?.map(
-                                (answer, index) => {
-                                    return (
-                                        <AnswerButton
-                                            choice={answer}
-                                            key={index + answer}
-                                            onClick={() => handleAnswer(answer)}
-                                            isDisabled={disabled}
-                                        >
-                                            {answer}
-                                        </AnswerButton>
-                                    )
-                                }
-                            )}
-                        </SimpleGrid>
-                    </Stack>
-                </ScaleFade>
+                <Box my={12}>
+                    <SimpleGrid columns={[1, 2]} spacing={[4, 8]}>
+                        {quiz?.currentQuestion?.incorrect_answers?.map(
+                            (answer, index) => {
+                                return (
+                                    <AnswerButton
+                                        choice={answer}
+                                        key={index + answer}
+                                        onClick={() => handleAnswer(answer)}
+                                        isDisabled={disabled}
+                                    >
+                                        {answer}
+                                    </AnswerButton>
+                                )
+                            }
+                        )}
+                    </SimpleGrid>
+                </Box>
+            </ScaleFade>
 
-                <Flex
-                    borderRadius="md"
-                    mt={8}
-                    h="15vh"
-                    textAlign="center"
-                    w="full"
-                    mx="auto"
-                    bg="blue.200"
-                >
-                    <Flex direction="row">
-                        <Box mr={10}>
-                            <h1>Not ready</h1>
-                        </Box>
-                        <Box>
-                            <h1>Not ready</h1>
-                        </Box>
-                        <Box>
-                            <h1>Not ready</h1>
-                        </Box>
-                        <Box>
-                            <h1>Not ready</h1>
-                        </Box>
-                    </Flex>
-                    <Spacer />
-                    <Chatbox />
-                </Flex>
-            </Box>
+            <PlayerInfo gameId={gameId} />
         </>
     )
 }
