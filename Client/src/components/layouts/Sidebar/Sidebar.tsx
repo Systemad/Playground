@@ -1,200 +1,303 @@
+import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 import {
     Box,
     BoxProps,
     Button,
-    ButtonProps,
+    CloseButton,
     Collapse,
     Drawer,
     DrawerContent,
-    DrawerOverlay,
     Flex,
+    FlexProps,
     Icon,
+    Link,
     Text,
     useColorMode,
+    useColorModeValue,
     useDisclosure,
-    VStack,
-} from '@chakra-ui/react'
-import { AiFillHome } from 'react-icons/ai'
+} from '@chakra-ui/react';
+import React, { ReactNode } from 'react';
+import { IconType } from 'react-icons';
 import {
     BsMoonStarsFill,
     BsSun,
-    FaUserCircle,
-    MdGames,
+    FaRegImage,
+    FaRegQuestionCircle,
     MdKeyboardArrowRight,
-} from 'react-icons/all'
-import { RiFlashlightFill } from 'react-icons/ri'
-import { useNavigate } from 'react-router-dom'
+    MdOutlineGames,
+} from 'react-icons/all';
+import { FiHome, FiMenu } from 'react-icons/fi';
+import { Link as ReachLink } from 'react-router-dom';
 
-export const Sidebar = () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { isOpen, onOpen, onClose } = useDisclosure()
-    const { isOpen: gamesIsOpen, onToggle: gamesOnToggle } = useDisclosure()
-    const { isOpen: profileIsOpen, onToggle: profileOnToggle } = useDisclosure()
+interface LinkItemProps {
+    name: string;
+    icon: IconType;
+    link?: string;
+    collapsable?: boolean;
+    isChild?: boolean;
+    children?: Array<LinkItemProps>;
+}
 
-    const navigate = useNavigate()
+const LinkItems: Array<LinkItemProps> = [
+    {
+        name: 'Games',
+        icon: MdOutlineGames,
+        link: '/games',
+        collapsable: true,
+        children: [
+            {
+                name: 'Trivia / Quiz',
+                link: '/quiz',
+                isChild: true,
+                icon: FaRegQuestionCircle,
+            },
+            {
+                name: 'Guessing Games',
+                link: '/guess',
+                isChild: true,
+                icon: FaRegImage,
+            },
+        ],
+    },
+];
 
-    const NavItem = ({ ...props }) => {
-        // eslint-disable-next-line react/prop-types
-        const { icon, children, ...rest } = props
-        return (
-            <Flex
-                align="center"
-                px="4"
-                mx="2"
-                rounded="md"
-                py="3"
-                cursor="pointer"
-                color="whiteAlpha.700"
-                _hover={{
-                    bg: 'blackAlpha.300',
-                    color: 'whiteAlpha.900',
-                }}
-                role="group"
-                fontWeight="semibold"
-                transition=".15s ease"
-                {...rest}
+export const SimpleSidebar = ({ children }: { children: ReactNode }) => {
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    return (
+        <Box minH="100vh" bg="gray.800">
+            <SidebarContent
+                onClose={() => onClose}
+                display={{ base: 'none', md: 'block' }}
+            />
+            <Drawer
+                autoFocus={false}
+                isOpen={isOpen}
+                placement="left"
+                onClose={onClose}
+                returnFocusOnClose={false}
+                onOverlayClick={onClose}
+                size="full"
             >
-                {icon && (
-                    <Icon
-                        mr="2"
-                        boxSize="4"
-                        _groupHover={{
-                            color: 'gray.300',
-                        }}
-                        as={icon}
-                    />
-                )}
+                <DrawerContent>
+                    <SidebarContent onClose={onClose} />
+                </DrawerContent>
+            </Drawer>
+            <Box ml={{ base: 0, md: 60 }} p="4">
                 {children}
-            </Flex>
-        )
-    }
-    const SidebarContent = ({ ...props }: BoxProps) => (
+            </Box>
+        </Box>
+    );
+};
+
+interface SidebarProps extends BoxProps {
+    onClose: () => void;
+}
+
+const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
+    return (
         <Box
-            as="nav"
+            bg="gray.800"
+            borderRight="1px"
+            borderRightColor={useColorModeValue('gray.200', 'gray.700')}
+            w={{ base: 'full', md: 60 }}
             pos="fixed"
-            top="0"
-            left="0"
-            zIndex="sticky"
             h="full"
-            // pb="10"
-            overflowX="hidden"
-            overflowY="auto"
-            bg="#3B4252"
-            w="60"
-            {...props}
+            {...rest}
         >
-            <VStack
-                h="full"
-                w="full"
-                alignItems="flex-start"
-                justify="space-between"
+            <Flex
+                h="20"
+                alignItems="center"
+                mx="8"
+                justifyContent="space-between"
             >
-                <Box w="full">
-                    <Flex px="4" py="5" align="center">
-                        <Icon
-                            color="whiteAlpha.900"
-                            as={RiFlashlightFill}
-                            h={8}
-                            w={8}
-                        />
-                        <Text
-                            fontSize="2xl"
-                            ml="2"
-                            color="whiteAlpha.900"
-                            fontWeight="semibold"
-                        >
-                            Playground
-                        </Text>
-                    </Flex>
+                <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
+                    Logo
+                </Text>
+                <CloseButton
+                    display={{ base: 'flex', md: 'none' }}
+                    onClick={onClose}
+                />
+            </Flex>
+            <HomeButton />
+            {LinkItems.map((link) => (
+                <CollapsableItem key={link.name} link={link}>
+                    {link.name}
+                </CollapsableItem>
+            ))}
+        </Box>
+    );
+};
+
+interface CollapsableNavItemProps extends FlexProps {
+    link: LinkItemProps;
+    children: ReactNode;
+}
+const CollapsableItem = ({ link, children }: CollapsableNavItemProps) => {
+    const { isOpen, onToggle } = useDisclosure();
+
+    if (link.collapsable) {
+        return (
+            <>
+                <Flex
+                    direction="column"
+                    as="nav"
+                    fontSize="md"
+                    color="gray.600"
+                    aria-label="Main Navigation"
+                >
                     <NavItem
                         color="whiteAlpha.900"
-                        icon={AiFillHome}
-                        onClick={() => navigate('/')}
+                        icon={link.icon}
+                        onClick={onToggle}
+                        isChild={false}
                     >
-                        Home
+                        {children}
+                        <Icon as={MdKeyboardArrowRight} ml="auto" />
                     </NavItem>
-                    <Flex
-                        direction="column"
-                        as="nav"
-                        fontSize="md"
-                        color="gray.600"
-                        aria-label="Main Navigation"
-                    >
-                        <NavItem
-                            color="whiteAlpha.900"
-                            icon={MdGames}
-                            onClick={gamesOnToggle}
-                        >
-                            Games
-                            <Icon as={MdKeyboardArrowRight} ml="auto" />
-                        </NavItem>
-                        <Collapse in={gamesIsOpen} animateOpacity>
-                            <NavItem
-                                pl="12"
-                                py="2"
-                                onClick={() => navigate('/quiz')}
-                            >
-                                Quiz
-                            </NavItem>
-                            <NavItem
-                                pl="12"
-                                py="2"
-                                onClick={() => navigate('/guessing')}
-                            >
-                                Guessing Games
-                            </NavItem>
+                    {link.children && (
+                        <Collapse in={isOpen} animateOpacity>
+                            <Flex direction="column" bg={'gray.700'}>
+                                {link.children.map((item) => (
+                                    <NavItem
+                                        color="whiteAlpha.900"
+                                        key={item.name}
+                                        isChild={item.isChild}
+                                        icon={item.icon}
+                                        link={item.link}
+                                    >
+                                        {item.name}
+                                    </NavItem>
+                                ))}
+                            </Flex>
                         </Collapse>
-
-                        <NavItem
-                            color="whiteAlpha.900"
-                            icon={FaUserCircle}
-                            onClick={profileOnToggle}
-                        >
-                            Profile
-                            <Icon as={MdKeyboardArrowRight} ml="auto" />
-                        </NavItem>
-                        <Collapse in={profileIsOpen} animateOpacity>
-                            <NavItem pl="12" py="2">
-                                My Profile
-                            </NavItem>
-                            <NavItem pl="12" py="2">
-                                My Settings
-                            </NavItem>
-                        </Collapse>
-                    </Flex>
-                </Box>
-            </VStack>
-        </Box>
-    )
-
+                    )}
+                </Flex>
+            </>
+        );
+    }
     return (
         <>
-            <Box bg="#2E3440">
-                <SidebarContent display={{ base: 'none', md: 'unset' }} />
-                <Drawer isOpen={isOpen} onClose={onClose} placement="left">
-                    <DrawerOverlay />
-                    <DrawerContent>
-                        <SidebarContent w="full" borderRight="none" />
-                    </DrawerContent>
-                </Drawer>
-            </Box>
+            <NavItem color="whiteAlpha.900" icon={link.icon} onClick={onToggle}>
+                {children}
+            </NavItem>
         </>
-    )
-}
+    );
+};
 
-const NightButton = (props: ButtonProps) => {
-    const { colorMode, toggleColorMode } = useColorMode()
-    return (
-        <Flex justifyContent="center" alignItems="center">
-            <Button
-                aria-label="Toggle Color Mode"
-                onClick={toggleColorMode}
+interface NavItemProps extends FlexProps {
+    icon: IconType;
+    children: ReactNode;
+    link?: string;
+    isChild?: boolean;
+}
+const NavItem = ({ icon, children, isChild, link, ...rest }: NavItemProps) => {
+    if (isChild) {
+        return (
+            <Link
+                as={ReachLink}
+                to={link ?? ''}
+                style={{ textDecoration: 'none' }}
                 _focus={{ boxShadow: 'none' }}
-                w="fit-content"
-                {...props}
             >
-                {colorMode === 'light' ? <BsMoonStarsFill /> : <BsSun />}
+                <Flex
+                    w="full"
+                    align="center"
+                    p="4"
+                    borderRadius="md"
+                    role="group"
+                    cursor="pointer"
+                    _hover={{
+                        bg: 'gray.500',
+                        color: 'white',
+                    }}
+                    {...rest}
+                >
+                    {icon && (
+                        <Icon
+                            mr="4"
+                            fontSize="16"
+                            _groupHover={{
+                                color: 'white',
+                            }}
+                            as={icon}
+                        />
+                    )}
+                    {children}
+                </Flex>
+            </Link>
+        );
+    }
+
+    return (
+        <Flex
+            align="center"
+            p="4"
+            w="full"
+            borderRadius="lg"
+            role="group"
+            cursor="pointer"
+            _hover={{
+                bg: 'gray.500',
+                color: 'white',
+            }}
+            {...rest}
+        >
+            {icon && (
+                <Icon
+                    mr="4"
+                    fontSize="16"
+                    _groupHover={{
+                        color: 'white',
+                    }}
+                    as={icon}
+                />
+            )}
+            {children}
+        </Flex>
+    );
+};
+
+const ThemeSwitcher = () => {
+    const { colorMode, toggleColorMode } = useColorMode();
+    return (
+        <Flex align="center" p="4" mx="4" borderRadius="lg" role="group">
+            <Button onClick={toggleColorMode}>
+                {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
             </Button>
         </Flex>
-    )
-}
+    );
+};
+
+const HomeButton = () => {
+    return (
+        <Link
+            as={ReachLink}
+            to="/"
+            style={{ textDecoration: 'none' }}
+            _focus={{ boxShadow: 'none' }}
+        >
+            <Flex
+                w="full"
+                align="center"
+                p="4"
+                borderRadius="md"
+                role="group"
+                cursor="pointer"
+                _hover={{
+                    bg: 'gray.500',
+                    color: 'white',
+                }}
+            >
+                <Icon
+                    mr="4"
+                    fontSize="16"
+                    _groupHover={{
+                        color: 'white',
+                    }}
+                    as={FiHome}
+                />
+                Home
+            </Flex>
+        </Link>
+    );
+};

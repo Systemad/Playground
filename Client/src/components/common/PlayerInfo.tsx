@@ -7,102 +7,36 @@ import {
     Flex,
     Heading,
     HStack,
+    Input,
     Link,
     Spacer,
     Stack,
     Text,
     useColorModeValue,
-} from '@chakra-ui/react'
-import React, { useEffect, useRef } from 'react'
+} from '@chakra-ui/react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
-import { PlayerRuntime } from '../../features/quiz/api/quizAPI'
-
-interface Message {
-    user: string
-    message: string
-}
-
-const msg1: Message = {
-    user: 'user1',
-    message: 'hello',
-}
-const msg2: Message = {
-    user: 'user2',
-    message: 'hello',
-}
-const msg3: Message = {
-    user: 'user3',
-    message: 'hello',
-}
-const msg4: Message = {
-    user: 'user4',
-    message: 'hello',
-}
-const msg5: Message = {
-    user: 'user5',
-    message: 'hello',
-}
-
-const messagesarray: Message[] = [msg1, msg2, msg3, msg4, msg5]
+import {
+    PlayerRuntime,
+    useQuizGetGameScoreboardQuery,
+} from '../../features/quiz/api/quizAPI';
+import { UseQuizScoreboard } from '../../features/quiz/hooks/useQuizScoreboard';
+import connection from '../../utils/api/signalr/Socket';
 
 type Props = {
-    gameId: string
+    gameId: string;
+};
+
+interface Message {
+    id: string;
+    name: string;
+    content: string;
 }
 
 export const PlayerInfo = ({ gameId }: Props) => {
-    const AlwaysScrollToBottom = () => {
-        const elementRef = useRef<HTMLDivElement>(null)
-        useEffect(() => {
-            if (elementRef != null) {
-                elementRef?.current?.scrollIntoView()
-            }
-        })
-        return <div ref={elementRef} />
-    }
-    useEffect(() => {
-        console.log('hey')
-    })
+    const { data: players } = useQuizGetGameScoreboardQuery({ gameId: gameId });
 
-    const Chatbox = () => {
-        return (
-            <>
-                <Box
-                    w="40%"
-                    bg="gray.500"
-                    overflowY="scroll"
-                    sx={{
-                        '&::-webkit-scrollbar': {
-                            width: '10px',
-                            borderRadius: 'md',
-                            backgroundColor: '#4C566A',
-                        },
-                    }}
-                >
-                    <Flex
-                        flexDir="column"
-                        key="1"
-                        w="100%"
-                        justify="flex-start"
-                    >
-                        {messagesarray.map((item, index) => (
-                            <Flex
-                                key={index}
-                                bg="gray.600" // TODO: remove this
-                                w="100%"
-                                my="0.5"
-                                p="0.5"
-                            >
-                                <Text color="white">
-                                    {item.user}: {item.message}
-                                </Text>
-                            </Flex>
-                        ))}
-                    </Flex>
-                    <AlwaysScrollToBottom />
-                </Box>
-            </>
-        )
-    }
+    UseQuizScoreboard(gameId);
 
     return (
         <Flex
@@ -110,7 +44,7 @@ export const PlayerInfo = ({ gameId }: Props) => {
             borderRadius="md"
             h="20vh"
             w="full"
-            bg="blue.200"
+            bg="blue.800"
         >
             <HStack
                 borderRadius="md"
@@ -119,21 +53,20 @@ export const PlayerInfo = ({ gameId }: Props) => {
                 align="center"
                 justify="space-evenly"
             >
-                <SocialProfileSimple />
-                <SocialProfileSimple />
-                <SocialProfileSimple />
-                <SocialProfileSimple />
+                {players?.players.map((item, index) => (
+                    <PlayerCard key={index} player={item} />
+                ))}
             </HStack>
             <Chatbox />
         </Flex>
-    )
-}
+    );
+};
 
 type PlayerCardProps = {
-    player?: PlayerRuntime
-}
+    player?: PlayerRuntime;
+};
 
-const SocialProfileSimple = ({ player }: PlayerCardProps) => {
+const PlayerCard = ({ player }: PlayerCardProps) => {
     return (
         <Center w="full" h="full">
             <Box
@@ -171,5 +104,84 @@ const SocialProfileSimple = ({ player }: PlayerCardProps) => {
                 </Box>
             </Box>
         </Center>
-    )
-}
+    );
+};
+
+const Chatbox = () => {
+    const [messages, setMessages] = useState<Message[]>([]);
+
+    const AlwaysScrollToBottom = () => {
+        const elementRef = useRef<HTMLDivElement>(null);
+        useEffect(() => {
+            if (elementRef != null) {
+                elementRef?.current?.scrollIntoView();
+            }
+        });
+        return <div ref={elementRef} />;
+    };
+
+    const [value, setValue] = useState('');
+    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+        event.preventDefault();
+        console.log(event.target.value);
+        // TEST
+        if (event.target.value === '13') {
+            connection.invoke('SendMessage', value);
+            setValue('');
+        } else {
+            setValue(event.target.value);
+        }
+    };
+
+    useEffect(() => {
+        connection.on('ReceiveMessage', (message: Message) => {
+            setMessages((_messages) => [..._messages, message]);
+        });
+    });
+
+    return (
+        <>
+            <Box
+                h="100%"
+                w="40%"
+                bg="gray.500"
+                overflowY="scroll"
+                sx={{
+                    '&::-webkit-scrollbar': {
+                        width: '10px',
+                        borderRadius: 'md',
+                        backgroundColor: '#4C566A',
+                    },
+                }}
+            >
+                <Flex
+                    flexDir="column"
+                    key="1"
+                    w="100%"
+                    h="75%"
+                    justify="flex-start"
+                >
+                    {messages.map((item, index) => (
+                        <Flex
+                            key={index}
+                            bg="gray.600" // TODO: remove this
+                            w="100%"
+                            my="0.5"
+                            p="0.5"
+                        >
+                            {item.name}: {item.content}
+                        </Flex>
+                    ))}
+                </Flex>
+                <Input
+                    variant="filled"
+                    value={value}
+                    onChange={handleChange}
+                    placeholder="Enter your message"
+                    size="sm"
+                />
+                <AlwaysScrollToBottom />
+            </Box>
+        </>
+    );
+};

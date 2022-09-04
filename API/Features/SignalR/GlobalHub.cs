@@ -11,12 +11,18 @@ public class GlobalHub : Hub
 {
     private readonly IGrainFactory _factory;
     private Guid GetUserId => new(Context.User.Claims.Single(e => e.Type == ClaimTypes.NameIdentifier).Value);
+    private string GetUsername => new(Context.User.Claims.Single(e => e.Type == ClaimTypes.Name).Value);
     
     public GlobalHub(IGrainFactory factory)
     {
         _factory = factory;
     }
-    
+
+    public async Task SendMessage(string gameId, string content)
+    {
+        var message = new Message(GetUserId.ToString(), GetUsername, content);
+        await Clients.Group(gameId).SendAsync("ReceiveMessage", message);
+    }
     public async Task JoinGame(string gameId)
     {
         await Groups.AddToGroupAsync(GetUserId.ToString(), gameId);

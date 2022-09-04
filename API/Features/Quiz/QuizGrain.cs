@@ -70,7 +70,7 @@ public class QuizGrain : Grain, IQuizGrain
         await _quizState.WriteStateAsync();
         var player = GrainFactory.GetGrain<IPlayerGrain>(playerId);
         var pinfo = await player.GetPlayerInfo();
-        await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync(nameof(QuizEvents.PlayerAdded), pinfo);
+        await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync(nameof(Events.PlayerAdded), pinfo);
         return _quizState.State.GameState;
     }
     
@@ -83,7 +83,7 @@ public class QuizGrain : Grain, IQuizGrain
             //await CheckAndUpdateStatus();
             await _quizState.WriteStateAsync();
             await UpdateGameToLobby();
-            await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync(nameof(QuizEvents.PlayerRemoved), playerId);
+            await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync(nameof(Events.PlayerRemoved), playerId);
         }
         catch (Exception e)
         {
@@ -108,8 +108,14 @@ public class QuizGrain : Grain, IQuizGrain
             _quizState.State.Scoreboard[playerId].Score++; // .u  AddOrUpdate(playerId, 1, (_, count) => ++count );
             _answeredStates[playerId] = true;
         }
+
+        _quizState.State.Scoreboard[playerId].Answered = true;
         
+        // remove?? just use above??
         _answered++;
+        // Send value!
+        await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync("UpdateScore", _quizState.State.Scoreboard[playerId]);
+        
         if (_answeredStates.Values.Count == _quizState.State.Scoreboard.Keys.Count)
         {
             await NextQuestion();
@@ -194,7 +200,7 @@ public class QuizGrain : Grain, IQuizGrain
             TimeSpan.FromSeconds(1));
         */
         await _quizSettingsState.WriteStateAsync();
-        await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync(nameof(QuizEvents.StartGame), true);
+        await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync(nameof(Events.StartGame), true);
         await UpdateGameToLobby();
         return _quizState.State.GameState;
     }
@@ -243,7 +249,7 @@ public class QuizGrain : Grain, IQuizGrain
         //_timer.Dispose();
         //_timerActive = false;
         _quizState.State.GameState = GameState.Finished;
-        await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync(nameof(QuizEvents.EndGame), true);
+        await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync(nameof(Events.EndGame), true);
     }
 
     private async Task PreparePlayer(Guid id)
@@ -281,8 +287,14 @@ public class QuizGrain : Grain, IQuizGrain
             foreach (var player in _answeredStates)
             {
                 await _hubContext.Clients.User(player.Key.ToString())
-                    .SendAsync(nameof(QuizEvents.RoundResults), _currentQuestion.correct_answer);
+                    .SendAsync(nameof(Events.RoundResults), _currentQuestion.correct_answer);
             }
+
+            foreach (var (key, value) in _quizState.State.Scoreboard)
+            {
+                _quizState.State.Scoreboard[key].Answered = false;   
+            }
+
             _answeredStates.Clear();
             _quizStep++;
             _currentQuestion = _quizState.State.Questions[_quizStep];
@@ -290,7 +302,7 @@ public class QuizGrain : Grain, IQuizGrain
             await Task.Delay(5000);
             _currentQuestion.incorrect_answers.Add(_currentQuestion.correct_answer);
             await _hubContext.Clients.Group(GrainKey.ToString())
-                .SendAsync(nameof(QuizEvents.NextQuestion), _currentQuestion);
+                .SendAsync(nameof(Events.NextQuestion), _currentQuestion);
         }
     }
 }

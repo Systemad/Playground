@@ -5,26 +5,26 @@ import {
     SimpleGrid,
     Spacer,
     Stack,
-} from '@chakra-ui/react'
-import React, { useState } from 'react'
-import { useParams } from 'react-router-dom'
+} from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 
-import { AnswerButton } from '../../../components/common/AnswerButton'
-import { PlayerInfo } from '../../../components/common/PlayerInfo'
-import connection from '../../../utils/api/signalr/Socket'
-import { MyParams } from '../../../utils/routerParams'
-import { Player, QuizRuntime, Result } from '../api/quizAPI'
-import { Question } from '../components/Question'
+import { AnswerButton } from '../../../components/common/AnswerButton';
+import { PlayerInfo } from '../../../components/common/PlayerInfo';
+import connection from '../../../utils/api/signalr/Socket';
+import { MyParams } from '../../../utils/routerParams';
+import { Player, QuizRuntime, Result } from '../api/quizAPI';
+import { Question } from '../components/Question';
 
 const ps: Player = {
     id: '1212',
     name: 'whatevs',
-}
+};
 
 const p2: Player = {
     id: '19191',
     name: 'nodeiaia',
-}
+};
 
 const qs: Result = {
     category: 'Tech',
@@ -33,7 +33,7 @@ const qs: Result = {
     question: 'Who won Hockey',
     correct_answer: 'Sweden',
     incorrect_answers: ['Sweden', 'Finland', 'USA', 'Canada'],
-}
+};
 
 const quiz: QuizRuntime = {
     gameActive: true,
@@ -42,12 +42,12 @@ const quiz: QuizRuntime = {
     questionStep: 1,
     numberOfPlayers: 2,
     players: [ps, p2],
-}
+};
 
 export const QuizLayout = () => {
-    const [preGame, setPreGame] = useState<boolean>(false)
-    const [disabled, setDisabled] = useState<boolean>(false)
-    const { gameId } = useParams<keyof MyParams>() as MyParams
+    const [preGame, setPreGame] = useState<boolean>(false);
+    const [disabled, setDisabled] = useState<boolean>(false);
+    const { gameId } = useParams<keyof MyParams>() as MyParams;
 
     /*
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -55,8 +55,8 @@ export const QuizLayout = () => {
   */
 
     const handleAnswer = async (answer: string) => {
-        await connection.invoke('submitAnswer', answer)
-    }
+        await connection.invoke('submitAnswer', answer);
+    };
 
     /*
     connection.on("NextQuestion", (question: Result) => {
@@ -88,7 +88,7 @@ export const QuizLayout = () => {
                                     >
                                         {answer}
                                     </AnswerButton>
-                                )
+                                );
                             }
                         )}
                     </SimpleGrid>
@@ -97,5 +97,5 @@ export const QuizLayout = () => {
 
             <PlayerInfo gameId={gameId} />
         </>
-    )
-}
+    );
+};

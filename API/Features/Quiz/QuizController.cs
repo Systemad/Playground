@@ -68,11 +68,12 @@ public class QuizController : ControllerBase
     }
     
     [HttpGet("id:guid/score", Name = "Get Game scoreboard")]
-    [ProducesResponseType(typeof(Dictionary<Guid, PlayerRuntime>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<PlayerRuntime>), (int)HttpStatusCode.OK)]
     public async Task<ActionResult> GetGameScoreboard(Guid gameId)
     {
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
-        var gameSettings = await gameGrain.GetGameScoreboard();
-        return Ok(gameSettings);
+        var scoreboard = await gameGrain.GetGameScoreboard();
+        var scores = scoreboard.Values;
+        return Ok(scores);
     }
 }

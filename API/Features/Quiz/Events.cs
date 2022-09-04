@@ -1,6 +1,6 @@
 ﻿namespace API.Features.Quiz;
 
-public enum QuizEvents
+public enum Events
 {
     PlayerAdded,
     PlayerRemoved,
