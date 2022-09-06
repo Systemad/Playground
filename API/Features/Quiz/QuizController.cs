@@ -73,7 +73,6 @@ public class QuizController : ControllerBase
     {
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
         var scoreboard = await gameGrain.GetGameScoreboard();
-        var scores = scoreboard.Values;
-        return Ok(scores);
+        return Ok(scoreboard);
     }
 }

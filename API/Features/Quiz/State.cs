@@ -2,6 +2,8 @@
 
 namespace API.Features.Quiz;
 
+public record QuizResults(QuizState State, QuizSettingState Setting);
+
 [Serializable]
 public class QuizState
 {

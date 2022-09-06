@@ -8,63 +8,63 @@ import {
     Stack,
     useColorModeValue,
     useToast,
-} from '@chakra-ui/react'
-import React, { ChangeEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+} from '@chakra-ui/react';
+import React, { ChangeEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { SelectionChooser } from '../../../components/common/SelectionChooser'
-import { generateRandomNumber } from '../../../utils/randomNumber'
-import { useGetCategoriesQuery } from '../api/CategoryAPI'
-import { QuizSettingsModel, useQuizCreateGameMutation } from '../api/quizAPI'
+import { SelectionChooser } from '../../../components/common/SelectionChooser';
+import { generateRandomNumber } from '../../../utils/randomNumber';
+import { useGetCategoriesQuery } from '../api/CategoryAPI';
+import { QuizSettingsModel, useQuizCreateGameMutation } from '../api/quizAPI';
 
 export interface DifficultyLevel {
-    id: string
-    name: string
+    id: string;
+    name: string;
 }
 
-export const CreateQuizLayout = () => {
-    let content
+export const CreateQuizComponent = () => {
+    let content;
 
-    const bgColor = useColorModeValue('white', 'gray.700')
+    const bgColor = useColorModeValue('white', 'gray.700');
 
     const settings: QuizSettingsModel = {
         name: `Quiz #${generateRandomNumber()}`,
         questions: 10,
         category: '',
         difficulty: 'Easy',
-    }
+    };
 
-    const [value, setValue] = React.useState('')
+    const [value, setValue] = React.useState('');
 
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setValue(event.target.value)
-        settings.name = value
-    }
+        setValue(event.target.value);
+        settings.name = value;
+    };
 
-    const navigate = useNavigate()
-    const toast = useToast()
-    const [create, result] = useQuizCreateGameMutation()
+    const navigate = useNavigate();
+    const toast = useToast();
+    const [create, result] = useQuizCreateGameMutation();
 
     const difficulties: DifficultyLevel[] = [
         { id: 'easy', name: 'Easy' },
         { id: 'medium', name: 'Medium' },
         { id: 'hard', name: 'Hard' },
-    ]
+    ];
 
     const { data, isLoading, isSuccess, isError, error } =
-        useGetCategoriesQuery()
+        useGetCategoriesQuery();
 
     const handleCategoryChange = ({
         target: { value },
-    }: ChangeEvent<HTMLSelectElement>) => (settings.category = value)
+    }: ChangeEvent<HTMLSelectElement>) => (settings.category = value);
     const handleDifficultyChange = ({
         target: { value },
-    }: ChangeEvent<HTMLSelectElement>) => (settings.difficulty = value)
+    }: ChangeEvent<HTMLSelectElement>) => (settings.difficulty = value);
 
     const handleCreateQuiz = async () => {
         try {
-            await create({ quizSettingsModel: settings }).unwrap()
-            if (result.status) navigate(`quiz/${result}`)
+            await create({ quizSettingsModel: settings }).unwrap();
+            if (result.status) navigate(`quiz/${result}`);
         } catch {
             toast({
                 title: 'An error occurred',
@@ -72,12 +72,12 @@ export const CreateQuizLayout = () => {
                 status: 'error',
                 duration: 5000,
                 isClosable: true,
-            })
+            });
         }
-    }
+    };
 
     if (isLoading) {
-        content = <Progress size="xl" isIndeterminate />
+        content = <Progress size="xl" isIndeterminate />;
     } else if (isSuccess) {
         content = (
             <>
@@ -122,14 +122,14 @@ export const CreateQuizLayout = () => {
                     </Box>
                 </Stack>
             </>
-        )
+        );
     } else if (isError) {
-        const errMsg = 'error' in error ? error.error : JSON.stringify(error)
+        const errMsg = 'error' in error ? error.error : JSON.stringify(error);
         content = (
             <Heading as="h1" color="gray.50" textAlign="center">
                 {errMsg}
             </Heading>
-        )
+        );
     }
 
     return (
@@ -138,5 +138,5 @@ export const CreateQuizLayout = () => {
                 {content}
             </Flex>
         </>
-    )
-}
+    );
+};

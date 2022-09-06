@@ -170,8 +170,17 @@ public class QuizGrain : Grain, IQuizGrain
         return runtime;
     }
 
-    public Task<Dictionary<Guid, PlayerRuntime>> GetGameScoreboard() =>
-        Task.FromResult(_quizState.State.Scoreboard);
+    // FIX only get values
+    public Task<IEnumerable<PlayerRuntime>> GetGameScoreboard() =>
+        Task.FromResult(_quizState.State.Scoreboard.Values);
+
+    public Task<QuizResults> GetQuizResults()
+    {
+        var state = Task.FromResult(_quizState);
+        // Fix dictiornay
+        var settings = Task.FromResult(_quizState);
+        var results = new QuizResults()
+    }
 
     public async Task SetGameName(string name)
     {

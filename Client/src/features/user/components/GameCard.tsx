@@ -1,7 +1,6 @@
 import {
     Avatar,
     Badge,
-    Box,
     Button,
     Center,
     Flex,
@@ -15,40 +14,9 @@ import {
     VStack,
 } from '@chakra-ui/react';
 
-import { GameMode, GameState } from '../../enums';
-import { GameStatusButton } from './GameStatusButton';
-
-type Props = {
-    name?: string;
-    gameMode?: GameMode;
-    players?: number;
-    gameStatus?: GameState;
-    difficulty?: string;
-    onClick: () => void;
-};
-
-export const LobbyCard = ({
-    name,
-    gameMode,
-    players,
-    gameStatus,
-    difficulty,
-    onClick,
-}: Props) => {
-    let diff;
-    let amount;
-
-    const badgeColor = useColorModeValue('gray.50', 'gray.800');
-    if (difficulty) {
-        diff = (
-            <Badge px={2} py={1} bg={badgeColor} fontWeight={'400'}>
-                {difficulty}
-            </Badge>
-        );
-    }
-
+export const GameCard = () => {
     const winner = 'winner1';
-    const me = 'me'; // get info from MSAL
+    const me = 'me'; // get ingo from MSAL
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const amIwinner = winner === me;
@@ -108,7 +76,7 @@ export const LobbyCard = ({
                     pt={2}
                 >
                     <Heading fontSize={'2xl'} fontFamily={'body'}>
-                        {name}
+                        QUIZ
                     </Heading>
                     <Text
                         textAlign={'center'}
@@ -132,7 +100,22 @@ export const LobbyCard = ({
                         >
                             Quiz
                         </Badge>
-                        {diff}
+                        <Badge
+                            px={2}
+                            py={1}
+                            bg={useColorModeValue('gray.50', 'gray.800')}
+                            fontWeight={'400'}
+                        >
+                            Hard
+                        </Badge>
+                        <Badge
+                            px={2}
+                            py={1}
+                            bg={useColorModeValue('gray.50', 'gray.800')}
+                            fontWeight={'400'}
+                        >
+                            10
+                        </Badge>
                     </Stack>
 
                     <Stack
@@ -144,7 +127,6 @@ export const LobbyCard = ({
                         alignItems={'center'}
                     >
                         <Button
-                            onClick={() => onClick()}
                             flex={1}
                             fontSize={'sm'}
                             rounded={'full'}
@@ -152,7 +134,7 @@ export const LobbyCard = ({
                                 bg: 'gray.200',
                             }}
                         >
-                            Join
+                            Details
                         </Button>
                     </Stack>
                 </Stack>

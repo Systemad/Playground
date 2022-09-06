@@ -1,16 +1,18 @@
-import React from 'react'
-import { Route, Routes } from 'react-router-dom'
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
 
-import { Lobby } from '../features/lobby/routes/Lobby'
-import { QuizLayout } from '../features/quiz'
-import { QuizHome } from '../features/quiz/routes/QuizHome'
+import { LobbyPage } from '../features/lobby';
+import { QuizGamePage, QuizHomePage, QuizResults } from '../features/quiz/';
+import { UserPage } from '../features/user';
 
 export const AppRoutes: React.FC = () => (
     <Routes>
-        <Route index element={<Lobby />} />
+        <Route index element={<LobbyPage />} />
 
-        <Route path="/quiz" element={<QuizHome />} />
-        <Route path="/quiz/:gameId" element={<QuizLayout />} />
-        <Route path="/quiz/results/:gameId" element={<p></p>} />
+        <Route path="/quiz" element={<QuizHomePage />} />
+        <Route path="/quiz/:gameId" element={<QuizGamePage />} />
+        <Route path="/quiz/:gameId/results" element={<QuizResults />} />
+
+        <Route path="/profile" element={<UserPage />} />
     </Routes>
-)
+);

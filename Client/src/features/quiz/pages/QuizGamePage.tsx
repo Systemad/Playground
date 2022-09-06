@@ -44,7 +44,7 @@ const quiz: QuizRuntime = {
     players: [ps, p2],
 };
 
-export const QuizLayout = () => {
+export const QuizGamePage = () => {
     const [preGame, setPreGame] = useState<boolean>(false);
     const [disabled, setDisabled] = useState<boolean>(false);
     const { gameId } = useParams<keyof MyParams>() as MyParams;

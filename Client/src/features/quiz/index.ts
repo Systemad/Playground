@@ -1,2 +1,3 @@
-export * from './layouts/CreateQuizLayout'
-export * from './layouts/QuizLayout'
+export * from './pages/QuizGamePage';
+export * from './pages/QuizHomePage';
+export * from './pages/QuizResultsPage';

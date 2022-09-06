@@ -1,1 +1,1 @@
-export * from './layouts/LobbyLayout'
+export * from './pages/LobbyPage';

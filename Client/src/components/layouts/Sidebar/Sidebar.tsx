@@ -184,6 +184,7 @@ const CollapsableItem = ({ link, children }: CollapsableNavItemProps) => {
     );
 };
 
+// TODO: https://github.com/chakra-ui/design-vs-dev/blob/main/challenges/afrosonic-concept-dashboard/src/components/sidebar/nav-item.tsx#L8
 interface NavItemProps extends FlexProps {
     icon: IconType;
     children: ReactNode;

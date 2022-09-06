@@ -8,5 +8,6 @@ public interface IQuizGrain : IMultiplayerGrain
     Task SetGameSettings(QuizSettingsModel quizPost);
     Task<QuizSettingState> GetGameSettings();
     Task<QuizRuntime> GetGameSummary();
-    Task<Dictionary<Guid, PlayerRuntime>> GetGameScoreboard();
+    Task<IEnumerable<PlayerRuntime>> GetGameScoreboard();
+    Task<QuizResults> GetQuizResults(); // Generize it, i.e IEntity
 }

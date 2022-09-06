@@ -1,13 +1,13 @@
-import { Box, Progress, Text } from '@chakra-ui/react'
-import React from 'react'
+import { Box, Progress, Text } from '@chakra-ui/react';
+import React from 'react';
 
-import { Scoreboard } from './Scoreboard'
+import { Scoreboard } from './Scoreboard';
 
 type Props = {
-    question?: string
-    step?: number
-    total?: number
-}
+    question?: string;
+    step?: number;
+    total?: number;
+};
 
 export const Question = ({ question }: Props) => {
     return (
@@ -30,5 +30,5 @@ export const Question = ({ question }: Props) => {
                 <Progress borderRadius="md" value={20} />
             </Box>
         </Box>
-    )
-}
+    );
+};
