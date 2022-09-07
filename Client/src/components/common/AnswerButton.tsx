@@ -1,14 +1,14 @@
-import { Button } from '@chakra-ui/react'
-import React, { useState } from 'react'
+import { Button } from '@chakra-ui/react';
+import React, { useState } from 'react';
 
-import connection from '../../utils/api/signalr/Socket'
+import connection from '../../utils/api/signalr/Socket';
 //   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void,
 export type Props = {
-    children: React.ReactNode
-    choice: string
-    isDisabled: boolean
-    onClick: () => void
-}
+    children: React.ReactNode;
+    choice: string;
+    isDisabled: boolean;
+    onClick: () => void;
+};
 
 export const AnswerButton = ({
     children,
@@ -16,23 +16,22 @@ export const AnswerButton = ({
     isDisabled,
     onClick,
 }: Props) => {
-    const [color, setColor] = useState('#5E81AC')
+    const [color, setColor] = useState('#5E81AC');
 
+    // TODO: Fix! Server sends correct answer to client, client then checks. Use Redux or useContext!
     connection.on('RoundResults', (correct: string) => {
         if (choice === correct) {
-            setColor('#8FBCBB')
+            setColor('#8FBCBB');
         } else {
-            setColor('#BF616A')
+            setColor('#BF616A');
         }
-    })
+    });
 
     connection.on('NextRound', () => {
-        setColor('#5E81AC')
-    })
+        setColor('#5E81AC');
+    });
 
     return (
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore no problem in operation, although type error appears.
         <Button
             fontSize="md"
             name={choice}
@@ -64,5 +63,5 @@ export const AnswerButton = ({
         >
             {children}
         </Button>
-    )
-}
+    );
+};

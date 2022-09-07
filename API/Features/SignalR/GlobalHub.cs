@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using API.Features.Quiz;
+using API.Features.Quiz.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Orleans;

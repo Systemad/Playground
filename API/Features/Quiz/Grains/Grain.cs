@@ -2,13 +2,15 @@
 using API.Features.Lobby;
 using API.Features.Player;
 using API.Features.Quiz.API;
+using API.Features.Quiz.Dto;
+using API.Features.Quiz.Models;
 using API.Features.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using Orleans;
 using Orleans.Concurrency;
 using Orleans.Runtime;
 
-namespace API.Features.Quiz;
+namespace API.Features.Quiz.Grains;
 
 [Reentrant]
 public class QuizGrain : Grain, IQuizGrain
@@ -51,18 +53,16 @@ public class QuizGrain : Grain, IQuizGrain
         await base.OnActivateAsync();
     }
     
-    public async Task CreateGame(Guid ownerId, QuizSettingsModel settings)
+    public async Task CreateGame(Guid ownerId, QuizCreationModel settings)
     {
-        _quizState.State.OwnerUserId = ownerId;
-        _quizState.State.Name = settings.Name;
-        _quizSettingsState.State.Category = settings.Category;
-        _quizSettingsState.State.Difficulty = settings.Difficulty;
-        _quizSettingsState.State.Questions = settings.Questions;
+        var news = QuizCreationMapper.ToSettingsState(settings);
+        _quizSettingsState.State = news;
+        _quizSettingsState.State.OwnerUserId = ownerId;
         _quizState.State.GameState = GameState.AwaitingPlayers;
         await _quizState.WriteStateAsync();
         await UpdateGameToLobby();
     }
-    
+
     public async Task<GameState> AddPlayer(Guid playerId)
     {
         //await CheckAndUpdateStatus();
@@ -148,7 +148,7 @@ public class QuizGrain : Grain, IQuizGrain
         return Task.FromResult(gameSettings);
     }
     
-    public async Task<QuizRuntime> GetGameSummary()
+    public async Task<Runtime> GetGameSummary()
     {
         var playerids = _quizState.State.Scoreboard.Keys;
         var players = new List<Player.Player>();
@@ -158,7 +158,7 @@ public class QuizGrain : Grain, IQuizGrain
                 var player = GrainFactory.GetGrain<IPlayerGrain>(id);
                 players.Add(await player.GetPlayerInfo());
             });
-        var runtime = new QuizRuntime
+        var runtime = new Runtime
         {
             GameActive = _quizState.State.GameState == GameState.InProgress,
             CurrentQuestion = _currentQuestion,
@@ -169,33 +169,36 @@ public class QuizGrain : Grain, IQuizGrain
         };
         return runtime;
     }
-
-    // FIX only get values
-    public Task<IEnumerable<PlayerRuntime>> GetGameScoreboard() =>
-        Task.FromResult(_quizState.State.Scoreboard.Values);
-
-    public Task<QuizResults> GetQuizResults()
-    {
-        var state = Task.FromResult(_quizState);
-        // Fix dictiornay
-        var settings = Task.FromResult(_quizState);
-        var results = new QuizResults()
-    }
-
-    public async Task SetGameName(string name)
-    {
-        _quizState.State.Name = name;
-        await _quizState.WriteStateAsync();
-        await UpdateGameToLobby();
-    }
     
+    public Task<Scoreboard> GetGameScoreboard()
+    {
+        var board = new Scoreboard
+        {
+            GameId = GrainKey,
+            Players = _quizState.State.Scoreboard.Values.ToList()
+        };
+        return Task.FromResult(board);
+    }
+
+    public Task<GameResult> GetQuizResults()
+    {
+        var state = _quizState.State;
+        var settings = _quizSettingsState.State;
+        
+        // FIX dictiornary
+        var results = new GameResult();
+
+        return Task.FromResult(results);
+    }
+
     public async Task<GameState> StartGame(Guid playerId)
     {
         //await _quizSettingsState.ReadStateAsync();
         if (_quizState.State.GameState != GameState.Ready) throw new ArgumentException("Game is not ready");
-        if (playerId != _quizState.State.OwnerUserId) throw new ArgumentException("Not player id");
+        if (playerId != _quizSettingsState.State.OwnerUserId) throw new ArgumentException("Not player id");
         
-        _quizState.State.Questions = await _quizClient.GetQuizzes(_quizSettingsState.State);
+        var news = QuizCreationMapper.ToCreationModel(_quizSettingsState.State);
+        _quizState.State.Questions = await _quizClient.GetQuizzes(news);
         _quizStep = 0;
         _answered = 0;
         _currentQuestion = _quizState.State.Questions[_quizStep];
@@ -214,10 +217,10 @@ public class QuizGrain : Grain, IQuizGrain
         return _quizState.State.GameState;
     }
     
-    public async Task SetGameSettings(QuizSettingsModel quizPost)
+    public async Task SetGameSettings(QuizCreationModel quizPost)
     {
-        _quizSettingsState.State.Category = quizPost.Category;
-        _quizSettingsState.State.Difficulty = quizPost.Difficulty;
+        var news = QuizCreationMapper.ToSettingsState(quizPost);
+        _quizSettingsState.State = news;
         await _quizSettingsState.WriteStateAsync();
         await UpdateGameToLobby();
     }
@@ -242,7 +245,7 @@ public class QuizGrain : Grain, IQuizGrain
         var gameSummary = new GameLobbySummary
         {
             Id = GrainKey,
-            Name = _quizState.State.Name,
+            Name = _quizSettingsState.State.Name,
             Mode = GameMode.Quiz,
             Players = _quizState.State.Scoreboard.Keys.Count,
             State = _quizState.State.GameState

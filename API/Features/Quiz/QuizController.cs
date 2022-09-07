@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using System.Security.Claims;
 using API.Features.Quiz.API;
+using API.Features.Quiz.Dto;
+using API.Features.Quiz.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
@@ -23,10 +25,11 @@ public class QuizController : ControllerBase
 
     [HttpPost("create", Name = "Create game")]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> CreateGame([FromBody] QuizSettingsModel settings)
+    public async Task<IActionResult> CreateGame([FromBody] QuizCreationModel settings)
     {
         var gameGuid = Guid.NewGuid();
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameGuid);
+        settings.Type = "multiple";
         await gameGrain.CreateGame(GetUserId, settings);
         return Ok(gameGuid);
     }
@@ -42,7 +45,7 @@ public class QuizController : ControllerBase
 
     [HttpPost("id:guid/settings", Name = "Set Game settings")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<ActionResult> SetGameSettings(Guid gameId, [FromBody] QuizSettingsModel settings)
+    public async Task<ActionResult> SetGameSettings(Guid gameId, [FromBody] QuizCreationModel settings)
     {
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
         await gameGrain.SetGameSettings(settings);
@@ -59,7 +62,7 @@ public class QuizController : ControllerBase
     }
     
     [HttpGet("id:guid/runtime", Name = "Get Game runtime")]
-    [ProducesResponseType(typeof(QuizRuntime), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(Runtime), (int)HttpStatusCode.OK)]
     public async Task<ActionResult> GetGameRuntime(Guid gameId)
     {
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);

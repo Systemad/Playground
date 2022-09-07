@@ -1,13 +1,16 @@
 ﻿using API.Features.Quiz.API;
+using API.Features.Quiz.Dto;
+using API.Features.Quiz.Models;
 
 namespace API.Features.Quiz;
 
 public interface IQuizGrain : IMultiplayerGrain
 {
     Task SubmitAnswer(Guid playerId, string answer);
-    Task SetGameSettings(QuizSettingsModel quizPost);
+    Task SetGameSettings(QuizCreationModel quizPost);
+    Task CreateGame(Guid ownerId, QuizCreationModel settings);
     Task<QuizSettingState> GetGameSettings();
-    Task<QuizRuntime> GetGameSummary();
-    Task<IEnumerable<PlayerRuntime>> GetGameScoreboard();
-    Task<QuizResults> GetQuizResults(); // Generize it, i.e IEntity
+    Task<Runtime> GetGameSummary();
+    Task<Scoreboard> GetGameScoreboard();
+    Task<GameResult> GetQuizResults(); // Generize it, i.e IEntity
 }
