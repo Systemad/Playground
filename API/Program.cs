@@ -8,7 +8,6 @@ using NSwag.AspNetCore;
 using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
-using Refit;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration["postgres"];
@@ -40,9 +39,6 @@ builder.Services.AddRouting(options =>
     options.LowercaseUrls = true;
     options.LowercaseQueryStrings = true;
 });
-
-//builder.Services.AddRefitClient<IQuizPostApi>()
-//    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://opentdb.com/"));
 
 // Add services to the container.
 builder.Services.AddAppAuthentication(builder.Configuration);
@@ -86,9 +82,11 @@ builder.Host.UseOrleans((context, silobuilder) =>
 
     silobuilder.ConfigureServices(sv =>
     {
-        sv.AddSingleton<IQuizClient, QuizClient>();
-        sv.AddRefitClient<IQuizPostApi>()
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://opentdb.com/"));
+        sv.AddSingleton<IOpenTdbClient, OpenTdbClient>();
+        sv.AddHttpClient<IOpenTdbClient, OpenTdbClient>(client =>
+        {
+            client.BaseAddress = new Uri("https://opentdb.com/");
+        });
     });
     silobuilder.AddMemoryGrainStorage("quizStore");
     silobuilder.AddMemoryGrainStorage("settingStore");

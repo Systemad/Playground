@@ -9,7 +9,7 @@ import {
     useColorModeValue,
     useToast,
 } from '@chakra-ui/react';
-import React, { ChangeEvent } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { SelectionChooser } from '../../../components/common/SelectionChooser';
@@ -34,11 +34,12 @@ export const CreateQuizComponent = () => {
         difficulty: 'Easy',
     };
 
-    const [value, setValue] = React.useState('');
+    const [value, setValue] = useState<string>('');
 
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setValue(event.target.value);
-        settings.name = value;
+        event.preventDefault();
+        //setValue(event.currentTarget.value);
+        settings.name = event.currentTarget.value;
     };
 
     const navigate = useNavigate();
@@ -46,6 +47,7 @@ export const CreateQuizComponent = () => {
     const [create, result] = useQuizCreateGameMutation();
 
     const difficulties: DifficultyLevel[] = [
+        { id: 'any', name: 'Any' },
         { id: 'easy', name: 'Easy' },
         { id: 'medium', name: 'Medium' },
         { id: 'hard', name: 'Hard' },
@@ -59,7 +61,9 @@ export const CreateQuizComponent = () => {
     }: ChangeEvent<HTMLSelectElement>) => (settings.category = value);
     const handleDifficultyChange = ({
         target: { value },
-    }: ChangeEvent<HTMLSelectElement>) => (settings.difficulty = value);
+    }: ChangeEvent<HTMLSelectElement>) => {
+        console.log(value);
+    };
 
     const handleCreateQuiz = async () => {
         try {
@@ -91,7 +95,7 @@ export const CreateQuizComponent = () => {
                             <Input
                                 value={value}
                                 onChange={handleChange}
-                                placeholder="Enter name for quiz"
+                                placeholder="Leave empty for a random name"
                                 size="md"
                             />
                             <Heading fontSize={'1xl'}>Category</Heading>

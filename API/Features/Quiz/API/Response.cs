@@ -1,22 +1,10 @@
-﻿using Refit;
+﻿namespace API.Features.Quiz.API;
 
-namespace API.Features.Quiz.API;
-
-public interface IQuizPostApi
+public class OpenDtbModel
 {
-    [Post("/api/v1/questions")]
-    Task<Root> GetQuestions([Body(BodySerializationMethod.UrlEncoded)] QuizAPIModel quizCreationModelDto);
-}
-
-public class QuizAPIModel
-{
-    [AliasAs("amount")]
     public int Amount { get; set; }
-    [AliasAs("category")]
     public string Category { get; set; }
-    [AliasAs("difficulty")]
     public string Difficulty { get; set; }
-    [AliasAs("type")]
     public string Type { get; set; }
 }
 

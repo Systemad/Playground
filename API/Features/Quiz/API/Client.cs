@@ -1,28 +1,43 @@
-﻿using API.Features.Quiz.Dto;
+﻿using API.Features.Quiz.Models;
 
 namespace API.Features.Quiz.API;
 
-public class QuizClient : IQuizClient
+public class OpenTdbClient : IOpenTdbClient
 {
     public List<Root>? QuizResponses { get; set; }
 
-    private readonly IQuizPostApi _quizPostApi;
+    private readonly HttpClient _httpClient;
     
-    public QuizClient(IQuizPostApi quizPostApi)
+    public OpenTdbClient(HttpClient httpClient)
     {
-        _quizPostApi = quizPostApi;
+        _httpClient = httpClient;
     }
 
-    public async Task<List<Result>> GetQuizzes(QuizCreationModel quizPost)
+    public async Task<List<Result>> GetQuestions(QuizSettingState model)
     {
-        var post = new QuizAPIModel()
+        string postString;
+        var post = new OpenDtbModel
         {
-            Type = "multiple",
-            Amount = quizPost.Questions,
-            Category = quizPost.Category,
-            Difficulty = quizPost.Difficulty
+            Amount = model.Questions,
+            Category = model.Category,
+            Difficulty = model.Difficulty
         };
-        var question = await _quizPostApi.GetQuestions(post);
-        return question.results;
+        if(model.Category == "0" && model.Difficulty == "any") {
+            postString = $"https://opentdb.com/api.php?amount=${model.Questions}&encode=url3986";
+        } else if(model.Category == "0") {
+            postString = $"https://opentdb.com/api.php?amount=${model.Questions}&difficulty=${model.Difficulty}&encode=url3986";
+        } else if(model.Difficulty == "any") {
+            postString = $"https://opentdb.com/api.php?amount=${model.Questions}&category=${model.Category}&encode=url3986";
+        } else {
+            postString = $"https://opentdb.com/api.php?amount=${model.Questions}&category=${model.Category}&difficulty=${model.Difficulty}&encode=url3986";
+        };
+        var response = await _httpClient.GetFromJsonAsync<Root>(postString);
+        return response.results;
     }
+}
+
+
+public interface IOpenTdbClient
+{
+    Task<List<Result>> GetQuestions(QuizSettingState model);
 }

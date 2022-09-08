@@ -17,7 +17,7 @@ public class QuizGrain : Grain, IQuizGrain
 {
     private const int MaxCapacity = 4;
     
-    private readonly IQuizClient _quizClient;
+    private readonly IOpenTdbClient _client;
 
     private ConcurrentDictionary<Guid, bool> _answeredStates;
     private List<PlayerRuntime> PlayerRuntimes;
@@ -39,11 +39,10 @@ public class QuizGrain : Grain, IQuizGrain
     public QuizGrain(
         [PersistentState("quiz", "quizStore")] IPersistentState<QuizSettingState> quizSettingsState,
         [PersistentState("settings", "settingStore")] IPersistentState<QuizState> quizState,
-        IQuizClient quizClient,
-        IHubContext<GlobalHub> hubContext)
+        IHubContext<GlobalHub> hubContext, IOpenTdbClient client)
     {
-        _quizClient = quizClient;
         _hubContext = hubContext;
+        _client = client;
         _quizSettingsState = quizSettingsState;
         _quizState = quizState;
     }
@@ -198,7 +197,7 @@ public class QuizGrain : Grain, IQuizGrain
         if (playerId != _quizSettingsState.State.OwnerUserId) throw new ArgumentException("Not player id");
         
         var news = QuizCreationMapper.ToCreationModel(_quizSettingsState.State);
-        _quizState.State.Questions = await _quizClient.GetQuizzes(news);
+        _quizState.State.Questions = await _client.GetQuestions(_quizSettingsState.State);
         _quizStep = 0;
         _answered = 0;
         _currentQuestion = _quizState.State.Questions[_quizStep];

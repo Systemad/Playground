@@ -26,9 +26,9 @@ public static class QuizCreationMapper
         return newobj;
     }
 
-    public static QuizAPIModel ToCreationModel(QuizSettingState settingState)
+    public static OpenDtbModel ToCreationModel(QuizSettingState settingState)
     {
-        var newobj = new QuizAPIModel
+        var newobj = new OpenDtbModel
         {
             Amount = settingState.Questions,
             Category = settingState.Category,
