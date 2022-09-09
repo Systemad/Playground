@@ -184,10 +184,17 @@ public class QuizGrain : Grain, IQuizGrain
         var state = _quizState.State;
         var settings = _quizSettingsState.State;
         
-        // FIX dictiornary
+        // TODO: Urgent Fix Dictiornary
         var results = new GameResult();
 
         return Task.FromResult(results);
+    }
+
+    public async Task SetPlayerStatus(Guid playerId, bool status)
+    {
+        var player = _quizState.State.Scoreboard.FirstOrDefault(x => x.Key == playerId);
+        player.Value.Ready = status;
+        await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync(nameof(Events.PlayerStatusChange), playerId, status);
     }
 
     public async Task<GameState> StartGame(Guid playerId)
@@ -196,7 +203,6 @@ public class QuizGrain : Grain, IQuizGrain
         if (_quizState.State.GameState != GameState.Ready) throw new ArgumentException("Game is not ready");
         if (playerId != _quizSettingsState.State.OwnerUserId) throw new ArgumentException("Not player id");
         
-        var news = QuizCreationMapper.ToCreationModel(_quizSettingsState.State);
         _quizState.State.Questions = await _client.GetQuestions(_quizSettingsState.State);
         _quizStep = 0;
         _answered = 0;

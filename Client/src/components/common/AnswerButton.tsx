@@ -10,12 +10,7 @@ export type Props = {
     onClick: () => void;
 };
 
-export const AnswerButton = ({
-    children,
-    choice,
-    isDisabled,
-    onClick,
-}: Props) => {
+export const Answer = ({ children, choice, isDisabled, onClick }: Props) => {
     const [color, setColor] = useState('#5E81AC');
 
     // TODO: Fix! Server sends correct answer to client, client then checks. Use Redux or useContext!

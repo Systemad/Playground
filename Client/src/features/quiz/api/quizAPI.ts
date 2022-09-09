@@ -121,13 +121,14 @@ export type QuizRuntime = {
     questions?: number;
     questionStep?: number;
     numberOfPlayers?: number;
-    players?: Player[];
+    players?: PlayerRuntime[];
 };
 export type PlayerRuntime = {
     id?: string;
     name?: string;
     score?: number;
     answered?: boolean;
+    ready?: boolean;
 };
 export const {
     useQuizCreateGameMutation,

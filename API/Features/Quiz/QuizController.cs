@@ -69,7 +69,7 @@ public class QuizController : ControllerBase
         var gameSettings = await gameGrain.GetGameSummary();
         return Ok(gameSettings);
     }
-    
+
     [HttpGet("id:guid/score", Name = "Get Game scoreboard")]
     [ProducesResponseType(typeof(IEnumerable<PlayerRuntime>), (int)HttpStatusCode.OK)]
     public async Task<ActionResult> GetGameScoreboard(Guid gameId)

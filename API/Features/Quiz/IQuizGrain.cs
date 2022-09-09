@@ -13,4 +13,5 @@ public interface IQuizGrain : IMultiplayerGrain
     Task<Runtime> GetGameSummary();
     Task<Scoreboard> GetGameScoreboard();
     Task<GameResult> GetQuizResults(); // Generize it, i.e IEntity
+    Task SetPlayerStatus(Guid playerId, bool status);
 }

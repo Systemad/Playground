@@ -10,4 +10,6 @@ public enum Events
     
     RoundResults,
     NextQuestion,
+    
+    PlayerStatusChange,
 }

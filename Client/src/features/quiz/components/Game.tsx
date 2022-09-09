@@ -9,12 +9,12 @@ import {
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { AnswerButton } from '../../../components/common/AnswerButton';
+import { Answer } from '../../../components/common/AnswerButton';
 import { PlayerInfo } from '../../../components/common/PlayerInfo';
 import connection from '../../../utils/api/signalr/Socket';
 import { MyParams } from '../../../utils/routerParams';
 import { Player, QuizRuntime, Result } from '../api/quizAPI';
-import { Question } from '../components/Question';
+import { Header } from '../components/Header';
 
 const ps: Player = {
     id: '1212',
@@ -44,7 +44,7 @@ const quiz: QuizRuntime = {
     players: [ps, p2],
 };
 
-export const QuizGamePage = () => {
+export const Game = () => {
     const [preGame, setPreGame] = useState<boolean>(false);
     const [disabled, setDisabled] = useState<boolean>(false);
     const { gameId } = useParams<keyof MyParams>() as MyParams;
@@ -68,11 +68,11 @@ export const QuizGamePage = () => {
     return (
         <>
             <ScaleFade initialScale={0.5} in={quiz.gameActive}>
-                <Question
+                <Header
                     key={quiz?.questionStep}
-                    question={quiz?.currentQuestion?.question}
+                    currentQuestion={quiz?.currentQuestion?.question}
                     step={quiz?.questionStep}
-                    total={quiz?.questionStep}
+                    total={quiz?.questions}
                 />
 
                 <Box my={12}>
@@ -80,14 +80,14 @@ export const QuizGamePage = () => {
                         {quiz?.currentQuestion?.incorrect_answers?.map(
                             (answer, index) => {
                                 return (
-                                    <AnswerButton
+                                    <Answer
                                         choice={answer}
                                         key={index + answer}
                                         onClick={() => handleAnswer(answer)}
                                         isDisabled={disabled}
                                     >
                                         {answer}
-                                    </AnswerButton>
+                                    </Answer>
                                 );
                             }
                         )}

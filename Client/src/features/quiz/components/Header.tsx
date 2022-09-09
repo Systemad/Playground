@@ -4,12 +4,12 @@ import React from 'react';
 import { Scoreboard } from './Scoreboard';
 
 type Props = {
-    question?: string;
+    currentQuestion?: string;
     step?: number;
     total?: number;
 };
 
-export const Question = ({ question }: Props) => {
+export const Header = ({ currentQuestion }: Props) => {
     return (
         <Box
             borderRadius="md"
@@ -22,7 +22,7 @@ export const Question = ({ question }: Props) => {
             <Scoreboard step={1} total={10} />
             <Box>
                 <Text fontSize={['xl', '2xl', '4xl']} color="white" h="60%">
-                    {question}?
+                    {currentQuestion}
                 </Text>
             </Box>
 

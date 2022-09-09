@@ -61,9 +61,7 @@ export const CreateQuizComponent = () => {
     }: ChangeEvent<HTMLSelectElement>) => (settings.category = value);
     const handleDifficultyChange = ({
         target: { value },
-    }: ChangeEvent<HTMLSelectElement>) => {
-        console.log(value);
-    };
+    }: ChangeEvent<HTMLSelectElement>) => (settings.difficulty = value);
 
     const handleCreateQuiz = async () => {
         try {
