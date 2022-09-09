@@ -3,16 +3,13 @@ import { useEffect } from 'react';
 import { useAppDispatch } from '../../../providers/store';
 import connection from '../../../utils/api/signalr/Socket';
 import { quizSplitApi } from '../api/quizAPI';
+import { WebsocketEvents } from '../Events';
 
-enum ScoreboardEvents {
-    PlayerStatusChange = 'PlayerStatusChange',
-}
-
-export function usePreGameHook(gameId: string): void {
+export function useTimer(gameId: string): void {
     const dispatch = useAppDispatch();
     useEffect(() => {
         connection.on(
-            ScoreboardEvents.PlayerStatusChange,
+            WebsocketEvents.PlayerStatusChange,
             (playerId: string, status: boolean) => {
                 dispatch(
                     quizSplitApi.util.updateQueryData(

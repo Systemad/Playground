@@ -1,28 +1,15 @@
-import { useEffect } from 'react'
+import { useEffect } from 'react';
 
-import { useAppDispatch } from '../../../providers/store'
-import connection from '../../../utils/api/signalr/Socket'
-import { Player, quizSplitApi, Result } from '../api/quizAPI'
-
-enum QuizEvents {
-    PlayerAdded = 'PlayerAdded',
-    PlayerRemoved = 'PlayerRemoved',
-
-    StartGame = 'StartGame',
-    EndGame = 'EndGame',
-
-    RoundResults = 'RoundResults',
-    NextQuestion = 'NextQuestion',
-}
+import { useAppDispatch } from '../../../providers/store';
+import connection from '../../../utils/api/signalr/Socket';
+import { Player, quizSplitApi, Result } from '../api/quizAPI';
+import { WebsocketEvents } from '../Events';
 
 export function UseQuizSocket(gameId: string): void {
-    const dispatch = useAppDispatch()
-
-    //const [currentQuestion, setCurrentQuestion] = useState({});
-    //const [gameActive, setGameActive] = useState(false);
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
-        connection.on(QuizEvents.PlayerAdded, (player: Player) => {
+        connection.on(WebsocketEvents.PlayerAdded, (player: Player) => {
             dispatch(
                 quizSplitApi.util.updateQueryData(
                     'quizGetGameRuntime',
@@ -30,14 +17,14 @@ export function UseQuizSocket(gameId: string): void {
                     (draft) => {
                         const newplayer = draft.players?.filter(
                             (p) => p.id == player.id
-                        )
-                        if (!newplayer) draft.players?.push(player)
+                        );
+                        if (!newplayer) draft.players?.push(player);
                     }
                 )
-            )
-        })
+            );
+        });
 
-        connection.on(QuizEvents.PlayerRemoved, (playerId: string) => {
+        connection.on(WebsocketEvents.PlayerRemoved, (playerId: string) => {
             dispatch(
                 quizSplitApi.util.updateQueryData(
                     'quizGetGameRuntime',
@@ -45,47 +32,46 @@ export function UseQuizSocket(gameId: string): void {
                     (draft) => {
                         const player = draft.players?.filter(
                             (p) => p.id == playerId
-                        )
+                        );
                         if (draft.players && player)
-                            draft.players.filter((p) => p.id == playerId)
+                            draft.players.filter((p) => p.id == playerId);
                     }
                 )
-            )
-        })
-        connection.on(QuizEvents.StartGame, (question: Result) => {
+            );
+        });
+        connection.on(WebsocketEvents.StartGame, (question: Result) => {
             if (question) {
                 quizSplitApi.util.updateQueryData(
                     'quizGetGameRuntime',
                     { gameId: gameId },
                     (draft) => {
-                        draft.currentQuestion = question
-                        draft.gameActive = true
+                        draft.currentQuestion = question;
+                        draft.gameActive = true;
                     }
-                )
+                );
             }
-        })
+        });
 
-        connection.on(QuizEvents.EndGame, () => {
+        connection.on(WebsocketEvents.StopGame, () => {
             quizSplitApi.util.updateQueryData(
                 'quizGetGameRuntime',
                 { gameId: gameId },
                 (draft) => {
-                    draft.gameActive = false
+                    draft.gameActive = false;
                 }
-            )
-            // navigate gameid/results, end just fetch endresults, make new APi for results
-        })
-        connection.on(QuizEvents.NextQuestion, (question: Result) => {
+            );
+        });
+        connection.on(WebsocketEvents.NextQuestion, (question: Result) => {
             dispatch(
                 quizSplitApi.util.updateQueryData(
                     'quizGetGameRuntime',
                     { gameId: gameId },
                     (draft) => {
-                        if (draft.questionStep) draft.questionStep++
-                        draft.currentQuestion = question
+                        if (draft.questionStep) draft.questionStep++;
+                        draft.currentQuestion = question;
                     }
                 )
-            )
-        })
-    })
+            );
+        });
+    });
 }

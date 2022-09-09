@@ -28,7 +28,7 @@ import {
     useQuizGetGameRuntimeQuery,
     useQuizGetGameScoreboardQuery,
 } from '../api/quizAPI';
-import { usePreGameHook } from '../hooks/usePreGameHook';
+import { usePreGame } from '../hooks/usePreGame';
 import { Header } from './Header';
 
 /*
@@ -76,9 +76,8 @@ type Props = {
 export const PreGame = () => {
     const { gameId } = useParams<keyof MyParams>() as MyParams;
     const { data: players } = useQuizGetGameScoreboardQuery({ gameId: gameId });
-    const [isReady, setIsReady] = useState<boolean>(false);
 
-    usePreGameHook(gameId);
+    usePreGame(gameId);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         //console.log(event.target.checked);

@@ -1,3 +1,3 @@
 export * from './pages/Quiz';
-export * from './pages/QuizHomePage';
-export * from './pages/QuizResultsPage';
+export * from './pages/QuizHome';
+export * from './pages/QuizResults';

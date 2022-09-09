@@ -195,6 +195,17 @@ public class QuizGrain : Grain, IQuizGrain
         var player = _quizState.State.Scoreboard.FirstOrDefault(x => x.Key == playerId);
         player.Value.Ready = status;
         await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync(nameof(Events.PlayerStatusChange), playerId, status);
+        
+        // Check rdy status
+        // Find better method, works for now?
+        int rdy = 0;
+        foreach (var (key, value) in _quizState.State.Scoreboard)
+        {
+            if (value.Ready) rdy++;
+        }
+
+        if (rdy == _quizState.State.Scoreboard.Count)
+            _quizState.State.GameState = GameState.Ready;
     }
 
     public async Task<GameState> StartGame(Guid playerId)

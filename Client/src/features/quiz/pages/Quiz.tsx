@@ -1,21 +1,14 @@
-import {
-    Box,
-    Flex,
-    ScaleFade,
-    SimpleGrid,
-    Spacer,
-    Stack,
-} from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Answer } from '../../../components/common/AnswerButton';
-import { PlayerInfo } from '../../../components/common/PlayerInfo';
-import connection from '../../../utils/api/signalr/Socket';
 import { MyParams } from '../../../utils/routerParams';
-import { Player, QuizRuntime, Result } from '../api/quizAPI';
+import {
+    Player,
+    QuizRuntime,
+    Result,
+    useQuizGetGameRuntimeQuery,
+} from '../api/quizAPI';
 import { Game } from '../components/Game';
-import { Header } from '../components/Header';
 import { PreGame } from '../components/PreGame';
 
 const ps: Player = {
@@ -38,7 +31,7 @@ const qs: Result = {
 };
 
 const quiz: QuizRuntime = {
-    gameActive: true,
+    gameActive: false,
     currentQuestion: qs,
     questions: 10,
     questionStep: 1,
@@ -46,18 +39,14 @@ const quiz: QuizRuntime = {
     players: [ps, p2],
 };
 
+// TODO: When game ends, navigate to gameid/results
 export const Quiz = () => {
-    const [gameIsReady, setGameIsReady] = useState<boolean>(false);
     const [disabled, setDisabled] = useState<boolean>(false);
     const { gameId } = useParams<keyof MyParams>() as MyParams;
 
-    useEffect(() => {
-        connection.on('GameStatus', (ready: boolean) => {
-            setGameIsReady(ready);
-        });
-    });
+    const { data: game } = useQuizGetGameRuntimeQuery({ gameId: gameId });
 
-    if (!gameIsReady) return <PreGame />;
+    if (!quiz.gameActive) return <PreGame />;
 
     return <Game />;
 };

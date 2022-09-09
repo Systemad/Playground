@@ -45,7 +45,6 @@ const quiz: QuizRuntime = {
 };
 
 export const Game = () => {
-    const [preGame, setPreGame] = useState<boolean>(false);
     const [disabled, setDisabled] = useState<boolean>(false);
     const { gameId } = useParams<keyof MyParams>() as MyParams;
 
