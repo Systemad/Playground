@@ -26,7 +26,6 @@ export const QuizResults = () => {
             <SimpleGrid
                 borderRadius="md"
                 h="full"
-                bg="blue.700"
                 columns={2}
                 spacingX="40px"
                 spacingY="20px"

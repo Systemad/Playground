@@ -9,70 +9,73 @@ import {
     useColorModeValue,
     useToast,
 } from '@chakra-ui/react';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { SelectionChooser } from '../../../components/common/SelectionChooser';
-import { generateRandomNumber } from '../../../utils/randomNumber';
+import { useAppDispatch, useAppSelector } from '../../../providers/store';
 import { useGetCategoriesQuery } from '../api/CategoryAPI';
-import { QuizSettingsModel, useQuizCreateGameMutation } from '../api/quizAPI';
+import { useQuizCreateGameMutation } from '../api/quizAPI';
+import {
+    selectQuizOptions,
+    setCategory,
+    setDifficulty,
+    setName,
+} from '../utils/quizOptionSlice';
 
 export interface DifficultyLevel {
     id: string;
     name: string;
 }
 
+const difficulties: DifficultyLevel[] = [
+    { id: 'any', name: 'Any' },
+    { id: 'easy', name: 'Easy' },
+    { id: 'medium', name: 'Medium' },
+    { id: 'hard', name: 'Hard' },
+];
+
 export const CreateQuizComponent = () => {
     let content;
 
     const bgColor = useColorModeValue('white', 'gray.700');
-
-    const settings: QuizSettingsModel = {
-        name: `Quiz #${generateRandomNumber()}`,
-        questions: 10,
-        category: '',
-        difficulty: 'Easy',
-    };
-
-    const [value, setValue] = useState<string>('');
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+    const toast = useToast();
+    const options = useAppSelector(selectQuizOptions);
+    const [create, result] = useQuizCreateGameMutation();
+    const { data, isLoading, isSuccess, isError, error } =
+        useGetCategoriesQuery();
 
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
         event.preventDefault();
         //setValue(event.currentTarget.value);
-        settings.name = event.currentTarget.value;
+        dispatch(setName(event.currentTarget.value));
     };
-
-    const navigate = useNavigate();
-    const toast = useToast();
-    const [create, result] = useQuizCreateGameMutation();
-
-    const difficulties: DifficultyLevel[] = [
-        { id: 'any', name: 'Any' },
-        { id: 'easy', name: 'Easy' },
-        { id: 'medium', name: 'Medium' },
-        { id: 'hard', name: 'Hard' },
-    ];
-
-    const { data, isLoading, isSuccess, isError, error } =
-        useGetCategoriesQuery();
 
     const handleCategoryChange = ({
         target: { value },
-    }: ChangeEvent<HTMLSelectElement>) => (settings.category = value);
+    }: ChangeEvent<HTMLSelectElement>) => {
+        dispatch(setCategory(value));
+    };
     const handleDifficultyChange = ({
         target: { value },
-    }: ChangeEvent<HTMLSelectElement>) => (settings.difficulty = value);
+    }: ChangeEvent<HTMLSelectElement>) => {
+        dispatch(setDifficulty(value));
+    };
 
     const handleCreateQuiz = async () => {
         try {
-            await create({ quizSettingsModel: settings }).unwrap();
-            if (result.status) navigate(`quiz/${result}`);
+            await create({ quizCreationModel: options })
+                .unwrap()
+                .then((payload) => navigate(payload));
+            if (result.status) navigate(`/${result}`);
         } catch {
             toast({
                 title: 'An error occurred',
                 description: "We couldn't create your quiz, try again!",
                 status: 'error',
-                duration: 5000,
+                duration: 2500,
                 isClosable: true,
             });
         }
@@ -91,7 +94,7 @@ export const CreateQuizComponent = () => {
                             </Stack>
                             <Heading fontSize={'1xl'}>Name</Heading>
                             <Input
-                                value={value}
+                                value={options.name}
                                 onChange={handleChange}
                                 placeholder="Leave empty for a random name"
                                 size="md"

@@ -1,9 +1,11 @@
+using System.Text.Json.Serialization;
 using API.Extensions;
 using API.Features.Quiz.API;
 using API.Features.SignalR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.UI;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using NSwag.AspNetCore;
 using Orleans;
 using Orleans.Configuration;
@@ -14,6 +16,7 @@ var connectionString = builder.Configuration["postgres"];
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
+    options.SerializerSettings.Converters.Add(new StringEnumConverter());
     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
     //options.JsonSerializerOptions.ReferenceHandler = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
     //options.SerializerSettings. PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
@@ -56,7 +59,7 @@ builder.Host.UseOrleans((context, silobuilder) =>
         silobuilder.Configure<ClusterOptions>(options =>
         {
             options.ClusterId = "dev";
-            options.ServiceId = "lookupservice";
+            options.ServiceId = "playgroundservice";
         });
         silobuilder.UseDashboard(); // Only use in development due being CPU intensive
     }

@@ -7,7 +7,7 @@ public enum GameState
     Ready,
     InProgress,
     Finished,
-    Canceled,
+    Canceled
 }
 
 [Serializable]
@@ -26,7 +26,6 @@ public enum GameMode
     Guessing
 }
 
-// For lobby
 [Serializable]
 public struct GameLobbySummary
 {
@@ -35,4 +34,5 @@ public struct GameLobbySummary
     public GameMode Mode { get; set; }
     public int Players { get; set; }
     public GameState State { get; set; }
+    public string? Difficulty { get; set; }
 }

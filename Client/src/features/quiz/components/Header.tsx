@@ -1,15 +1,13 @@
-import { Box, Progress, Text } from '@chakra-ui/react';
+import { Box, Flex, Progress, Spacer, Text } from '@chakra-ui/react';
 import React from 'react';
-
-import { Scoreboard } from './Scoreboard';
 
 type Props = {
     currentQuestion?: string;
-    step?: number;
+    step: number;
     total?: number;
 };
 
-export const Header = ({ currentQuestion }: Props) => {
+export const Header = ({ currentQuestion, step, total }: Props) => {
     return (
         <Box
             borderRadius="md"
@@ -19,7 +17,12 @@ export const Header = ({ currentQuestion }: Props) => {
             my="auto"
             p={6}
         >
-            <Scoreboard step={1} total={10} />
+            <Flex h="10vh">
+                <Text color="white" size="lg">
+                    Question {step + 1}/{total}
+                </Text>
+                <Spacer />
+            </Flex>
             <Box>
                 <Text fontSize={['xl', '2xl', '4xl']} color="white" h="60%">
                     {currentQuestion}

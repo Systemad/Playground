@@ -13,7 +13,7 @@ public class OpenTdbClient : IOpenTdbClient
         _httpClient = httpClient;
     }
 
-    public async Task<List<Result>> GetQuestions(QuizSettingState model)
+    public async Task<List<Result>> GetQuestions(Settings model)
     {
         string postString;
         var post = new OpenDtbModel
@@ -39,5 +39,5 @@ public class OpenTdbClient : IOpenTdbClient
 
 public interface IOpenTdbClient
 {
-    Task<List<Result>> GetQuestions(QuizSettingState model);
+    Task<List<Result>> GetQuestions(Settings model);
 }

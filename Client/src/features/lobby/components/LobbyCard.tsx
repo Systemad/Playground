@@ -15,19 +15,37 @@ import {
     VStack,
 } from '@chakra-ui/react';
 
-import { GameMode, GameState } from '../../enums';
+import { GameMode, GameState } from '../api/lobbyAPI';
 import { GameStatusButton } from './GameStatusButton';
 
+export interface Color {
+    id: string;
+    name: string;
+}
+
+const colors = [
+    'red',
+    'blue',
+    'yellow',
+    'green',
+    'pink',
+    'purple',
+    'teal',
+    'orange',
+];
+
 type Props = {
+    id: string;
     name?: string;
     gameMode?: GameMode;
     players?: number;
     gameStatus?: GameState;
     difficulty?: string;
-    onClick: () => void;
+    onClick: (id: string) => void;
 };
 
 export const LobbyCard = ({
+    id,
     name,
     gameMode,
     players,
@@ -35,23 +53,25 @@ export const LobbyCard = ({
     difficulty,
     onClick,
 }: Props) => {
-    let diff;
-    let amount;
+    let bubbles;
 
     const badgeColor = useColorModeValue('gray.50', 'gray.800');
-    if (difficulty) {
-        diff = (
-            <Badge px={2} py={1} bg={badgeColor} fontWeight={'400'}>
-                {difficulty}
-            </Badge>
-        );
-    }
 
-    const winner = 'winner1';
-    const me = 'me'; // get info from MSAL
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const amIwinner = winner === me;
+    if (players) {
+        const shuffled = [...colors].sort(() => 0.5 - Math.random());
+        const shuffledColors = shuffled.slice(0, players);
+
+        bubbles = Array(players)
+            .fill(1)
+            .map((el, i) => (
+                <Avatar
+                    key={el}
+                    size="md"
+                    src={''}
+                    color={`${shuffledColors[i]}.700`}
+                />
+            ));
+    }
 
     return (
         <Center py={6}>
@@ -73,30 +93,7 @@ export const LobbyCard = ({
                     spacing={5}
                     p="3"
                 >
-                    <Avatar
-                        size="md"
-                        src={
-                            'https://images.unsplash.com/photo-1520810627419-35e362c5dc07?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&ixid=eyJhcHBfaWQiOjE3Nzg0fQ'
-                        }
-                    />
-                    <Avatar
-                        size="md"
-                        src={
-                            'https://images.unsplash.com/photo-1520810627419-35e362c5dc07?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&ixid=eyJhcHBfaWQiOjE3Nzg0fQ'
-                        }
-                    />
-                    <Avatar
-                        size="md"
-                        src={
-                            'https://images.unsplash.com/photo-1520810627419-35e362c5dc07?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&ixid=eyJhcHBfaWQiOjE3Nzg0fQ'
-                        }
-                    />
-                    <Avatar
-                        size="md"
-                        src={
-                            'https://images.unsplash.com/photo-1520810627419-35e362c5dc07?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&ixid=eyJhcHBfaWQiOjE3Nzg0fQ'
-                        }
-                    />
+                    {bubbles}
                 </SimpleGrid>
 
                 <Stack
@@ -110,14 +107,6 @@ export const LobbyCard = ({
                     <Heading fontSize={'2xl'} fontFamily={'body'}>
                         {name}
                     </Heading>
-                    <Text
-                        textAlign={'center'}
-                        color={amIwinner ? 'red' : 'green'}
-                        px={3}
-                        fontSize="xl"
-                    >
-                        {amIwinner ? 'WIN' : 'LOSS'}
-                    </Text>
                     <Stack
                         align={'center'}
                         justify={'center'}
@@ -130,9 +119,18 @@ export const LobbyCard = ({
                             bg={useColorModeValue('gray.50', 'gray.800')}
                             fontWeight={'400'}
                         >
-                            Quiz
+                            {gameMode}
                         </Badge>
-                        {diff}
+                        {difficulty && (
+                            <Badge
+                                px={2}
+                                py={1}
+                                bg={badgeColor}
+                                fontWeight={'400'}
+                            >
+                                {difficulty}
+                            </Badge>
+                        )}
                     </Stack>
 
                     <Stack
@@ -144,7 +142,7 @@ export const LobbyCard = ({
                         alignItems={'center'}
                     >
                         <Button
-                            onClick={() => onClick()}
+                            onClick={() => onClick(id)}
                             flex={1}
                             fontSize={'sm'}
                             rounded={'full'}

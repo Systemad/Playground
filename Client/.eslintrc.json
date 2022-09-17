@@ -9,6 +9,8 @@
         }
     },
     "ignorePatterns": [
+        "lobbyAPI.ts",
+        "quizAPi.ts",
         "node_modules/*",
         "*.css",
         "*.html",

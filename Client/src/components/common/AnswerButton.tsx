@@ -1,31 +1,19 @@
 import { Button } from '@chakra-ui/react';
-import React, { useState } from 'react';
-
-import connection from '../../utils/api/signalr/Socket';
-//   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void,
 export type Props = {
-    children: React.ReactNode;
     choice: string;
     isDisabled: boolean;
-    onClick: () => void;
+    colorStatus: string;
+    selected: boolean;
+    onClick: (answer: string) => void;
 };
 
-export const Answer = ({ children, choice, isDisabled, onClick }: Props) => {
-    const [color, setColor] = useState('#5E81AC');
-
-    // TODO: Fix! Server sends correct answer to client, client then checks. Use Redux or useContext!
-    connection.on('RoundResults', (correct: string) => {
-        if (choice === correct) {
-            setColor('#8FBCBB');
-        } else {
-            setColor('#BF616A');
-        }
-    });
-
-    connection.on('NextRound', () => {
-        setColor('#5E81AC');
-    });
-
+export const Answer = ({
+    choice,
+    isDisabled,
+    colorStatus,
+    selected,
+    onClick,
+}: Props) => {
     return (
         <Button
             fontSize="md"
@@ -36,7 +24,7 @@ export const Answer = ({ children, choice, isDisabled, onClick }: Props) => {
                 wordWrap: 'break-word',
             }}
             color="white"
-            backgroundColor={color}
+            backgroundColor={colorStatus}
             _hover={{
                 transform: 'scale(1.03)',
                 background: '#81A1C1',
@@ -54,9 +42,9 @@ export const Answer = ({ children, choice, isDisabled, onClick }: Props) => {
             alignItems="center"
             transition="all 0.2s cubic-bezier(.08,.52,.52,1)"
             isDisabled={isDisabled}
-            onClick={() => onClick()}
+            onClick={() => onClick(choice)}
         >
-            {children}
+            {choice}
         </Button>
     );
 };

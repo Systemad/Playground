@@ -6,56 +6,47 @@ import {
     Spacer,
     Stack,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Answer } from '../../../components/common/AnswerButton';
-import { PlayerInfo } from '../../../components/common/PlayerInfo';
+import { Scoreboard } from '../../../components/common/Scoreboard';
 import connection from '../../../utils/api/signalr/Socket';
 import { MyParams } from '../../../utils/routerParams';
-import { Player, QuizRuntime, Result } from '../api/quizAPI';
+import {
+    ProcessedQuestion,
+    Runtime,
+    useQuizGetGameRuntimeQuery,
+} from '../api/quizAPI';
 import { Header } from '../components/Header';
-
-const ps: Player = {
-    id: '1212',
-    name: 'whatevs',
-};
-
-const p2: Player = {
-    id: '19191',
-    name: 'nodeiaia',
-};
-
-const qs: Result = {
-    category: 'Tech',
-    type: 'noidea',
-    difficulty: 'easy',
-    question: 'Who won Hockey',
-    correct_answer: 'Sweden',
-    incorrect_answers: ['Sweden', 'Finland', 'USA', 'Canada'],
-};
-
-const quiz: QuizRuntime = {
-    gameActive: true,
-    currentQuestion: qs,
-    questions: 10,
-    questionStep: 1,
-    numberOfPlayers: 2,
-    players: [ps, p2],
-};
+import { useCorrectAnswer } from '../hooks/useCorrectAnswer';
+import { buttonStatus, isButtonDisabled } from '../utils/Helper';
 
 export const Game = () => {
-    const [disabled, setDisabled] = useState<boolean>(false);
     const { gameId } = useParams<keyof MyParams>() as MyParams;
+    const [selectedAnswer, setSelectedAnswer] = useState<string | undefined>();
 
-    /*
-    const { isOpen, onOpen, onClose } = useDisclosure()
-    const {data: quiz} = useQuizGetGameRuntimeQuery({gameId: gameId});
-  */
+    const correctAnswer = useCorrectAnswer();
 
-    const handleAnswer = async (answer: string) => {
-        await connection.invoke('submitAnswer', answer);
+    //const { isOpen, onOpen, onClose } = useDisclosure()
+    const { data: quiz } = useQuizGetGameRuntimeQuery({ gameId: gameId });
+
+    const handleAnswer = (answer: string) => {
+        const isNoPreviouslySelectedAnswer = selectedAnswer === undefined;
+        if (isNoPreviouslySelectedAnswer) {
+            setSelectedAnswer(answer);
+        }
     };
+
+    useEffect(() => {
+        connection.invoke('SubmitAnswer', selectedAnswer);
+    }, [selectedAnswer]);
+
+    useEffect(() => {
+        const resetAnswerListener = () => setSelectedAnswer(undefined);
+
+        connection.on('SubmitAnswer', resetAnswerListener);
+    }, [selectedAnswer]);
 
     /*
     connection.on("NextQuestion", (question: Result) => {
@@ -66,35 +57,44 @@ export const Game = () => {
   */
     return (
         <>
-            <ScaleFade initialScale={0.5} in={quiz.gameActive}>
+            <ScaleFade initialScale={0.5} in={quiz?.gameActive}>
                 <Header
                     key={quiz?.questionStep}
                     currentQuestion={quiz?.currentQuestion?.question}
-                    step={quiz?.questionStep}
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    step={quiz!.questionStep!}
                     total={quiz?.questions}
                 />
 
                 <Box my={12}>
                     <SimpleGrid columns={[1, 2]} spacing={[4, 8]}>
-                        {quiz?.currentQuestion?.incorrect_answers?.map(
-                            (answer, index) => {
-                                return (
-                                    <Answer
-                                        choice={answer}
-                                        key={index + answer}
-                                        onClick={() => handleAnswer(answer)}
-                                        isDisabled={disabled}
-                                    >
-                                        {answer}
-                                    </Answer>
-                                );
-                            }
+                        {quiz?.currentQuestion?.answers?.map(
+                            (answer, index) => (
+                                <Answer
+                                    key={index}
+                                    choice={answer}
+                                    colorStatus={buttonStatus(
+                                        answer,
+                                        selectedAnswer,
+                                        correctAnswer
+                                    )}
+                                    selected={
+                                        answer === selectedAnswer ? true : false
+                                    }
+                                    isDisabled={isButtonDisabled(
+                                        answer,
+                                        selectedAnswer,
+                                        correctAnswer
+                                    )}
+                                    onClick={handleAnswer}
+                                />
+                            )
                         )}
                     </SimpleGrid>
                 </Box>
             </ScaleFade>
 
-            <PlayerInfo gameId={gameId} />
+            <Scoreboard gameId={gameId} />
         </>
     );
 };

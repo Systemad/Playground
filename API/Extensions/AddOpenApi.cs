@@ -13,6 +13,7 @@ public static class AddOpenApi
             configure.Version = "v1";
             configure.Title = "Playground API";
             configure.Description = "Backend API for Playground";
+            configure.GenerateEnumMappingDescription = true;
             configure.AddSecurity("bearer", Enumerable.Empty<string>(), new OpenApiSecurityScheme
             {
                 Type = OpenApiSecuritySchemeType.OAuth2,
@@ -40,5 +41,5 @@ public static class AddOpenApi
             configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("bearer"));
         });
     }
-    
+
 }

@@ -14,10 +14,11 @@ public class QuizCreationModel
 
 public static class QuizCreationMapper
 {
-    public static QuizSettingState ToSettingsState(QuizCreationModel settingsModel)
+    public static Settings ToSettingsState(this QuizCreationModel settingsModel)
     {
-        var newobj = new QuizSettingState
+        var newobj = new Settings
         {
+            Name = settingsModel.Name,
             Type = settingsModel.Type,
             Category = settingsModel.Category,
             Difficulty = settingsModel.Difficulty,
@@ -26,7 +27,7 @@ public static class QuizCreationMapper
         return newobj;
     }
 
-    public static OpenDtbModel ToCreationModel(QuizSettingState settingState)
+    public static OpenDtbModel ToCreationModel(Settings settingState)
     {
         var newobj = new OpenDtbModel
         {

@@ -20,8 +20,11 @@ public class QuizController : ControllerBase
     private readonly IGrainFactory _factory;
 
     private Guid GetUserId => new(User.Claims.Single(e => e.Type == ClaimTypes.NameIdentifier).Value);
-    
-    public QuizController(IGrainFactory factory) => _factory = factory;
+
+    public QuizController(IGrainFactory factory)
+    {
+        _factory = factory;
+    }
 
     [HttpPost("create", Name = "Create game")]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
@@ -29,7 +32,6 @@ public class QuizController : ControllerBase
     {
         var gameGuid = Guid.NewGuid();
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameGuid);
-        settings.Type = "multiple";
         await gameGrain.CreateGame(GetUserId, settings);
         return Ok(gameGuid);
     }
@@ -39,8 +41,8 @@ public class QuizController : ControllerBase
     public async Task<ActionResult> StartGame(Guid gameId)
     {
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
-        var game = await gameGrain.StartGame(GetUserId);
-        return Ok(game);
+        await gameGrain.StartGame(GetUserId);
+        return Ok();
     }
 
     [HttpPost("id:guid/settings", Name = "Set Game settings")]
@@ -51,31 +53,31 @@ public class QuizController : ControllerBase
         await gameGrain.SetGameSettings(settings);
         return Ok();
     }
-    
-    [HttpGet("id:guid/settings", Name = "Get Game settings")]
-    [ProducesResponseType(typeof(QuizSettingState), (int)HttpStatusCode.OK)]
-    public async Task<ActionResult> GetGameSettings(Guid gameId)
-    {
-        var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
-        var gameSettings = await gameGrain.GetGameSettings();
-        return Ok(gameSettings);
-    }
-    
+
     [HttpGet("id:guid/runtime", Name = "Get Game runtime")]
     [ProducesResponseType(typeof(Runtime), (int)HttpStatusCode.OK)]
     public async Task<ActionResult> GetGameRuntime(Guid gameId)
     {
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
-        var gameSettings = await gameGrain.GetGameSummary();
+        var gameSettings = await gameGrain.GetGameRuntime();
         return Ok(gameSettings);
     }
 
     [HttpGet("id:guid/score", Name = "Get Game scoreboard")]
-    [ProducesResponseType(typeof(IEnumerable<PlayerRuntime>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(Scoreboard), (int)HttpStatusCode.OK)]
     public async Task<ActionResult> GetGameScoreboard(Guid gameId)
     {
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
         var scoreboard = await gameGrain.GetGameScoreboard();
+        return Ok(scoreboard);
+    }
+
+    [HttpGet("id:guid/results", Name = "Get Game Results")]
+    [ProducesResponseType(typeof(GameResult), (int)HttpStatusCode.OK)]
+    public async Task<ActionResult> GetGameResults(Guid gameId)
+    {
+        var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
+        var scoreboard = await gameGrain.GetQuizResults();
         return Ok(scoreboard);
     }
 }

@@ -1,5 +1,4 @@
 import { emptySplitApi as api } from '../../../providers/emptyApi';
-import { GameState } from '../../enums';
 const injectedRtkApi = api.injectEndpoints({
     endpoints: (build) => ({
         quizCreateGame: build.mutation<
@@ -7,9 +6,9 @@ const injectedRtkApi = api.injectEndpoints({
             QuizCreateGameApiArg
         >({
             query: (queryArg) => ({
-                url: '/api/v1/quiz/create',
+                url: `/api/v1/quiz/create`,
                 method: 'POST',
-                body: queryArg.quizSettingsModel,
+                body: queryArg.quizCreationModel,
             }),
         }),
         quizStartGame: build.mutation<
@@ -17,7 +16,7 @@ const injectedRtkApi = api.injectEndpoints({
             QuizStartGameApiArg
         >({
             query: (queryArg) => ({
-                url: '/api/v1/quiz/id:guid/start',
+                url: `/api/v1/quiz/id:guid/start`,
                 method: 'POST',
                 params: { gameId: queryArg.gameId },
             }),
@@ -27,18 +26,9 @@ const injectedRtkApi = api.injectEndpoints({
             QuizSetGameSettingsApiArg
         >({
             query: (queryArg) => ({
-                url: '/api/v1/quiz/id:guid/settings',
+                url: `/api/v1/quiz/id:guid/settings`,
                 method: 'POST',
-                body: queryArg.quizSettingsModel,
-                params: { gameId: queryArg.gameId },
-            }),
-        }),
-        quizGetGameSettings: build.query<
-            QuizGetGameSettingsApiResponse,
-            QuizGetGameSettingsApiArg
-        >({
-            query: (queryArg) => ({
-                url: '/api/v1/quiz/id:guid/settings',
+                body: queryArg.quizCreationModel,
                 params: { gameId: queryArg.gameId },
             }),
         }),
@@ -47,7 +37,7 @@ const injectedRtkApi = api.injectEndpoints({
             QuizGetGameRuntimeApiArg
         >({
             query: (queryArg) => ({
-                url: '/api/v1/quiz/id:guid/runtime',
+                url: `/api/v1/quiz/id:guid/runtime`,
                 params: { gameId: queryArg.gameId },
             }),
         }),
@@ -56,7 +46,16 @@ const injectedRtkApi = api.injectEndpoints({
             QuizGetGameScoreboardApiArg
         >({
             query: (queryArg) => ({
-                url: '/api/v1/quiz/id:guid/score',
+                url: `/api/v1/quiz/id:guid/score`,
+                params: { gameId: queryArg.gameId },
+            }),
+        }),
+        quizGetGameResults: build.query<
+            QuizGetGameResultsApiResponse,
+            QuizGetGameResultsApiArg
+        >({
+            query: (queryArg) => ({
+                url: `/api/v1/quiz/id:guid/results`,
                 params: { gameId: queryArg.gameId },
             }),
         }),
@@ -66,7 +65,7 @@ const injectedRtkApi = api.injectEndpoints({
 export { injectedRtkApi as quizSplitApi };
 export type QuizCreateGameApiResponse = /** status 200  */ string;
 export type QuizCreateGameApiArg = {
-    quizSettingsModel: QuizSettingsModel;
+    quizCreationModel: QuizCreationModel;
 };
 export type QuizStartGameApiResponse = /** status 200  */ GameState;
 export type QuizStartGameApiArg = {
@@ -75,66 +74,77 @@ export type QuizStartGameApiArg = {
 export type QuizSetGameSettingsApiResponse = unknown;
 export type QuizSetGameSettingsApiArg = {
     gameId?: string;
-    quizSettingsModel: QuizSettingsModel;
+    quizCreationModel: QuizCreationModel;
 };
-export type QuizGetGameSettingsApiResponse =
-    /** status 200  */ QuizSettingState;
-export type QuizGetGameSettingsApiArg = {
-    gameId?: string;
-};
-export type QuizGetGameRuntimeApiResponse = /** status 200  */ QuizRuntime;
+export type QuizGetGameRuntimeApiResponse = /** status 200  */ Runtime;
 export type QuizGetGameRuntimeApiArg = {
     gameId?: string;
 };
-export type QuizGetGameScoreboardApiResponse = /** status 200  */ {
-    players: PlayerRuntime[];
-};
+export type QuizGetGameScoreboardApiResponse = /** status 200  */ Scoreboard;
 export type QuizGetGameScoreboardApiArg = {
     gameId?: string;
 };
-export type QuizSettingsModel = {
+export type QuizGetGameResultsApiResponse = /** status 200  */ GameResult;
+export type QuizGetGameResultsApiArg = {
+    gameId?: string;
+};
+export type QuizCreationModel = {
     name?: string;
     questions?: number;
     category?: string;
     difficulty?: string;
+    type?: string;
 };
-export type QuizSettingState = {
-    category?: string;
-    difficulty?: string;
-    questions?: number;
-};
-export type Result = {
+export type GameState =
+    | 'AwaitingPlayers'
+    | 'Ready'
+    | 'InProgress'
+    | 'Finished'
+    | 'Canceled';
+export type ProcessedQuestion = {
     category?: string;
     type?: string;
     difficulty?: string;
     question?: string;
-    correct_answer?: string;
-    incorrect_answers?: string[];
+    answers?: string[];
 };
-export type Player = {
-    id?: string;
-    name?: string;
-};
-export type QuizRuntime = {
+export type Runtime = {
     gameActive?: boolean;
-    currentQuestion?: Result;
+    currentQuestion?: ProcessedQuestion | null;
     questions?: number;
     questionStep?: number;
     numberOfPlayers?: number;
-    players?: PlayerRuntime[];
 };
 export type PlayerRuntime = {
     id?: string;
     name?: string;
     score?: number;
-    answered?: boolean;
-    ready?: boolean;
+    answered?: boolean | null;
+    answeredCorrectly?: boolean | null;
+    ready?: boolean | null;
+};
+export type Scoreboard = {
+    gameId?: string;
+    players?: PlayerRuntime[];
+};
+export type PlayerResult = {
+    id?: string;
+    name?: string;
+    score?: number;
+};
+export type GameResult = {
+    gameId?: string;
+    name?: string;
+    scoreboard?: PlayerResult[];
+    category?: string;
+    difficulty?: string;
+    questions?: number;
 };
 export const {
     useQuizCreateGameMutation,
     useQuizStartGameMutation,
     useQuizSetGameSettingsMutation,
-    useQuizGetGameSettingsQuery,
     useQuizGetGameRuntimeQuery,
     useQuizGetGameScoreboardQuery,
+    useQuizGetGameResultsQuery,
 } = injectedRtkApi;

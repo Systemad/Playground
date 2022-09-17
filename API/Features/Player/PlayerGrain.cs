@@ -1,6 +1,7 @@
 ﻿using Orleans;
 
 namespace API.Features.Player;
+
 // TODO:
 /*
  * Add Persistence
@@ -11,13 +12,14 @@ namespace API.Features.Player;
 public class PlayerGrain : Grain, IPlayerGrain
 {
     private string _username = null!;
-    private HashSet<Guid> _activeGame;
+    private Guid _activeGame = Guid.Empty!;
     private static string GrainType => nameof(PlayerGrain);
     private Guid GrainKey => this.GetPrimaryKey();
-    
+
     public Task SetUsername(string username)
     {
         _username = username;
+        var hey = _username;
         return Task.CompletedTask;
     }
 
@@ -32,6 +34,20 @@ public class PlayerGrain : Grain, IPlayerGrain
         return Task.FromResult(playerinfo);
     }
 
-    public Task<string> GetUsername() => Task.FromResult(_username);
-    
+    public Task<string> GetUsername()
+    {
+        return Task.FromResult(_username);
+    }
+
+    public Task SetActiveGame(Guid gameId)
+    {
+        _activeGame = gameId;
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveActiveGame()
+    {
+        _activeGame = Guid.Empty;
+        return Task.CompletedTask;
+    }
 }

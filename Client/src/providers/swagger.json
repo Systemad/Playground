@@ -1,473 +1,549 @@
 {
-  "x-generator": "NSwag v13.16.1.0 (NJsonSchema v10.7.2.0 (Newtonsoft.Json v13.0.0.0))",
-  "openapi": "3.0.0",
-  "info": {
-    "title": "Playground API",
-    "description": "Backend API for Playground",
-    "version": "v1"
-  },
-  "servers": [
-    {
-      "url": "https://localhost:7069"
-    }
-  ],
-  "paths": {
-    "/api/v1/quiz/create": {
-      "post": {
-        "tags": [
-          "Quiz"
-        ],
-        "operationId": "Quiz_CreateGame",
-        "requestBody": {
-          "x-name": "settings",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/QuizSettingsModel"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
+    "x-generator": "NSwag v13.16.1.0 (NJsonSchema v10.7.2.0 (Newtonsoft.Json v13.0.0.0))",
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Playground API",
+        "description": "Backend API for Playground",
+        "version": "v1"
     },
-    "/api/v1/quiz/id:guid/start": {
-      "post": {
-        "tags": [
-          "Quiz"
-        ],
-        "operationId": "Quiz_StartGame",
-        "parameters": [
-          {
-            "name": "gameId",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "guid"
+    "servers": [
+        {
+            "url": "https://localhost:7069"
+        }
+    ],
+    "paths": {
+        "/api/v1/quiz/create": {
+            "post": {
+                "tags": ["Quiz"],
+                "operationId": "Quiz_CreateGame",
+                "requestBody": {
+                    "x-name": "settings",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QuizCreationModel"
+                            }
+                        }
+                    },
+                    "required": true,
+                    "x-position": 1
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/quiz/id:guid/start": {
+            "post": {
+                "tags": ["Quiz"],
+                "operationId": "Quiz_StartGame",
+                "parameters": [
+                    {
+                        "name": "gameId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "guid"
+                        },
+                        "x-position": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GameState"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/quiz/id:guid/settings": {
+            "post": {
+                "tags": ["Quiz"],
+                "operationId": "Quiz_SetGameSettings",
+                "parameters": [
+                    {
+                        "name": "gameId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "guid"
+                        },
+                        "x-position": 1
+                    }
+                ],
+                "requestBody": {
+                    "x-name": "settings",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QuizCreationModel"
+                            }
+                        }
+                    },
+                    "required": true,
+                    "x-position": 2
+                },
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/quiz/id:guid/runtime": {
+            "get": {
+                "tags": ["Quiz"],
+                "operationId": "Quiz_GetGameRuntime",
+                "parameters": [
+                    {
+                        "name": "gameId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "guid"
+                        },
+                        "x-position": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Runtime"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/quiz/id:guid/score": {
+            "get": {
+                "tags": ["Quiz"],
+                "operationId": "Quiz_GetGameScoreboard",
+                "parameters": [
+                    {
+                        "name": "gameId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "guid"
+                        },
+                        "x-position": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Scoreboard"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/quiz/id:guid/results": {
+            "get": {
+                "tags": ["Quiz"],
+                "operationId": "Quiz_GetGameResults",
+                "parameters": [
+                    {
+                        "name": "gameId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "guid"
+                        },
+                        "x-position": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GameResult"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/lobby/games": {
+            "get": {
+                "tags": ["Lobby"],
+                "operationId": "Lobby_GetGames",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/GameLobbySummary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/lobby/id:guid/join": {
+            "post": {
+                "tags": ["Lobby"],
+                "operationId": "Lobby_JoinGame",
+                "parameters": [
+                    {
+                        "name": "gameId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "guid"
+                        },
+                        "x-position": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/lobby/id:guid/leave": {
+            "post": {
+                "tags": ["Lobby"],
+                "operationId": "Lobby_LeaveGame",
+                "parameters": [
+                    {
+                        "name": "gameId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "guid"
+                        },
+                        "x-position": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "QuizCreationModel": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "questions": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "difficulty": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    }
+                }
             },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GameState"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/quiz/id:guid/settings": {
-      "post": {
-        "tags": [
-          "Quiz"
-        ],
-        "operationId": "Quiz_SetGameSettings",
-        "parameters": [
-          {
-            "name": "gameId",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "guid"
+            "GameState": {
+                "type": "string",
+                "description": "",
+                "x-enumNames": [
+                    "AwaitingPlayers",
+                    "Ready",
+                    "InProgress",
+                    "Finished",
+                    "Canceled"
+                ],
+                "enum": [
+                    "AwaitingPlayers",
+                    "Ready",
+                    "InProgress",
+                    "Finished",
+                    "Canceled"
+                ]
             },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "settings",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/QuizSettingsModel"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      },
-      "get": {
-        "tags": [
-          "Quiz"
-        ],
-        "operationId": "Quiz_GetGameSettings",
-        "parameters": [
-          {
-            "name": "gameId",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "guid"
+            "Runtime": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "gameActive": {
+                        "type": "boolean"
+                    },
+                    "currentQuestion": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ProcessedQuestion"
+                            }
+                        ]
+                    },
+                    "questions": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "questionStep": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "numberOfPlayers": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
             },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QuizSettingState"
+            "ProcessedQuestion": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "category": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "difficulty": {
+                        "type": "string"
+                    },
+                    "question": {
+                        "type": "string"
+                    },
+                    "answers": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
                 }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/quiz/id:guid/runtime": {
-      "get": {
-        "tags": [
-          "Quiz"
-        ],
-        "operationId": "Quiz_GetGameRuntime",
-        "parameters": [
-          {
-            "name": "gameId",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "guid"
             },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QuizRuntime"
+            "Scoreboard": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "gameId": {
+                        "type": "string",
+                        "format": "guid"
+                    },
+                    "players": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PlayerRuntime"
+                        }
+                    }
                 }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/quiz/id:guid/score": {
-      "get": {
-        "tags": [
-          "Quiz"
-        ],
-        "operationId": "Quiz_GetGameScoreboard",
-        "parameters": [
-          {
-            "name": "gameId",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "guid"
             },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "$ref": "#/components/schemas/PlayerRuntime"
-                  }
+            "PlayerRuntime": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "guid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "score": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "answered": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "answeredCorrectly": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "ready": {
+                        "type": "boolean",
+                        "nullable": true
+                    }
                 }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/lobby/games": {
-      "get": {
-        "tags": [
-          "Lobby"
-        ],
-        "operationId": "Lobby_GetGames",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GameLobbySummary"
-                  }
+            },
+            "GameResult": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "gameId": {
+                        "type": "string",
+                        "format": "guid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "scoreboard": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PlayerResult"
+                        }
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "difficulty": {
+                        "type": "string"
+                    },
+                    "questions": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
                 }
-              }
+            },
+            "PlayerResult": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "guid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "score": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "GameLobbySummary": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "guid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "mode": {
+                        "$ref": "#/components/schemas/GameMode"
+                    },
+                    "players": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "state": {
+                        "$ref": "#/components/schemas/GameState"
+                    },
+                    "difficulty": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                }
+            },
+            "GameMode": {
+                "type": "string",
+                "description": "",
+                "x-enumNames": ["Quiz", "TicTacToe", "Guessing"],
+                "enum": ["Quiz", "TicTacToe", "Guessing"]
             }
-          }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "QuizSettingsModel": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "questions": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "category": {
-            "type": "string"
-          },
-          "difficulty": {
-            "type": "string"
-          }
-        }
-      },
-      "GameState": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "AwaitingPlayers",
-          "Ready",
-          "InProgress",
-          "Finished",
-          "Canceled"
-        ],
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4
-        ]
-      },
-      "QuizSettingState": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "category": {
-            "type": "string"
-          },
-          "difficulty": {
-            "type": "string"
-          },
-          "questions": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "QuizRuntime": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "gameActive": {
-            "type": "boolean"
-          },
-          "currentQuestion": {
-            "$ref": "#/components/schemas/Result"
-          },
-          "questions": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "questionStep": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "numberOfPlayers": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "players": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Player"
+        "securitySchemes": {
+            "bearer": {
+                "type": "oauth2",
+                "description": "Type into the text box: Bearer {your JWT token}.",
+                "name": "Authorization",
+                "scheme": "Bearer",
+                "flows": {
+                    "implicit": {
+                        "authorizationUrl": "https://danovas.b2clogin.com/danovas.onmicrosoft.com/B2C_1_signupsignin1/oauth2/v2.0/authorize",
+                        "tokenUrl": "https://danovas.b2clogin.com/danovas.onmicrosoft.com/B2C_1_signupsignin1/oauth2/v2.0/token",
+                        "scopes": {
+                            "https://danovas.onmicrosoft.com/89be5e10-1770-45d7-813a-d47242ae2163/API.Access": "Access the api as the signed-in user"
+                        }
+                    }
+                }
             }
-          }
         }
-      },
-      "Result": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "category": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "difficulty": {
-            "type": "string"
-          },
-          "question": {
-            "type": "string"
-          },
-          "correct_answer": {
-            "type": "string"
-          },
-          "incorrect_answers": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "Player": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "guid"
-          },
-          "name": {
-            "type": "string"
-          }
-        }
-      },
-      "PlayerRuntime": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "guid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "score": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "answered": {
-            "type": "boolean"
-          }
-        }
-      },
-      "GameLobbySummary": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "guid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "mode": {
-            "$ref": "#/components/schemas/GameMode"
-          },
-          "players": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "state": {
-            "$ref": "#/components/schemas/GameState"
-          }
-        }
-      },
-      "GameMode": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Quiz",
-          "TicTacToe",
-          "Guessing"
-        ],
-        "enum": [
-          0,
-          1,
-          2
-        ]
-      }
     },
-    "securitySchemes": {
-      "bearer": {
-        "type": "oauth2",
-        "description": "Type into the text box: Bearer {your JWT token}.",
-        "name": "Authorization",
-        "scheme": "Bearer",
-        "flows": {
-          "implicit": {
-            "authorizationUrl": "https://danovas.b2clogin.com/danovas.onmicrosoft.com/B2C_1_signupsignin1/oauth2/v2.0/authorize",
-            "tokenUrl": "https://danovas.b2clogin.com/danovas.onmicrosoft.com/B2C_1_signupsignin1/oauth2/v2.0/token",
-            "scopes": {
-              "https://danovas.onmicrosoft.com/89be5e10-1770-45d7-813a-d47242ae2163/API.Access": "Access the api as the signed-in user"
-            }
-          }
+    "security": [
+        {
+            "bearer": []
         }
-      }
-    }
-  },
-  "security": [
-    {
-      "bearer": []
-    }
-  ]
+    ]
 }

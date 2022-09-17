@@ -1,3 +1,4 @@
+import { useMsal } from '@azure/msal-react';
 import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 import {
     Box,
@@ -63,6 +64,8 @@ const LinkItems: Array<LinkItemProps> = [
 
 export const SimpleSidebar = ({ children }: { children: ReactNode }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const { instance } = useMsal();
+
     return (
         <Box minH="100vh" bg="gray.800">
             <SidebarContent

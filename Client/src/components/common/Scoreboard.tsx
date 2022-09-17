@@ -33,7 +33,7 @@ interface Message {
     content: string;
 }
 
-export const PlayerInfo = ({ gameId }: Props) => {
+export const Scoreboard = ({ gameId }: Props) => {
     const { data: players } = useQuizGetGameScoreboardQuery({ gameId: gameId });
 
     UseQuizScoreboard(gameId);
@@ -53,9 +53,7 @@ export const PlayerInfo = ({ gameId }: Props) => {
                 align="center"
                 justify="space-evenly"
             >
-                {players?.players.map((item, index) => (
-                    <PlayerCard key={index} player={item} />
-                ))}
+                <>{console.log(players)}</>
             </HStack>
             <Chatbox />
         </Flex>
@@ -72,8 +70,7 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
             <Box
                 h="full"
                 w={'full'}
-                bg={player?.answered ? 'green.600' : 'blue.600'} // Change this based on if player answered yes or not,
-                // maybe in future change after round if answe is correct
+                bg={player?.answeredCorrectly ? 'green.600' : 'blue.600'}
                 rounded={'md'}
                 px={4}
                 textAlign={'center'}
@@ -123,8 +120,6 @@ const Chatbox = () => {
     const [value, setValue] = useState('');
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
         event.preventDefault();
-        console.log(event.target.value);
-        // TEST
         if (event.target.value === '13') {
             connection.invoke('SendMessage', value);
             setValue('');

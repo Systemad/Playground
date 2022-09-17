@@ -3,18 +3,16 @@
 namespace API.Features.Quiz.Models;
 
 [Serializable]
-public class QuizState
+public class State
 {
     public GameState GameState { get; set; }
     public List<Result> Questions { get; set; }
-    
     public HashSet<Guid> Players { get; set; }
-
-    public Dictionary<Guid, PlayerRuntime> Scoreboard { get; set; }
+    public Dictionary<Guid, PlayerRuntime> Scoreboard { get; set; } = new();
 }
 
 [Serializable]
-public class QuizSettingState
+public class Settings
 {
     public Guid OwnerUserId { get; set; }
     public string Name { get; set; }

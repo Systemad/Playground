@@ -16,10 +16,11 @@ export function usePreGame(gameId: string): void {
                         'quizGetGameScoreboard',
                         { gameId: gameId },
                         (draft) => {
-                            const pl = draft.players?.findIndex(
-                                (p) => p.id == playerId
+                            const pl = draft?.players?.findIndex(
+                                (p) => p.id === playerId
                             );
-                            if (!pl) draft.players[pl].ready = status;
+                            if (draft.players && pl)
+                                draft.players[pl].answered = status;
                         }
                     )
                 );

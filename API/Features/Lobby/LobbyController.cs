@@ -17,8 +17,11 @@ public class LobbyController : ControllerBase
     private readonly IGrainFactory _factory;
 
     private Guid GetUserId => new(User.Claims.Single(e => e.Type == ClaimTypes.NameIdentifier).Value);
-    
-    public LobbyController(IGrainFactory factory) => _factory = factory;
+
+    public LobbyController(IGrainFactory factory)
+    {
+        _factory = factory;
+    }
 
     [HttpGet("games", Name = "Get Games")]
     [ProducesResponseType(typeof(IEnumerable<GameLobbySummary>), (int)HttpStatusCode.OK)]
@@ -27,5 +30,23 @@ public class LobbyController : ControllerBase
         var lobbyGrain = _factory.GetGrain<ILobbyGrain>(0);
         var lobbies = await lobbyGrain.GetGames();
         return Ok(lobbies);
+    }
+
+    [HttpPost("id:guid/join", Name = "Join Game")]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    public async Task<ActionResult> JoinGame(Guid gameId)
+    {
+        var gameGrain = _factory.GetGrain<IMultiplayerGrain>(gameId);
+        await gameGrain.AddPlayer(GetUserId);
+        return Ok();
+    }
+
+    [HttpPost("id:guid/leave", Name = "Leave Game")]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    public async Task<ActionResult> LeaveGame(Guid gameId)
+    {
+        var gameGrain = _factory.GetGrain<IMultiplayerGrain>(gameId);
+        await gameGrain.RemovePlayer(GetUserId);
+        return Ok();
     }
 }

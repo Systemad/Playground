@@ -1,41 +1,34 @@
-import { Box, chakra, Flex, Icon } from '@chakra-ui/react'
-import { BsLightningFill } from 'react-icons/all'
+import { Box, chakra, Flex, Icon } from '@chakra-ui/react';
+import { BsLightningFill } from 'react-icons/all';
 
-import { GameState } from '../../enums'
+import { GameState } from '../api/lobbyAPI';
 
 type Props = {
-    gameStatus?: GameState
-    players?: number
-}
+    gameStatus?: GameState;
+    players?: number;
+};
 
 export const GameStatusButton = ({ gameStatus, players }: Props) => {
-    let button
-    let status
-
-    if (gameStatus) {
-        status = `${GameState[gameStatus]} - ${players} / 4}`
-    } else {
-        status = 'GameStatus not available'
-    }
+    let button;
 
     switch (gameStatus) {
-        case GameState.AwaitingPlayers:
-            button = <Icon as={BsLightningFill} color="red" boxSize={6} />
-            break
-        case GameState.Ready:
-            button = <Icon as={BsLightningFill} color="red" boxSize={6} />
-            break
-        case GameState.Finished:
-            button = <Icon as={BsLightningFill} color="red" boxSize={6} />
-            break
-        case GameState.Canceled:
-            button = <Icon as={BsLightningFill} color="red" boxSize={6} />
-            break
-        case GameState.InProgress:
-            button = <Icon as={BsLightningFill} color="red" boxSize={6} />
-            break
+        case 'AwaitingPlayers':
+            button = <Icon as={BsLightningFill} color="red" boxSize={6} />;
+            break;
+        case 'Ready':
+            button = <Icon as={BsLightningFill} color="red" boxSize={6} />;
+            break;
+        case 'Finished':
+            button = <Icon as={BsLightningFill} color="red" boxSize={6} />;
+            break;
+        case 'Canceled':
+            button = <Icon as={BsLightningFill} color="red" boxSize={6} />;
+            break;
+        case 'InProgress':
+            button = <Icon as={BsLightningFill} color="red" boxSize={6} />;
+            break;
         default:
-            button = <Icon as={BsLightningFill} color="red" boxSize={6} />
+            button = <Icon as={BsLightningFill} color="red" boxSize={6} />;
     }
 
     return (
@@ -68,10 +61,10 @@ export const GameStatusButton = ({ gameStatus, players }: Props) => {
                         }}
                         fontWeight="bold"
                     >
-                        {status}
+                        {gameStatus && `${gameStatus} - ${players} / 4}`}
                     </chakra.span>
                 </Box>
             </Box>
         </Flex>
-    )
-}
+    );
+};

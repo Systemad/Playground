@@ -1,18 +1,43 @@
+import { InteractionType } from '@azure/msal-browser';
+import {
+    AuthenticatedTemplate,
+    UnauthenticatedTemplate,
+    useMsalAuthentication,
+} from '@azure/msal-react';
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
+import { UnauthenticatedLayout } from '../components/layouts/UnauthenticatedLayout';
 import { LobbyPage } from '../features/lobby';
 import { Quiz, QuizHome, QuizResults } from '../features/quiz/';
 import { UserPage } from '../features/user';
 
-export const AppRoutes: React.FC = () => (
-    <Routes>
-        <Route index element={<LobbyPage />} />
+export const AppRoutes = () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { login, result, error } = useMsalAuthentication(
+        InteractionType.Redirect
+    );
 
-        <Route path="/quiz" element={<QuizHome />} />
-        <Route path="/quiz/:gameId" element={<Quiz />} />
-        <Route path="/quiz/:gameId/results" element={<QuizResults />} />
+    return (
+        <>
+            <AuthenticatedTemplate>
+                <Routes>
+                    <Route index element={<LobbyPage />} />
 
-        <Route path="/profile" element={<UserPage />} />
-    </Routes>
-);
+                    <Route path="/quiz" element={<QuizHome />} />
+                    <Route path="/quiz/:gameId" element={<Quiz />} />
+                    <Route
+                        path="/quiz/:gameId/results"
+                        element={<QuizResults />}
+                    />
+
+                    <Route path="/profile" element={<UserPage />} />
+                </Routes>
+            </AuthenticatedTemplate>
+
+            <UnauthenticatedTemplate>
+                <UnauthenticatedLayout />
+            </UnauthenticatedTemplate>
+        </>
+    );
+};

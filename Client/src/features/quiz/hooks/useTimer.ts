@@ -11,15 +11,15 @@ export function useTimer(gameId: string): void {
         connection.on(
             WebsocketEvents.PlayerStatusChange,
             (playerId: string, status: boolean) => {
-                dispatch(
+                const patch = dispatch(
                     quizSplitApi.util.updateQueryData(
                         'quizGetGameScoreboard',
                         { gameId: gameId },
                         (draft) => {
-                            const pl = draft.players?.findIndex(
+                            const pl = draft?.findIndex(
                                 (p) => p.id == playerId
                             );
-                            if (!pl) draft.players[pl].ready = status;
+                            if (!pl) draft[pl].ready = status;
                         }
                     )
                 );

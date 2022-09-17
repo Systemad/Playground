@@ -4,12 +4,17 @@ public enum Events
 {
     PlayerAdded,
     PlayerRemoved,
-    
+
     StartGame,
-    EndGame,
-    
+    StopGame,
+
     RoundResults,
-    NextQuestion,
-    
+    NextRound,
+
     PlayerStatusChange,
+    UpdateScoreboard,
+
+    PlayerAnswered,
+    CorrectAnswer
+
 }

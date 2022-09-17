@@ -5,8 +5,8 @@ namespace API.Features;
 
 public interface IMultiplayerGrain : IGrainWithGuidKey
 {
-    Task<GameState> AddPlayer(Guid playerId);
-    Task<GameState> RemovePlayer(Guid playerId);
-    Task<GameState> GetGameState();
-    Task<GameState> StartGame(Guid playerId);
+    Task AddPlayer(Guid playerId);
+    Task RemovePlayer(Guid playerId);
+    Task StartGame(Guid? playerId);
+    Task SetPlayerStatus(Guid playerId, bool status);
 }
