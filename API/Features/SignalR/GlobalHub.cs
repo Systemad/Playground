@@ -14,6 +14,7 @@ public class GlobalHub : Hub
     private readonly IGrainFactory _factory;
     private Guid GetUserId => new(Context.User.Claims.Single(e => e.Type == ClaimTypes.NameIdentifier).Value);
     private string GetUsername => new(Context.User.Identity.Name); // For username retrieval
+    private string GetConnectionId => new(Context.ConnectionId);
 
     public GlobalHub(IGrainFactory factory)
     {
@@ -42,7 +43,8 @@ public class GlobalHub : Hub
 
     public async Task JoinGame(string gameId)
     {
-        await Groups.AddToGroupAsync(GetUserId.ToString(), gameId);
+        Console.WriteLine($"Hub: Joining game {gameId}");
+        await Groups.AddToGroupAsync(GetConnectionId, gameId);
         var gameGrain = _factory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
         await gameGrain.AddPlayer(GetUserId);
         var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
@@ -51,11 +53,19 @@ public class GlobalHub : Hub
 
     public async Task LeaveGame(string gameId)
     {
-        await Groups.RemoveFromGroupAsync(GetUserId.ToString(), gameId);
+        Console.WriteLine($"Hub: Leaving game {gameId}");
+        await Groups.RemoveFromGroupAsync(GetConnectionId, gameId);
         var gameGrain = _factory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
         await gameGrain.RemovePlayer(GetUserId);
         var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
         await player.RemoveActiveGame();
+    }
+
+    public async Task StartGame(string gameId)
+    {
+        Console.WriteLine($"Hub: Start game {gameId}");
+        var gameGrain = _factory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
+        await gameGrain.StartGame(GetUserId);
     }
 
     public async Task SubmitAnswer(AnswerModel answerModel)
@@ -68,5 +78,8 @@ public class GlobalHub : Hub
     {
         var gameGrain = _factory.GetGrain<IMultiplayerGrain>(gameId);
         await gameGrain.SetPlayerStatus(GetUserId, status);
+
+        await Clients.Group(gameId.ToString())
+            .SendAsync(nameof(Events.ChangePlayerStatus), GetUserId, status);
     }
 }

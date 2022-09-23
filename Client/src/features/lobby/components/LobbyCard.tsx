@@ -41,7 +41,7 @@ type Props = {
     players?: number;
     gameStatus?: GameState;
     difficulty?: string;
-    onClick: (id: string) => void;
+    onClick: (id: string, mode?: GameMode) => void;
 };
 
 export const LobbyCard = ({
@@ -142,7 +142,7 @@ export const LobbyCard = ({
                         alignItems={'center'}
                     >
                         <Button
-                            onClick={() => onClick(id)}
+                            onClick={() => onClick(id, gameMode)}
                             flex={1}
                             fontSize={'sm'}
                             rounded={'full'}

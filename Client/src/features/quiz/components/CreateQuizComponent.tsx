@@ -69,7 +69,7 @@ export const CreateQuizComponent = () => {
             await create({ quizCreationModel: options })
                 .unwrap()
                 .then((payload) => navigate(payload));
-            if (result.status) navigate(`/${result}`);
+            //if (result.status) navigate(`/${result}`);
         } catch {
             toast({
                 title: 'An error occurred',

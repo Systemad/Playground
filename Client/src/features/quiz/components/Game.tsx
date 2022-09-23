@@ -10,26 +10,33 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Answer } from '../../../components/common/AnswerButton';
-import { Scoreboard } from '../../../components/common/Scoreboard';
+import { GameScoreboard } from '../../../components/common/Scoreboard';
 import connection from '../../../utils/api/signalr/Socket';
 import { MyParams } from '../../../utils/routerParams';
 import {
     ProcessedQuestion,
     Runtime,
+    Scoreboard,
     useQuizGetGameRuntimeQuery,
 } from '../api/quizAPI';
 import { Header } from '../components/Header';
 import { useCorrectAnswer } from '../hooks/useCorrectAnswer';
+import { UseQuizScoreboard } from '../hooks/useQuizScoreboard';
+import { UseQuizSocket } from '../hooks/useQuizSocket';
 import { buttonStatus, isButtonDisabled } from '../utils/Helper';
 
-export const Game = () => {
-    const { gameId } = useParams<keyof MyParams>() as MyParams;
+type Props = {
+    gameId: string;
+    runtime: Runtime;
+};
+
+export const Game = ({ gameId, runtime }: Props) => {
     const [selectedAnswer, setSelectedAnswer] = useState<string | undefined>();
 
     const correctAnswer = useCorrectAnswer();
 
-    //const { isOpen, onOpen, onClose } = useDisclosure()
-    const { data: quiz } = useQuizGetGameRuntimeQuery({ gameId: gameId });
+    UseQuizSocket(gameId);
+    UseQuizScoreboard(gameId);
 
     const handleAnswer = (answer: string) => {
         const isNoPreviouslySelectedAnswer = selectedAnswer === undefined;
@@ -40,35 +47,28 @@ export const Game = () => {
 
     useEffect(() => {
         connection.invoke('SubmitAnswer', selectedAnswer);
-    }, [selectedAnswer]);
+    }, [selectedAnswer, gameId]);
 
     useEffect(() => {
         const resetAnswerListener = () => setSelectedAnswer(undefined);
 
-        connection.on('SubmitAnswer', resetAnswerListener);
+        connection.on('NextQuestion', resetAnswerListener);
     }, [selectedAnswer]);
 
-    /*
-    connection.on("NextQuestion", (question: Result) => {
-      setDisabled(false);
-    })
-
-    UseQuizSocket(gameId)
-  */
     return (
         <>
-            <ScaleFade initialScale={0.5} in={quiz?.gameActive}>
+            <ScaleFade initialScale={0.5} in={runtime?.gameActive}>
                 <Header
-                    key={quiz?.questionStep}
-                    currentQuestion={quiz?.currentQuestion?.question}
+                    key={runtime?.questionStep}
+                    currentQuestion={runtime?.currentQuestion?.question}
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    step={quiz!.questionStep!}
-                    total={quiz?.questions}
+                    step={runtime!.questionStep!}
+                    total={runtime?.questions}
                 />
 
                 <Box my={12}>
                     <SimpleGrid columns={[1, 2]} spacing={[4, 8]}>
-                        {quiz?.currentQuestion?.answers?.map(
+                        {runtime?.currentQuestion?.answers?.map(
                             (answer, index) => (
                                 <Answer
                                     key={index}
@@ -94,7 +94,7 @@ export const Game = () => {
                 </Box>
             </ScaleFade>
 
-            <Scoreboard gameId={gameId} />
+            <GameScoreboard scoreboard={runtime.scoreboard} />
         </>
     );
 };

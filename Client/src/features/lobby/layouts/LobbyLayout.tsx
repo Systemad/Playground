@@ -1,28 +1,39 @@
 import { Box, SimpleGrid, useToast } from '@chakra-ui/react';
 import { Navigate, useNavigate } from 'react-router-dom';
 
-import {
-    useLobbyGetGamesQuery,
-    useLobbyJoinGameMutation,
-} from '../api/lobbyAPI';
+import connection from '../../../utils/api/signalr/Socket';
+import { GameMode, useLobbyGetGamesQuery } from '../api/lobbyAPI';
 import { LobbyCard } from '../components/LobbyCard';
 import { UseLobbySocket } from '../hooks/UseLobbySocket';
 
 export const LobbyLayout = () => {
     const { data: lobbies } = useLobbyGetGamesQuery();
-    const [join, result] = useLobbyJoinGameMutation();
     const navigate = useNavigate();
     const toast = useToast();
 
     UseLobbySocket();
 
-    const handleJoinGame = async (id?: string) => {
+    const handleJoinGame = async (id?: string, mode?: GameMode) => {
+        let route: string;
+        switch (mode as GameMode) {
+            case 'Quiz':
+                route = 'quiz';
+                break;
+            case 'TicTacToe':
+                route = 'tictactoe';
+                break;
+            case 'Guessing':
+                route = 'guessing';
+                break;
+            default:
+                break;
+        }
+
         try {
             if (id) {
-                await join({ gameId: id })
-                    .unwrap()
-                    .then((payload) => console.log('fulfilled', payload))
-                    .then(() => navigate(id));
+                await connection
+                    .invoke('JoinGame', id)
+                    .then(() => navigate(`${route}/${id}`));
             }
         } catch {
             toast({

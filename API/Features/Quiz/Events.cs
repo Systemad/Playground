@@ -11,10 +11,13 @@ public enum Events
     RoundResults,
     NextRound,
 
-    PlayerStatusChange,
+
     UpdateScoreboard,
 
     PlayerAnswered,
-    CorrectAnswer
+    CorrectAnswer,
+
+    AllUsersReady,
+    ChangePlayerStatus
 
 }

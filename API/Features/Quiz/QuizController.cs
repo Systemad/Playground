@@ -36,15 +36,6 @@ public class QuizController : ControllerBase
         return Ok(gameGuid);
     }
 
-    [HttpPost("id:guid/start", Name = "Start Game")]
-    [ProducesResponseType(typeof(GameState), (int)HttpStatusCode.OK)]
-    public async Task<ActionResult> StartGame(Guid gameId)
-    {
-        var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
-        await gameGrain.StartGame(GetUserId);
-        return Ok();
-    }
-
     [HttpPost("id:guid/settings", Name = "Set Game settings")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<ActionResult> SetGameSettings(Guid gameId, [FromBody] QuizCreationModel settings)

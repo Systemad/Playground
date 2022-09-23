@@ -1,9 +1,7 @@
 export enum WebsocketEvents {
     UpdateScoreboard = 'UpdateScoreboard',
 
-    PlayerStatusChange = 'PlayerStatusChange',
-    PlayerAdded = 'PlayerAdded',
-    PlayerRemoved = 'PlayerRemoved',
+    ChangePlayerStatus = 'ChangePlayerStatus',
     PlayerAnswered = 'PlayerAnswered',
     StartGame = 'StartGame',
     StopGame = 'StopGame',

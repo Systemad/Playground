@@ -11,13 +11,13 @@ export function UseQuizScoreboard(gameId: string): void {
     useEffect(() => {
         connection.on(
             WebsocketEvents.UpdateScoreboard,
-            (players: Scoreboard) => {
-                const patch = dispatch(
+            (scoreboard: Scoreboard) => {
+                dispatch(
                     quizSplitApi.util.updateQueryData(
-                        'quizGetGameScoreboard',
+                        'quizGetGameRuntime',
                         { gameId: gameId },
                         (draft) => {
-                            draft = players;
+                            draft.scoreboard = scoreboard;
                         }
                     )
                 );
@@ -27,14 +27,13 @@ export function UseQuizScoreboard(gameId: string): void {
         connection.on(WebsocketEvents.PlayerAnswered, (player: string) => {
             dispatch(
                 quizSplitApi.util.updateQueryData(
-                    'quizGetGameScoreboard',
+                    'quizGetGameRuntime',
                     { gameId: gameId },
                     (draft) => {
-                        const pl = draft?.players?.findIndex(
+                        const pl = draft?.scoreboard?.players?.find(
                             (p) => p.id === player
                         );
-                        if (draft.players && pl)
-                            draft.players[pl].answered = true;
+                        if (pl) pl.answered = true;
                     }
                 )
             );

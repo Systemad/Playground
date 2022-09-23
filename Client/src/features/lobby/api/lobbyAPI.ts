@@ -5,27 +5,7 @@ const injectedRtkApi = api.injectEndpoints({
             LobbyGetGamesApiResponse,
             LobbyGetGamesApiArg
         >({
-            query: () => ({ url: `/api/v1/lobby/games`, refetchOnFocus: true }),
-        }),
-        lobbyJoinGame: build.mutation<
-            LobbyJoinGameApiResponse,
-            LobbyJoinGameApiArg
-        >({
-            query: (queryArg) => ({
-                url: `/api/v1/lobby/id:guid/join`,
-                method: 'POST',
-                params: { gameId: queryArg.gameId },
-            }),
-        }),
-        lobbyLeaveGame: build.mutation<
-            LobbyLeaveGameApiResponse,
-            LobbyLeaveGameApiArg
-        >({
-            query: (queryArg) => ({
-                url: `/api/v1/lobby/id:guid/leave`,
-                method: 'POST',
-                params: { gameId: queryArg.gameId },
-            }),
+            query: () => ({ url: `/api/v1/lobby/games` }),
         }),
     }),
     overrideExisting: false,
@@ -33,14 +13,6 @@ const injectedRtkApi = api.injectEndpoints({
 export { injectedRtkApi as lobbySplitApi };
 export type LobbyGetGamesApiResponse = /** status 200  */ GameLobbySummary[];
 export type LobbyGetGamesApiArg = void;
-export type LobbyJoinGameApiResponse = unknown;
-export type LobbyJoinGameApiArg = {
-    gameId?: string;
-};
-export type LobbyLeaveGameApiResponse = unknown;
-export type LobbyLeaveGameApiArg = {
-    gameId?: string;
-};
 export type GameMode = 'Quiz' | 'TicTacToe' | 'Guessing';
 export type GameState =
     | 'AwaitingPlayers'
@@ -56,8 +28,4 @@ export type GameLobbySummary = {
     state?: GameState;
     difficulty?: string | null;
 };
-export const {
-    useLobbyGetGamesQuery,
-    useLobbyJoinGameMutation,
-    useLobbyLeaveGameMutation,
-} = injectedRtkApi;
+export const { useLobbyGetGamesQuery } = injectedRtkApi;

@@ -31,7 +31,7 @@ function App({ pca }: AppProps) {
 
     useEffect(() => {
         startConnection().then((r) => console.log(r));
-    }, [accounts, instance]);
+    }, [accounts, instance, connection]);
 
     return (
         <>

@@ -14,7 +14,7 @@ export const useCorrectAnswer = () => {
         );
     });
     useEffect(() => {
-        connection.on(WebsocketEvents.NextQuestion, (correctAnswer: string) => {
+        connection.on(WebsocketEvents.NextQuestion, () => {
             setCorrectAnswer(undefined);
         });
     });

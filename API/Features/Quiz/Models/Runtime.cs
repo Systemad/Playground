@@ -10,4 +10,8 @@ public class Runtime
     public int Questions { get; set; }
     public int QuestionStep { get; set; }
     public int NumberOfPlayers { get; set; }
+    public Settings Settings { get; set; } = new();
+    public Scoreboard Scoreboard { get; set; } = new();
+
+    //public Dictionary<Guid, PlayerRuntime> Scoreboard { get; set; } = new()
 }

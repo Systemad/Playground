@@ -11,7 +11,7 @@ export function UseQuizSocket(gameId: string): void {
     useEffect(() => {
         connection.on(WebsocketEvents.StartGame, (runtime: Runtime) => {
             if (runtime) {
-                const patch = quizSplitApi.util.updateQueryData(
+                quizSplitApi.util.updateQueryData(
                     'quizGetGameRuntime',
                     { gameId: gameId },
                     (draft) => {
@@ -22,7 +22,7 @@ export function UseQuizSocket(gameId: string): void {
         });
 
         connection.on(WebsocketEvents.StopGame, () => {
-            const patch = quizSplitApi.util.updateQueryData(
+            quizSplitApi.util.updateQueryData(
                 'quizGetGameRuntime',
                 { gameId: gameId },
                 (draft) => {
@@ -33,7 +33,7 @@ export function UseQuizSocket(gameId: string): void {
         connection.on(
             WebsocketEvents.NextQuestion,
             (question: ProcessedQuestion) => {
-                const patch = dispatch(
+                dispatch(
                     quizSplitApi.util.updateQueryData(
                         'quizGetGameRuntime',
                         { gameId: gameId },

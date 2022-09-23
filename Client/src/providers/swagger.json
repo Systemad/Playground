@@ -47,40 +47,6 @@
                 ]
             }
         },
-        "/api/v1/quiz/id:guid/start": {
-            "post": {
-                "tags": ["Quiz"],
-                "operationId": "Quiz_StartGame",
-                "parameters": [
-                    {
-                        "name": "gameId",
-                        "in": "query",
-                        "schema": {
-                            "type": "string",
-                            "format": "guid"
-                        },
-                        "x-position": 1
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GameState"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ]
-            }
-        },
         "/api/v1/quiz/id:guid/settings": {
             "post": {
                 "tags": ["Quiz"],
@@ -247,60 +213,6 @@
                     }
                 ]
             }
-        },
-        "/api/v1/lobby/id:guid/join": {
-            "post": {
-                "tags": ["Lobby"],
-                "operationId": "Lobby_JoinGame",
-                "parameters": [
-                    {
-                        "name": "gameId",
-                        "in": "query",
-                        "schema": {
-                            "type": "string",
-                            "format": "guid"
-                        },
-                        "x-position": 1
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": ""
-                    }
-                },
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/lobby/id:guid/leave": {
-            "post": {
-                "tags": ["Lobby"],
-                "operationId": "Lobby_LeaveGame",
-                "parameters": [
-                    {
-                        "name": "gameId",
-                        "in": "query",
-                        "schema": {
-                            "type": "string",
-                            "format": "guid"
-                        },
-                        "x-position": 1
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": ""
-                    }
-                },
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ]
-            }
         }
     },
     "components": {
@@ -326,24 +238,6 @@
                         "type": "string"
                     }
                 }
-            },
-            "GameState": {
-                "type": "string",
-                "description": "",
-                "x-enumNames": [
-                    "AwaitingPlayers",
-                    "Ready",
-                    "InProgress",
-                    "Finished",
-                    "Canceled"
-                ],
-                "enum": [
-                    "AwaitingPlayers",
-                    "Ready",
-                    "InProgress",
-                    "Finished",
-                    "Canceled"
-                ]
             },
             "Runtime": {
                 "type": "object",
@@ -371,6 +265,12 @@
                     "numberOfPlayers": {
                         "type": "integer",
                         "format": "int32"
+                    },
+                    "settings": {
+                        "$ref": "#/components/schemas/Settings"
+                    },
+                    "scoreboard": {
+                        "$ref": "#/components/schemas/Scoreboard"
                     }
                 }
             },
@@ -395,6 +295,32 @@
                         "items": {
                             "type": "string"
                         }
+                    }
+                }
+            },
+            "Settings": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "ownerUserId": {
+                        "type": "string",
+                        "format": "guid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "difficulty": {
+                        "type": "string"
+                    },
+                    "questions": {
+                        "type": "integer",
+                        "format": "int32"
                     }
                 }
             },
@@ -521,6 +447,24 @@
                 "description": "",
                 "x-enumNames": ["Quiz", "TicTacToe", "Guessing"],
                 "enum": ["Quiz", "TicTacToe", "Guessing"]
+            },
+            "GameState": {
+                "type": "string",
+                "description": "",
+                "x-enumNames": [
+                    "AwaitingPlayers",
+                    "Ready",
+                    "InProgress",
+                    "Finished",
+                    "Canceled"
+                ],
+                "enum": [
+                    "AwaitingPlayers",
+                    "Ready",
+                    "InProgress",
+                    "Finished",
+                    "Canceled"
+                ]
             }
         },
         "securitySchemes": {

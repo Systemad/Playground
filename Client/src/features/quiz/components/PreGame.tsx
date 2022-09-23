@@ -3,37 +3,87 @@ import {
     Box,
     Center,
     Heading,
+    HStack,
     SimpleGrid,
     Switch,
     Text,
+    useToast,
 } from '@chakra-ui/react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import connection from '../../../utils/api/signalr/Socket';
 import { MyParams } from '../../../utils/routerParams';
-import { PlayerRuntime, useQuizGetGameScoreboardQuery } from '../api/quizAPI';
+import {
+    PlayerRuntime,
+    Scoreboard,
+    useQuizGetGameScoreboardQuery,
+} from '../api/quizAPI';
 import { usePreGame } from '../hooks/usePreGame';
+import { ReadyButton } from './ReadyButton';
+
+const readyStatus = (status?: boolean | null): string => {
+    if (status === null && undefined) {
+        return 'blue.700';
+    } else {
+        if (status === true && !undefined) return 'green.700';
+        else return 'red.700';
+    }
+};
 
 type Props = {
+    gameId: string;
+    ownerId?: string;
+    scoreboard?: Scoreboard;
+};
+type PlayerProps = {
     player?: PlayerRuntime;
 };
-export const PreGame = () => {
-    const { gameId } = useParams<keyof MyParams>() as MyParams;
-    const { data } = useQuizGetGameScoreboardQuery({ gameId: gameId });
-
-    const { instance } = useMsal();
+export const PreGame = ({ gameId, ownerId, scoreboard }: Props) => {
     usePreGame(gameId);
 
+    const toast = useToast();
+    const { instance } = useMsal();
+    const myId = instance.getActiveAccount()?.localAccountId;
+    const isOwner = myId === ownerId;
+    const isMeReady =
+        scoreboard?.players?.find((p) => p.id === myId)?.ready === true;
+    const [ready, setReady] = useState<boolean>(false);
+    const canStartGame = isMeReady && ready && isOwner;
+
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        //console.log(event.target.checked);
         connection.invoke('SetPlayerStatus', gameId, event.target.checked);
     };
 
-    const PlayerCard = ({ player }: Props) => {
-        const myId = instance.getActiveAccount()?.localAccountId;
-        const isMe = myId === player?.id;
+    useEffect(() => {
+        connection.invoke('JoinGame', gameId);
+    }, [gameId]);
 
+    useEffect(() => {
+        connection.on('AllUsersReady', () => {
+            setReady(true);
+        });
+    }, []);
+
+    const handleStartAsync = async () => {
+        try {
+            if (canStartGame) {
+                await connection.invoke('StartGame', gameId);
+            }
+        } catch {
+            toast({
+                title: 'An error occurred',
+                description:
+                    'Could start the game game, not everyone is ready!',
+                status: 'error',
+                duration: 2500,
+                isClosable: true,
+            });
+        }
+    };
+
+    const PlayerCard = ({ player }: PlayerProps) => {
+        const isMe = myId === player?.id;
         return (
             <Center py={6}>
                 <Box
@@ -47,7 +97,7 @@ export const PreGame = () => {
                     <Box
                         w="full"
                         h="50px"
-                        bg={player?.ready ? 'green.700' : 'red.700'}
+                        bg={readyStatus(player?.ready)}
                         mt={4}
                         p="4"
                         fontSize={'sm'}
@@ -59,16 +109,20 @@ export const PreGame = () => {
                         {player?.name}
                     </Heading>
 
-                    {isMe && (
+                    {isMe && canStartGame && (
                         <>
-                            <Switch
-                                onChange={handleChange}
-                                size="lg"
-                                w="full"
-                                mt="6"
-                                mb="2"
-                            />
-                            <Text fontSize="lg">Ready up</Text>
+                            <HStack w="full" mt="6" mb="2">
+                                <Switch
+                                    defaultChecked={false}
+                                    onChange={handleChange}
+                                    isChecked={isMeReady}
+                                    size="lg"
+                                />
+                                <ReadyButton
+                                    onClick={handleStartAsync}
+                                    canStart={canStartGame}
+                                />
+                            </HStack>
                         </>
                     )}
                 </Box>
@@ -85,7 +139,7 @@ export const PreGame = () => {
                 spacingX="40px"
                 spacingY="20px"
             >
-                {data?.players?.map((item) => (
+                {scoreboard?.players?.map((item) => (
                     <PlayerCard key={item.id} player={item} />
                 ))}
             </SimpleGrid>

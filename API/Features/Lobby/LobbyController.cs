@@ -1,7 +1,10 @@
 ﻿using System.Net;
 using System.Security.Claims;
+using API.Features.Player;
+using API.Features.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Identity.Web.Resource;
 using Orleans;
 
@@ -17,10 +20,12 @@ public class LobbyController : ControllerBase
     private readonly IGrainFactory _factory;
 
     private Guid GetUserId => new(User.Claims.Single(e => e.Type == ClaimTypes.NameIdentifier).Value);
+    private readonly IHubContext<GlobalHub> _hubContext;
 
-    public LobbyController(IGrainFactory factory)
+    public LobbyController(IGrainFactory factory, IHubContext<GlobalHub> hubContext)
     {
         _factory = factory;
+        _hubContext = hubContext;
     }
 
     [HttpGet("games", Name = "Get Games")]
@@ -32,12 +37,17 @@ public class LobbyController : ControllerBase
         return Ok(lobbies);
     }
 
+
+    /*
     [HttpPost("id:guid/join", Name = "Join Game")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<ActionResult> JoinGame(Guid gameId)
     {
+        await _hubContext.Groups.AddToGroupAsync(GetUserId.ToString(), gameId.ToString());
         var gameGrain = _factory.GetGrain<IMultiplayerGrain>(gameId);
         await gameGrain.AddPlayer(GetUserId);
+        var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
+        await player.SetActiveGame(gameId);
         return Ok();
     }
 
@@ -49,4 +59,5 @@ public class LobbyController : ControllerBase
         await gameGrain.RemovePlayer(GetUserId);
         return Ok();
     }
+    */
 }

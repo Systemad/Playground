@@ -9,18 +9,20 @@ export function usePreGame(gameId: string): void {
     const dispatch = useAppDispatch();
     useEffect(() => {
         connection.on(
-            WebsocketEvents.PlayerStatusChange,
+            WebsocketEvents.ChangePlayerStatus,
             (playerId: string, status: boolean) => {
                 dispatch(
                     quizSplitApi.util.updateQueryData(
-                        'quizGetGameScoreboard',
+                        'quizGetGameRuntime',
                         { gameId: gameId },
                         (draft) => {
-                            const pl = draft?.players?.findIndex(
+                            const pl = draft?.scoreboard?.players?.find(
                                 (p) => p.id === playerId
                             );
-                            if (draft.players && pl)
-                                draft.players[pl].answered = status;
+
+                            if (pl) {
+                                pl.ready = status;
+                            }
                         }
                     )
                 );

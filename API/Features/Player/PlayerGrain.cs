@@ -39,6 +39,11 @@ public class PlayerGrain : Grain, IPlayerGrain
         return Task.FromResult(_username);
     }
 
+    public Task<Guid> GetActiveGame()
+    {
+        return Task.FromResult(_activeGame);
+    }
+
     public Task SetActiveGame(Guid gameId)
     {
         _activeGame = gameId;

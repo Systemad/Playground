@@ -18,13 +18,14 @@ import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import {
     PlayerRuntime,
+    Scoreboard,
     useQuizGetGameScoreboardQuery,
 } from '../../features/quiz/api/quizAPI';
 import { UseQuizScoreboard } from '../../features/quiz/hooks/useQuizScoreboard';
 import connection from '../../utils/api/signalr/Socket';
 
 type Props = {
-    gameId: string;
+    scoreboard?: Scoreboard;
 };
 
 interface Message {
@@ -33,11 +34,7 @@ interface Message {
     content: string;
 }
 
-export const Scoreboard = ({ gameId }: Props) => {
-    const { data: players } = useQuizGetGameScoreboardQuery({ gameId: gameId });
-
-    UseQuizScoreboard(gameId);
-
+export const GameScoreboard = ({ scoreboard }: Props) => {
     return (
         <Flex
             overflow="hidden"
@@ -53,7 +50,9 @@ export const Scoreboard = ({ gameId }: Props) => {
                 align="center"
                 justify="space-evenly"
             >
-                <>{console.log(players)}</>
+                {scoreboard?.players?.map((item) => (
+                    <PlayerCard key={item.id} player={item} />
+                ))}
             </HStack>
             <Chatbox />
         </Flex>
@@ -104,7 +103,7 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
     );
 };
 
-const Chatbox = () => {
+export const Chatbox = () => {
     const [messages, setMessages] = useState<Message[]>([]);
 
     const AlwaysScrollToBottom = () => {
