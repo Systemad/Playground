@@ -46,6 +46,7 @@
       <Orleans_CodeGenInputs Remove="Extensions\Orleans\ClusterClientHostedService.cs" />
       <Orleans_CodeGenInputs Remove="Utilities\DictionaryExtenstion.cs" />
       <Orleans_CodeGenInputs Remove="Features\Quiz\Mapping\QuizMapper.cs" />
+      <Orleans_CodeGenInputs Remove="Features\Quiz\Events\IEvent.cs" />
     </ItemGroup>
 
 </Project>

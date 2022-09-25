@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using API.Features.Player;
 using API.Features.Quiz;
+using API.Features.Quiz.Interfaces;
 using API.Features.Quiz.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -46,7 +47,7 @@ public class GlobalHub : Hub
         Console.WriteLine($"Hub: Joining game {gameId}");
         await Groups.AddToGroupAsync(GetConnectionId, gameId);
         var gameGrain = _factory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
-        await gameGrain.AddPlayer(GetUserId);
+        await gameGrain.AddPlayer(GetUserId, GetUsername);
         var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
         await player.SetActiveGame(Guid.Parse(gameId));
     }
@@ -80,6 +81,6 @@ public class GlobalHub : Hub
         await gameGrain.SetPlayerStatus(GetUserId, status);
 
         await Clients.Group(gameId.ToString())
-            .SendAsync(nameof(Events.ChangePlayerStatus), GetUserId, status);
+            .SendAsync(nameof(WsEvents.ChangePlayerStatus), GetUserId, status);
     }
 }

@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using API.Features.Quiz.API;
 using API.Features.Quiz.Dto;
+using API.Features.Quiz.Interfaces;
 using API.Features.Quiz.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,17 +37,8 @@ public class QuizController : ControllerBase
         return Ok(gameGuid);
     }
 
-    [HttpPost("id:guid/settings", Name = "Set Game settings")]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<ActionResult> SetGameSettings(Guid gameId, [FromBody] QuizCreationModel settings)
-    {
-        var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
-        await gameGrain.SetGameSettings(settings);
-        return Ok();
-    }
-
     [HttpGet("id:guid/runtime", Name = "Get Game runtime")]
-    [ProducesResponseType(typeof(Runtime), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(QuizRuntime), (int)HttpStatusCode.OK)]
     public async Task<ActionResult> GetGameRuntime(Guid gameId)
     {
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
@@ -54,21 +46,12 @@ public class QuizController : ControllerBase
         return Ok(gameSettings);
     }
 
-    [HttpGet("id:guid/score", Name = "Get Game scoreboard")]
-    [ProducesResponseType(typeof(Scoreboard), (int)HttpStatusCode.OK)]
-    public async Task<ActionResult> GetGameScoreboard(Guid gameId)
-    {
-        var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
-        var scoreboard = await gameGrain.GetGameScoreboard();
-        return Ok(scoreboard);
-    }
-
     [HttpGet("id:guid/results", Name = "Get Game Results")]
     [ProducesResponseType(typeof(GameResult), (int)HttpStatusCode.OK)]
     public async Task<ActionResult> GetGameResults(Guid gameId)
     {
         var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
-        var scoreboard = await gameGrain.GetQuizResults();
+        var scoreboard = await gameGrain.GetGameRuntime(); // change to results
         return Ok(scoreboard);
     }
 }

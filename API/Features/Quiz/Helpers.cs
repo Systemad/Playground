@@ -31,31 +31,4 @@ public static class Helpers
         };
         return newq;
     }
-
-    public static GameResult ProcessResult(this Guid id, State state, Settings settings)
-    {
-        var playerresults = new List<PlayerResult>();
-
-        foreach (var pl in state.Scoreboard.Values)
-        {
-            var p = new PlayerResult
-            {
-                Id = pl.Id,
-                Name = pl.Name,
-                Score = pl.Score
-            };
-            playerresults.Add(p);
-        }
-
-        var results = new GameResult
-        {
-            GameId = id,
-            Name = settings.Name,
-            Scoreboard = playerresults,
-            Category = settings.Category,
-            Difficulty = settings.Difficulty,
-            Questions = settings.Questions
-        };
-        return results;
-    }
 }

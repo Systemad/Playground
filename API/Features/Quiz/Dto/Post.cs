@@ -10,15 +10,15 @@ public class QuizCreationModel
     public string Category { get; set; }
     public string Difficulty { get; set; }
     public string Type { get; set; }
+    public int Timeout { get; set; }
 }
 
 public static class QuizCreationMapper
 {
-    public static Settings ToSettingsState(this QuizCreationModel settingsModel)
+    public static QuizSettings ToSettingsState(this QuizCreationModel settingsModel)
     {
-        var newobj = new Settings
+        var newobj = new QuizSettings
         {
-            Name = settingsModel.Name,
             Type = settingsModel.Type,
             Category = settingsModel.Category,
             Difficulty = settingsModel.Difficulty,
@@ -27,14 +27,14 @@ public static class QuizCreationMapper
         return newobj;
     }
 
-    public static OpenDtbModel ToCreationModel(Settings settingState)
+    public static OpenDtbModel ToCreationModel(QuizSettings quizSettingState)
     {
         var newobj = new OpenDtbModel
         {
-            Amount = settingState.Questions,
-            Category = settingState.Category,
-            Difficulty = settingState.Difficulty,
-            Type = settingState.Type
+            Amount = quizSettingState.Questions,
+            Category = quizSettingState.Category,
+            Difficulty = quizSettingState.Difficulty,
+            Type = quizSettingState.Type
         };
         return newobj;
     }

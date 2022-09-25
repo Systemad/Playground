@@ -1,21 +1,13 @@
 ﻿namespace API.Features;
 
 [Serializable]
-public enum GameState
+public enum GameStatus
 {
     AwaitingPlayers,
     Ready,
     InProgress,
     Finished,
     Canceled
-}
-
-[Serializable]
-public enum GameOutcome
-{
-    Win,
-    Loss,
-    Draw
 }
 
 [Serializable]
@@ -27,12 +19,12 @@ public enum GameMode
 }
 
 [Serializable]
-public struct GameLobbySummary
+public class GameLobbySummary
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
     public GameMode Mode { get; set; }
     public int Players { get; set; }
-    public GameState State { get; set; }
+    public GameStatus Status { get; set; }
     public string? Difficulty { get; set; }
 }

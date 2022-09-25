@@ -1,14 +1,11 @@
 ﻿using API.Features.Lobby;
-using API.Features.Player;
 using API.Features.Quiz.API;
 using API.Features.Quiz.Dto;
+using API.Features.Quiz.Interfaces;
 using API.Features.Quiz.Models;
-using API.Features.SignalR;
-using Microsoft.AspNetCore.SignalR;
 using Orleans;
 using Orleans.Concurrency;
 using Orleans.Runtime;
-using Microsoft.Extensions.Logging;
 
 namespace API.Features.Quiz.Grains;
 
@@ -20,40 +17,20 @@ public class QuizGrain : Grain, IQuizGrain
 {
     private readonly ILogger _logger;
     private const int MaxCapacity = 4;
+    private Quiz _game;
+    private QuizGrainOptions _options;
 
-    private readonly IOpenTdbClient _client;
-    private Result? _currentQuestion;
-    private Runtime _runtime;
+    private int _tick;
+    private IDisposable? _timer;
 
-    //private IDisposable _timer;
-    //private bool _timerActive;
-
-    private readonly IPersistentState<State> _state;
-    private readonly IPersistentState<Settings> _settings;
+    private readonly IPersistentState<QuizState> _state;
 
     private static string GrainType => nameof(QuizGrain);
     private Guid GrainKey => this.GetPrimaryKey();
-    private readonly IHubContext<GlobalHub> _hubContext;
 
-    public QuizGrain(
-        [PersistentState("quiz", "quizStore")] IPersistentState<State> state,
-        [PersistentState("settings", "settingStore")]
-        IPersistentState<Settings> settings,
-        IHubContext<GlobalHub> hubContext, IOpenTdbClient client, ILogger<QuizGrain> logger)
+    public QuizGrain(IOpenTdbClient client, ILogger<QuizGrain> logger)
     {
-        _hubContext = hubContext;
-        _client = client;
         _logger = logger;
-        _settings = settings;
-        _state = state;
-        _runtime = new Runtime
-        {
-            GameActive = false,
-            CurrentQuestion = null,
-            Questions = 0,
-            QuestionStep = 0,
-            NumberOfPlayers = 0
-        };
     }
 
     public override async Task OnActivateAsync()
@@ -63,47 +40,21 @@ public class QuizGrain : Grain, IQuizGrain
 
     public async Task CreateGame(Guid ownerId, QuizCreationModel settings)
     {
-        _logger.LogInformation("QuizGrain: Create game");
-        var quizSettings = settings.ToSettingsState();
-        _settings.State = quizSettings;
-        _settings.State.OwnerUserId = ownerId;
-        _state.State.GameState = GameState.AwaitingPlayers;
-        await _state.WriteStateAsync();
-        await _settings.WriteStateAsync();
-        _runtime.Settings = _settings.State;
-        await AddPlayer(ownerId);
+        await _game.Initialize(GrainKey, ownerId, settings);
+        _options.Timeout = settings.Timeout;
         await UpdateGameToLobby();
     }
 
-    public async Task AddPlayer(Guid playerId)
+    public async Task AddPlayer(Guid playerId, string name)
     {
-        if (!(_state.State.Scoreboard.Keys.Count <= MaxCapacity)) throw new ArgumentException("Game is full");
-        _logger.LogInformation("QuizGrain: AddPlayer - {playerId}", playerId);
-        var player = GrainFactory.GetGrain<IPlayerGrain>(playerId);
-        var username = await player.GetUsername();
-        var runtime = new PlayerRuntime
-        {
-            Id = playerId,
-            Name = username,
-            Score = 0,
-            Answered = false,
-            AnsweredCorrectly = null,
-            Ready = false
-        };
-        _state.State.Scoreboard[playerId] = runtime;
-        await _state.WriteStateAsync();
-        await SendScoreboard();
+        await _game.JoinGame(playerId, name);
     }
 
     public async Task RemovePlayer(Guid playerId)
     {
         try
         {
-            _state.State.Players.Remove(playerId);
-            _logger.LogInformation("QuizGrain: RemovePlayer - {playerId}", playerId);
-            await _state.WriteStateAsync();
-            await UpdateGameToLobby();
-            await SendScoreboard();
+            await _game.LeaveGame(playerId);
         }
         catch (Exception e)
         {
@@ -115,222 +66,64 @@ public class QuizGrain : Grain, IQuizGrain
 
     public async Task SubmitAnswer(Guid playerId, string answer)
     {
-        if (_state.State.GameState != GameState.InProgress) throw new ArgumentException("Game is over");
-        if (IsCorrect(answer))
-        {
-            _state.State.Scoreboard[playerId].Score++;
-            _state.State.Scoreboard[playerId].AnsweredCorrectly = true;
-        }
-
-        await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync(nameof(Events.PlayerAnswered), playerId);
-        if (_state.State.Scoreboard.Values.Count(v => v.Answered is true) ==
-            _state.State.Scoreboard.Keys.Count) await NextQuestion();
+        await _game.SubmitGuess(playerId, answer);
     }
 
-    public Task<Runtime> GetGameRuntime()
+    public Task<QuizRuntime> GetGameRuntime()
     {
-        return Task.FromResult(_runtime);
-    }
-
-    public Task<Scoreboard> GetGameScoreboard()
-    {
-        var board = new Scoreboard
-        {
-            GameId = GrainKey,
-            Players = _state.State.Scoreboard.Values.ToList()
-        };
-        return Task.FromResult(board);
-    }
-
-    public Task<GameResult> GetQuizResults()
-    {
-        return Task.FromResult(Helpers.ProcessResult(GrainKey, _state.State, _settings.State));
+        return _game.GetGameState();
     }
 
     public async Task SetPlayerStatus(Guid playerId, bool status)
     {
-        var player = _state.State.Scoreboard.FirstOrDefault(x => x.Key == playerId);
-        player.Value.Ready = status;
-        _logger.LogInformation("QuizGrain: AddPlayer - {playerId}", playerId);
-        await _state.WriteStateAsync();
-        await CheckAndUpdateStatus();
+        await _game.SetStatus(playerId, status);
     }
 
-    public async Task StartGame(Guid? playerId)
+    public async Task StartGame(Guid playerId)
     {
-        _logger.LogInformation("QuizGrain: StartGame - {playerId}", playerId);
-        if (_state.State.GameState != GameState.Ready && playerId != _settings.State.OwnerUserId)
-            throw new ArgumentException("Can't start game");
-
-        _state.State.GameState = GameState.InProgress;
-        _state.State.Questions = await _client.GetQuestions(_settings.State);
-        _runtime.CurrentQuestion = _currentQuestion.ProcessQuestion();
-        _runtime.Scoreboard = new Scoreboard
-        {
-            GameId = GrainKey,
-            Players = _state.State.Scoreboard.Values.ToList()
-        };
-        _currentQuestion = _state.State.Questions[_runtime.QuestionStep];
-        await _state.WriteStateAsync();
-        await _settings.WriteStateAsync();
-        await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync(nameof(Events.StartGame), _runtime);
+        await _game.Start(playerId);
         await UpdateGameToLobby();
-    }
-
-    public async Task SetGameSettings(QuizCreationModel quizPost)
-    {
-        var news = quizPost.ToSettingsState();
-        _settings.State = news;
-        await _settings.WriteStateAsync();
-        await UpdateGameToLobby();
-    }
-
-    private async Task CheckAndUpdateStatus()
-    {
-        var readyPlayers = _state.State.Scoreboard.Values.Count(v => v.Ready == true);
-        var ready = readyPlayers == _state.State.Scoreboard.Values.Count;
-        var state = _state.State.GameState;
-
-        switch (state)
-        {
-            case GameState.Finished:
-                throw new ApplicationException("Game finished");
-            case GameState.InProgress:
-                throw new ApplicationException("Game is in progress");
-            case GameState.AwaitingPlayers:
-                break;
-            case GameState.Ready:
-                break;
-            case GameState.Canceled:
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-
-
-        if (state is GameState.AwaitingPlayers && ready)
-        {
-            _state.State.GameState = GameState.Ready;
-            await _state.WriteStateAsync();
-            await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync(nameof(Events.AllUsersReady));
-            await UpdateGameToLobby();
-        }
     }
 
     private async Task UpdateGameToLobby()
     {
         var gameSummary = new GameLobbySummary
         {
-            Id = GrainKey,
-            Name = _settings.State.Name,
-            Mode = GameMode.Quiz,
-            Players = _state.State.Scoreboard.Keys.Count,
-            State = _state.State.GameState,
-            Difficulty = _settings.State.Difficulty
         };
         var lobbyGrain = GrainFactory.GetGrain<ILobbyGrain>(0);
         await lobbyGrain.AddOrUpdateGame(gameSummary.Id, gameSummary);
     }
 
-    private bool IsCorrect(string answer)
-    {
-        return answer == _currentQuestion.correct_answer;
-    }
 
-    private async Task StopGame()
+    private async Task Tick(object arg)
     {
-        //_timer.Dispose();
-        _currentQuestion = null;
-        _runtime.CurrentQuestion = null;
-        _state.State.GameState = GameState.Finished;
-        await _state.WriteStateAsync();
-        await _hubContext.Clients.Group(GrainKey.ToString()).SendAsync(nameof(Events.StopGame), true);
-        foreach (var player in _state.State.Scoreboard.Keys)
-            await _hubContext.Groups.RemoveFromGroupAsync(GrainType, player.ToString());
-    }
-
-    private async Task PreparePlayer(Guid id)
-    {
-        var player = GrainFactory.GetGrain<IPlayerGrain>(id);
-        var runtime = new PlayerRuntime
+        if (_timer == null) return;
+        _tick++;
+        if (_tick == _options.Timeout)
         {
-            Id = id,
-            Name = await player.GetUsername(),
-            Score = 0,
-            Answered = false,
-            AnsweredCorrectly = null,
-            Ready = false
-        };
-        _state.State.Scoreboard[id] = runtime;
-        await _state.WriteStateAsync();
-    }
-
-    private async Task NextQuestion()
-    {
-        //_timer.Dispose();
-        //_timerActive = false;
-
-        if (_runtime.QuestionStep == _state.State.Questions.Count && _state.State.GameState == GameState.InProgress)
-        {
-            await StopGame();
+            await _game.NextRound();
+            ScheduleTimer();
         }
         else
         {
-            /* Implement timer at later stage
-            _timer = RegisterTimer(null,
-                null,
-                TimeSpan.FromSeconds(10),
-                TimeSpan.FromSeconds(1));
-            */
-
-            await SendRoundResults();
-            await NextRound();
+            await _game.SetTimer(_tick);
         }
     }
 
-    private async Task NextRound()
+    private void ScheduleTimer()
     {
-        foreach (var (key, value) in _state.State.Scoreboard)
-        {
-            _state.State.Scoreboard[key].Answered = false;
-            _state.State.Scoreboard[key].AnsweredCorrectly = null;
-        }
-
-        _runtime.QuestionStep++;
-        _currentQuestion = _state.State.Questions[_runtime.QuestionStep];
-        await _state.WriteStateAsync();
-
-        await SendScoreboard();
-        await SendQuestion();
+        StopTimer();
+        _timer = RegisterTimer(
+            Tick,
+            null,
+            TimeSpan.FromSeconds(5),
+            TimeSpan.FromSeconds(_options.Timeout));
     }
 
-    private async Task SendRoundResults()
+    private void StopTimer()
     {
-        await SendScoreboard();
-        await _hubContext.Clients.Group(GrainKey.ToString())
-            .SendAsync(nameof(Events.CorrectAnswer), _currentQuestion.correct_answer);
-    }
-
-    private async Task PostQuestion()
-    {
-        await SendScoreboard();
-    }
-
-    private async Task SendScoreboard()
-    {
-        var board = new Scoreboard
-        {
-            GameId = GrainKey,
-            Players = _state.State.Scoreboard.Values.ToList()
-        };
-        await _hubContext.Clients.Group(GrainKey.ToString())
-            .SendAsync(nameof(Events.UpdateScoreboard), board);
-    }
-
-    private async Task SendQuestion()
-    {
-        var question = _currentQuestion.ProcessQuestion();
-        await _hubContext.Clients.Group(GrainKey.ToString())
-            .SendAsync(nameof(Events.NextRound), question);
+        _tick = 0;
+        _timer?.Dispose();
+        _timer = null;
     }
 }
