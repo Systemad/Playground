@@ -6,25 +6,23 @@ using Orleans.Streams;
 
 namespace API.Features.Quiz;
 
-// TODO: Add SignalR events
 public class Quiz : IQuiz
 {
     private readonly QuizState _quizState;
     private readonly IOpenTdbClient _client;
-    private IAsyncStream<object> _stream;
-    private IStreamProvider _streamProvider;
+    private readonly IAsyncStream<object> _stream;
 
-    private bool allPlayersAnswered =>
-        _quizState.Scoreboard.All(p => p.Value.Answered == true);
+    private bool AllPlayersAnswered =>
+        _quizState.Scoreboard.All(p => p.Value.Answered);
 
-    private bool allPlayersReady =>
-        _quizState.Scoreboard.All(p => p.Value.Ready == true);
+    private bool AllPlayersReady =>
+        _quizState.Scoreboard.All(p => p.Value.Ready);
 
-    public Quiz(QuizState quizState, IOpenTdbClient client, IStreamProvider streamProvider)
+    public Quiz(QuizState quizState, IAsyncStream<object> stream)
     {
         _quizState = quizState;
-        _client = client;
-        _streamProvider = streamProvider;
+        _client = new OpenTdbClient();
+        _stream = stream;
     }
 
     public Task SubmitGuess(Guid userId, string answer)
@@ -36,7 +34,7 @@ public class Quiz : IQuiz
             _quizState.Scoreboard[userId].AnsweredCorrectly = true;
         }
 
-        if (allPlayersAnswered)
+        if (AllPlayersAnswered)
             ResetRound();
         else
             NextRound();
@@ -80,7 +78,6 @@ public class Quiz : IQuiz
         _quizState.Name = settings.Name;
         _quizState.ownerId = ownerId;
         _quizState.Timeout = settings.Timeout;
-        _stream = _streamProvider.GetStream<object>(gameId, Constants.QuizNamespace);
         return Task.CompletedTask;
     }
 
@@ -106,7 +103,7 @@ public class Quiz : IQuiz
     {
         if (!_quizState.Active && _quizState.ownerId != playerId)
             throw new ArgumentException("Can't start game");
-        if (!allPlayersReady) throw new ArgumentException("All players not ready");
+        if (!AllPlayersReady) throw new ArgumentException("All players not ready");
         _quizState.Active = true;
         _quizState.Questions = await _client.GetQuestions(_quizState.QuizSettings);
         _quizState.CurrentQuestion = _quizState.Questions[1].ProcessQuestion();
@@ -131,9 +128,12 @@ public class Quiz : IQuiz
         var scoreboard = _quizState.Scoreboard.Values.ToList();
         var lobby = new QuizRuntime
         {
+            Active = _quizState.Active,
             QuestionStep = _quizState.QuestionStep,
+            NumberOfQuestions = _quizState.Questions.Count,
             NumberOfPlayers = _quizState.NumberOfPlayers,
             Timeout = _quizState.Timeout,
+            OwnerId = _quizState.ownerId,
             QuizSettings = _quizState.QuizSettings,
             CurrentQuestion = _quizState.CurrentQuestion,
             Scoreboard = scoreboard

@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using API.Extensions;
+using API.Features;
 using API.Features.Quiz.API;
 using API.Features.SignalR;
 using Microsoft.AspNetCore.Mvc;
@@ -81,6 +82,7 @@ builder.Host.UseOrleans((context, silobuilder) =>
             opt.Invariant = "Npgsql";
             opt.ConnectionString = connectionString;
         });
+        silobuilder.AddSimpleMessageStreamProvider(Constants.InMemorySteam); //.AddMemoryGrainStorage("PubSubStore");
     }
 
     silobuilder.ConfigureServices(sv =>

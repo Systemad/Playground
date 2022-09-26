@@ -1,10 +1,10 @@
 import { Box, chakra, Flex, Icon } from '@chakra-ui/react';
 import { BsLightningFill } from 'react-icons/all';
 
-import { GameState } from '../api/lobbyAPI';
+import { GameStatus } from '../api/lobbyAPI';
 
 type Props = {
-    gameStatus?: GameState;
+    gameStatus?: GameStatus;
     players?: number;
 };
 

@@ -16,7 +16,7 @@ export function usePreGame(gameId: string): void {
                         'quizGetGameRuntime',
                         { gameId: gameId },
                         (draft) => {
-                            const pl = draft?.scoreboard?.players?.find(
+                            const pl = draft?.scoreboard?.find(
                                 (p) => p.id === playerId
                             );
 

@@ -1,5 +1,5 @@
 import { Box, SimpleGrid, useToast } from '@chakra-ui/react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import connection from '../../../utils/api/signalr/Socket';
 import { GameMode, useLobbyGetGamesQuery } from '../api/lobbyAPI';
@@ -57,7 +57,7 @@ export const LobbyLayout = () => {
                             difficulty={'hard'}
                             name={lobby?.name}
                             gameMode={lobby?.mode}
-                            gameStatus={lobby?.state}
+                            gameStatus={lobby?.status}
                             players={lobby?.players}
                             onClick={handleJoinGame}
                         />

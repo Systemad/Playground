@@ -14,7 +14,7 @@ export { injectedRtkApi as lobbySplitApi };
 export type LobbyGetGamesApiResponse = /** status 200  */ GameLobbySummary[];
 export type LobbyGetGamesApiArg = void;
 export type GameMode = 'Quiz' | 'TicTacToe' | 'Guessing';
-export type GameState =
+export type GameStatus =
     | 'AwaitingPlayers'
     | 'Ready'
     | 'InProgress'
@@ -25,7 +25,7 @@ export type GameLobbySummary = {
     name?: string;
     mode?: GameMode;
     players?: number;
-    state?: GameState;
+    status?: GameStatus;
     difficulty?: string | null;
 };
 export const { useLobbyGetGamesQuery } = injectedRtkApi;

@@ -14,9 +14,9 @@ import { GameScoreboard } from '../../../components/common/Scoreboard';
 import connection from '../../../utils/api/signalr/Socket';
 import { MyParams } from '../../../utils/routerParams';
 import {
+    PlayerState,
     ProcessedQuestion,
-    Runtime,
-    Scoreboard,
+    QuizRuntime,
     useQuizGetGameRuntimeQuery,
 } from '../api/quizAPI';
 import { Header } from '../components/Header';
@@ -27,7 +27,7 @@ import { buttonStatus, isButtonDisabled } from '../utils/Helper';
 
 type Props = {
     gameId: string;
-    runtime: Runtime;
+    runtime: QuizRuntime;
 };
 
 export const Game = ({ gameId, runtime }: Props) => {
@@ -57,13 +57,13 @@ export const Game = ({ gameId, runtime }: Props) => {
 
     return (
         <>
-            <ScaleFade initialScale={0.5} in={runtime?.gameActive}>
+            <ScaleFade initialScale={0.5} in={runtime?.active}>
                 <Header
                     key={runtime?.questionStep}
                     currentQuestion={runtime?.currentQuestion?.question}
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     step={runtime!.questionStep!}
-                    total={runtime?.questions}
+                    total={runtime?.numberOfQuestions}
                 />
 
                 <Box my={12}>

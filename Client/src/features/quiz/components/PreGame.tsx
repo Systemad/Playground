@@ -6,19 +6,12 @@ import {
     HStack,
     SimpleGrid,
     Switch,
-    Text,
     useToast,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 
 import connection from '../../../utils/api/signalr/Socket';
-import { MyParams } from '../../../utils/routerParams';
-import {
-    PlayerRuntime,
-    Scoreboard,
-    useQuizGetGameScoreboardQuery,
-} from '../api/quizAPI';
+import { PlayerState } from '../api/quizAPI';
 import { usePreGame } from '../hooks/usePreGame';
 import { ReadyButton } from './ReadyButton';
 
@@ -34,10 +27,10 @@ const readyStatus = (status?: boolean | null): string => {
 type Props = {
     gameId: string;
     ownerId?: string;
-    scoreboard?: Scoreboard;
+    scoreboard?: PlayerState[];
 };
 type PlayerProps = {
-    player?: PlayerRuntime;
+    player?: PlayerState;
 };
 export const PreGame = ({ gameId, ownerId, scoreboard }: Props) => {
     usePreGame(gameId);
@@ -46,8 +39,7 @@ export const PreGame = ({ gameId, ownerId, scoreboard }: Props) => {
     const { instance } = useMsal();
     const myId = instance.getActiveAccount()?.localAccountId;
     const isOwner = myId === ownerId;
-    const isMeReady =
-        scoreboard?.players?.find((p) => p.id === myId)?.ready === true;
+    const isMeReady = scoreboard?.find((p) => p.id === myId)?.ready === true;
     const [ready, setReady] = useState<boolean>(false);
     const canStartGame = isMeReady && ready && isOwner;
 
@@ -139,7 +131,7 @@ export const PreGame = ({ gameId, ownerId, scoreboard }: Props) => {
                 spacingX="40px"
                 spacingY="20px"
             >
-                {scoreboard?.players?.map((item) => (
+                {scoreboard?.map((item) => (
                     <PlayerCard key={item.id} player={item} />
                 ))}
             </SimpleGrid>

@@ -47,45 +47,6 @@
                 ]
             }
         },
-        "/api/v1/quiz/id:guid/settings": {
-            "post": {
-                "tags": ["Quiz"],
-                "operationId": "Quiz_SetGameSettings",
-                "parameters": [
-                    {
-                        "name": "gameId",
-                        "in": "query",
-                        "schema": {
-                            "type": "string",
-                            "format": "guid"
-                        },
-                        "x-position": 1
-                    }
-                ],
-                "requestBody": {
-                    "x-name": "settings",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/QuizCreationModel"
-                            }
-                        }
-                    },
-                    "required": true,
-                    "x-position": 2
-                },
-                "responses": {
-                    "200": {
-                        "description": ""
-                    }
-                },
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ]
-            }
-        },
         "/api/v1/quiz/id:guid/runtime": {
             "get": {
                 "tags": ["Quiz"],
@@ -107,41 +68,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Runtime"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/quiz/id:guid/score": {
-            "get": {
-                "tags": ["Quiz"],
-                "operationId": "Quiz_GetGameScoreboard",
-                "parameters": [
-                    {
-                        "name": "gameId",
-                        "in": "query",
-                        "schema": {
-                            "type": "string",
-                            "format": "guid"
-                        },
-                        "x-position": 1
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Scoreboard"
+                                    "$ref": "#/components/schemas/QuizRuntime"
                                 }
                             }
                         }
@@ -236,15 +163,31 @@
                     },
                     "type": {
                         "type": "string"
+                    },
+                    "timeout": {
+                        "type": "integer",
+                        "format": "int32"
                     }
                 }
             },
-            "Runtime": {
+            "QuizRuntime": {
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
-                    "gameActive": {
-                        "type": "boolean"
+                    "questionStep": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "numberOfPlayers": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "timeout": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "quizSettings": {
+                        "$ref": "#/components/schemas/QuizSettings"
                     },
                     "currentQuestion": {
                         "nullable": true,
@@ -254,23 +197,30 @@
                             }
                         ]
                     },
+                    "scoreboard": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PlayerState"
+                        }
+                    }
+                }
+            },
+            "QuizSettings": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "type": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "difficulty": {
+                        "type": "string"
+                    },
                     "questions": {
                         "type": "integer",
                         "format": "int32"
-                    },
-                    "questionStep": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "numberOfPlayers": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "settings": {
-                        "$ref": "#/components/schemas/Settings"
-                    },
-                    "scoreboard": {
-                        "$ref": "#/components/schemas/Scoreboard"
                     }
                 }
             },
@@ -298,49 +248,7 @@
                     }
                 }
             },
-            "Settings": {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                    "ownerUserId": {
-                        "type": "string",
-                        "format": "guid"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "string"
-                    },
-                    "category": {
-                        "type": "string"
-                    },
-                    "difficulty": {
-                        "type": "string"
-                    },
-                    "questions": {
-                        "type": "integer",
-                        "format": "int32"
-                    }
-                }
-            },
-            "Scoreboard": {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                    "gameId": {
-                        "type": "string",
-                        "format": "guid"
-                    },
-                    "players": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/PlayerRuntime"
-                        }
-                    }
-                }
-            },
-            "PlayerRuntime": {
+            "PlayerState": {
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
@@ -356,16 +264,14 @@
                         "format": "int32"
                     },
                     "answered": {
-                        "type": "boolean",
-                        "nullable": true
+                        "type": "boolean"
                     },
                     "answeredCorrectly": {
                         "type": "boolean",
                         "nullable": true
                     },
                     "ready": {
-                        "type": "boolean",
-                        "nullable": true
+                        "type": "boolean"
                     }
                 }
             },
@@ -433,8 +339,8 @@
                         "type": "integer",
                         "format": "int32"
                     },
-                    "state": {
-                        "$ref": "#/components/schemas/GameState"
+                    "status": {
+                        "$ref": "#/components/schemas/GameStatus"
                     },
                     "difficulty": {
                         "type": "string",
@@ -448,7 +354,7 @@
                 "x-enumNames": ["Quiz", "TicTacToe", "Guessing"],
                 "enum": ["Quiz", "TicTacToe", "Guessing"]
             },
-            "GameState": {
+            "GameStatus": {
                 "type": "string",
                 "description": "",
                 "x-enumNames": [

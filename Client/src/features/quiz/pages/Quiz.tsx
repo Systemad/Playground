@@ -11,7 +11,7 @@ export const Quiz = () => {
     const { gameId } = useParams<keyof MyParams>() as MyParams;
 
     const { data: game } = useQuizGetGameRuntimeQuery({ gameId: gameId });
-    const ready = game?.gameActive === true;
+    const ready = game?.active === true;
 
     useEffect(() => {
         return () => {
@@ -22,7 +22,7 @@ export const Quiz = () => {
         return (
             <PreGame
                 gameId={gameId}
-                ownerId={game?.settings?.ownerUserId}
+                ownerId={game?.ownerId}
                 scoreboard={game?.scoreboard}
             />
         );

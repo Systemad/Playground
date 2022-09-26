@@ -8,9 +8,9 @@ public class OpenTdbClient : IOpenTdbClient
 
     private readonly HttpClient _httpClient;
 
-    public OpenTdbClient(HttpClient httpClient)
+    public OpenTdbClient()
     {
-        _httpClient = httpClient;
+        _httpClient = new HttpClient();
     }
 
     public async Task<List<Result>> GetQuestions(QuizSettings model)

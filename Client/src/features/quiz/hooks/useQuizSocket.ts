@@ -2,14 +2,14 @@ import { useEffect } from 'react';
 
 import { useAppDispatch } from '../../../providers/store';
 import connection from '../../../utils/api/signalr/Socket';
-import { ProcessedQuestion, quizSplitApi, Runtime } from '../api/quizAPI';
+import { ProcessedQuestion, QuizRuntime, quizSplitApi } from '../api/quizAPI';
 import { WebsocketEvents } from '../Events';
 
 export function UseQuizSocket(gameId: string): void {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        connection.on(WebsocketEvents.StartGame, (runtime: Runtime) => {
+        connection.on(WebsocketEvents.StartGame, (runtime: QuizRuntime) => {
             if (runtime) {
                 quizSplitApi.util.updateQueryData(
                     'quizGetGameRuntime',
@@ -26,7 +26,7 @@ export function UseQuizSocket(gameId: string): void {
                 'quizGetGameRuntime',
                 { gameId: gameId },
                 (draft) => {
-                    draft.gameActive = false;
+                    draft.active = false;
                 }
             );
         });

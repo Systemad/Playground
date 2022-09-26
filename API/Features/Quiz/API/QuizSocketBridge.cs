@@ -5,7 +5,7 @@ using Orleans.Streams;
 
 namespace API.Features.Quiz.API;
 
-[ImplicitStreamSubscription()]
+[ImplicitStreamSubscription(Constants.QuizNamespace)]
 public class QuizSocketBridge : Grain, IGrainWithGuidKey
 {
     private StreamSubscriptionHandle<object>? _subscriptionHandle;

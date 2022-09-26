@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { useAppDispatch } from '../../../providers/store';
 import connection from '../../../utils/api/signalr/Socket';
-import { PlayerRuntime, quizSplitApi, Scoreboard } from '../api/quizAPI';
+import { PlayerState, quizSplitApi } from '../api/quizAPI';
 import { WebsocketEvents } from '../Events';
 
 export function UseQuizScoreboard(gameId: string): void {
@@ -11,7 +11,7 @@ export function UseQuizScoreboard(gameId: string): void {
     useEffect(() => {
         connection.on(
             WebsocketEvents.UpdateScoreboard,
-            (scoreboard: Scoreboard) => {
+            (scoreboard: PlayerState[]) => {
                 dispatch(
                     quizSplitApi.util.updateQueryData(
                         'quizGetGameRuntime',
@@ -30,7 +30,7 @@ export function UseQuizScoreboard(gameId: string): void {
                     'quizGetGameRuntime',
                     { gameId: gameId },
                     (draft) => {
-                        const pl = draft?.scoreboard?.players?.find(
+                        const pl = draft?.scoreboard?.find(
                             (p) => p.id === player
                         );
                         if (pl) pl.answered = true;

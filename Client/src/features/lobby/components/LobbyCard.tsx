@@ -15,7 +15,7 @@ import {
     VStack,
 } from '@chakra-ui/react';
 
-import { GameMode, GameState } from '../api/lobbyAPI';
+import { GameMode, GameStatus } from '../api/lobbyAPI';
 import { GameStatusButton } from './GameStatusButton';
 
 export interface Color {
@@ -39,7 +39,7 @@ type Props = {
     name?: string;
     gameMode?: GameMode;
     players?: number;
-    gameStatus?: GameState;
+    gameStatus?: GameStatus;
     difficulty?: string;
     onClick: (id: string, mode?: GameMode) => void;
 };
@@ -49,7 +49,7 @@ export const LobbyCard = ({
     name,
     gameMode,
     players,
-    gameStatus,
+    //gameStatus,
     difficulty,
     onClick,
 }: Props) => {

@@ -9,9 +9,6 @@ using Orleans.Runtime;
 
 namespace API.Features.Quiz.Grains;
 
-// TODO: Make Class that has game and logic
-// https://github.com/smolyakoff/conreign/blob/master/src/Conreign.Server/Gameplay/GameGrain.cs#L20
-// Then take mewoki bot Trivia inpsiration
 [Reentrant]
 public class QuizGrain : Grain, IQuizGrain
 {
@@ -23,18 +20,23 @@ public class QuizGrain : Grain, IQuizGrain
     private int _tick;
     private IDisposable? _timer;
 
-    private readonly IPersistentState<QuizState> _state;
+    //private readonly IPersistentState<QuizState> _state;
 
     private static string GrainType => nameof(QuizGrain);
     private Guid GrainKey => this.GetPrimaryKey();
 
-    public QuizGrain(IOpenTdbClient client, ILogger<QuizGrain> logger)
+    public QuizGrain(ILogger<QuizGrain> logger, QuizGrainOptions options)
     {
         _logger = logger;
+        _options = options;
     }
 
     public override async Task OnActivateAsync()
     {
+        var streamProvider = GetStreamProvider(Constants.InMemorySteam);
+        var stream = streamProvider.GetStream<object>(GrainKey, Constants.QuizNamespace);
+        var initState = new QuizState();
+        _game = new Quiz(initState, stream);
         await base.OnActivateAsync();
     }
 
