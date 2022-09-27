@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using API.Extensions;
 using API.Features;
 using API.Features.Quiz.API;
+using API.Features.Quiz.Grains;
 using API.Features.SignalR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.UI;
@@ -9,9 +10,11 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using NSwag.AspNetCore;
 using Orleans;
+using Orleans.CodeGeneration;
 using Orleans.Configuration;
 using Orleans.Hosting;
 
+[assembly: KnownAssembly(typeof(Constants))]
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration["postgres"];
 
@@ -82,11 +85,11 @@ builder.Host.UseOrleans((context, silobuilder) =>
             opt.Invariant = "Npgsql";
             opt.ConnectionString = connectionString;
         });
-        silobuilder.AddSimpleMessageStreamProvider(Constants.InMemorySteam); //.AddMemoryGrainStorage("PubSubStore");
     }
 
     silobuilder.ConfigureServices(sv =>
     {
+        sv.AddSingleton(new QuizGrainOptions());
         sv.AddSingleton<IOpenTdbClient, OpenTdbClient>();
         sv.AddHttpClient<IOpenTdbClient, OpenTdbClient>(client =>
         {
@@ -95,6 +98,8 @@ builder.Host.UseOrleans((context, silobuilder) =>
     });
     silobuilder.AddMemoryGrainStorage("quizStore");
     silobuilder.AddMemoryGrainStorage("settingStore");
+    silobuilder.AddSimpleMessageStreamProvider(Constants.InMemorySteam);
+    silobuilder.AddMemoryGrainStorage("PubSubStore");
     silobuilder.ConfigureLogging(
         log => log
             .AddFilter("Orleans.Runtime.Management.ManagementGrain", LogLevel.Warning)

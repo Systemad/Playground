@@ -1,6 +1,7 @@
 import { useMsal } from '@azure/msal-react';
 import {
     Box,
+    Button,
     Center,
     Heading,
     HStack,
@@ -12,8 +13,6 @@ import React, { useEffect, useState } from 'react';
 
 import connection from '../../../utils/api/signalr/Socket';
 import { PlayerState } from '../api/quizAPI';
-import { usePreGame } from '../hooks/usePreGame';
-import { ReadyButton } from './ReadyButton';
 
 const readyStatus = (status?: boolean | null): string => {
     if (status === null && undefined) {
@@ -33,8 +32,6 @@ type PlayerProps = {
     player?: PlayerState;
 };
 export const PreGame = ({ gameId, ownerId, scoreboard }: Props) => {
-    usePreGame(gameId);
-
     const toast = useToast();
     const { instance } = useMsal();
     const myId = instance.getActiveAccount()?.localAccountId;
@@ -43,13 +40,14 @@ export const PreGame = ({ gameId, ownerId, scoreboard }: Props) => {
     const [ready, setReady] = useState<boolean>(false);
     const canStartGame = isMeReady && ready && isOwner;
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        connection.invoke('SetPlayerStatus', gameId, event.target.checked);
+    const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        console.log('invoking start');
+        await connection.invoke(
+            'SetPlayerStatus',
+            gameId,
+            event.target.checked
+        );
     };
-
-    useEffect(() => {
-        connection.invoke('JoinGame', gameId);
-    }, [gameId]);
 
     useEffect(() => {
         connection.on('AllUsersReady', () => {
@@ -59,9 +57,10 @@ export const PreGame = ({ gameId, ownerId, scoreboard }: Props) => {
 
     const handleStartAsync = async () => {
         try {
-            if (canStartGame) {
-                await connection.invoke('StartGame', gameId);
-            }
+            console.log('starting');
+            //if (canStartGame) {
+            await connection.invoke('StartGame', gameId);
+            //}
         } catch {
             toast({
                 title: 'An error occurred',
@@ -101,22 +100,32 @@ export const PreGame = ({ gameId, ownerId, scoreboard }: Props) => {
                         {player?.name}
                     </Heading>
 
-                    {isMe && canStartGame && (
-                        <>
-                            <HStack w="full" mt="6" mb="2">
+                    <HStack w="full" mt="6" mb="2">
+                        {isMe && (
+                            <>
                                 <Switch
                                     defaultChecked={false}
                                     onChange={handleChange}
                                     isChecked={isMeReady}
                                     size="lg"
                                 />
-                                <ReadyButton
-                                    onClick={handleStartAsync}
-                                    canStart={canStartGame}
-                                />
-                            </HStack>
-                        </>
-                    )}
+                                {isOwner && (
+                                    <Button
+                                        isDisabled={!canStartGame}
+                                        borderRadius="md"
+                                        bgColor="#4C566A"
+                                        w="full"
+                                        mx="auto"
+                                        my="auto"
+                                        p={6}
+                                        onClick={handleStartAsync}
+                                    >
+                                        Start
+                                    </Button>
+                                )}
+                            </>
+                        )}
+                    </HStack>
                 </Box>
             </Center>
         );

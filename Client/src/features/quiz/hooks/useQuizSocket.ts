@@ -2,15 +2,36 @@ import { useEffect } from 'react';
 
 import { useAppDispatch } from '../../../providers/store';
 import connection from '../../../utils/api/signalr/Socket';
-import { ProcessedQuestion, QuizRuntime, quizSplitApi } from '../api/quizAPI';
+import {
+    PlayerState,
+    ProcessedQuestion,
+    QuizRuntime,
+    quizSplitApi,
+} from '../api/quizAPI';
 import { WebsocketEvents } from '../Events';
 
 export function UseQuizSocket(gameId: string): void {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
+        connection.on(
+            WebsocketEvents.UpdateScoreboard,
+            (scoreboard: PlayerState[]) => {
+                dispatch(
+                    quizSplitApi.util.updateQueryData(
+                        'quizGetGameRuntime',
+                        { gameId: gameId },
+                        (draft) => {
+                            draft.scoreboard = scoreboard;
+                        }
+                    )
+                );
+            }
+        );
+
         connection.on(WebsocketEvents.StartGame, (runtime: QuizRuntime) => {
             if (runtime) {
+                console.log('startarat');
                 quizSplitApi.util.updateQueryData(
                     'quizGetGameRuntime',
                     { gameId: gameId },

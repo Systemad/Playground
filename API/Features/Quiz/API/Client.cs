@@ -23,16 +23,16 @@ public class OpenTdbClient : IOpenTdbClient
             Difficulty = model.Difficulty
         };
         if (model.Category == "0" && model.Difficulty == "any")
-            postString = $"https://opentdb.com/api.php?amount=${model.Questions}&encode=url3986";
+            postString = $"https://opentdb.com/api.php?amount={model.Questions}&encode=url3986";
         else if (model.Category == "0")
             postString =
-                $"https://opentdb.com/api.php?amount=${model.Questions}&difficulty=${model.Difficulty}&encode=url3986";
+                $"https://opentdb.com/api.php?amount={model.Questions}&difficulty={model.Difficulty}&encode=url3986";
         else if (model.Difficulty == "any")
             postString =
-                $"https://opentdb.com/api.php?amount=${model.Questions}&category=${model.Category}&encode=url3986";
+                $"https://opentdb.com/api.php?amount={model.Questions}&category={model.Category}&encode=url3986";
         else
             postString =
-                $"https://opentdb.com/api.php?amount=${model.Questions}&category=${model.Category}&difficulty=${model.Difficulty}&encode=url3986";
+                $"https://opentdb.com/api.php?amount={model.Questions}&encode=url3986";
         ;
         var response = await _httpClient.GetFromJsonAsync<Root>(postString);
         return response.results;

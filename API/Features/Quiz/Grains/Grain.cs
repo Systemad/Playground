@@ -89,11 +89,9 @@ public class QuizGrain : Grain, IQuizGrain
 
     private async Task UpdateGameToLobby()
     {
-        var gameSummary = new GameLobbySummary
-        {
-        };
+        var summary = await _game.GetLobbySummary();
         var lobbyGrain = GrainFactory.GetGrain<ILobbyGrain>(0);
-        await lobbyGrain.AddOrUpdateGame(gameSummary.Id, gameSummary);
+        await lobbyGrain.AddOrUpdateGame(summary.Id, summary);
     }
 
 

@@ -16,16 +16,11 @@ import {
 } from '@chakra-ui/react';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
-import {
-    PlayerRuntime,
-    Scoreboard,
-    useQuizGetGameScoreboardQuery,
-} from '../../features/quiz/api/quizAPI';
-import { UseQuizScoreboard } from '../../features/quiz/hooks/useQuizScoreboard';
+import { PlayerState } from '../../features/quiz/api/quizAPI';
 import connection from '../../utils/api/signalr/Socket';
 
 type Props = {
-    scoreboard?: Scoreboard;
+    scoreboard?: PlayerState[];
 };
 
 interface Message {
@@ -50,7 +45,7 @@ export const GameScoreboard = ({ scoreboard }: Props) => {
                 align="center"
                 justify="space-evenly"
             >
-                {scoreboard?.players?.map((item) => (
+                {scoreboard?.map((item) => (
                     <PlayerCard key={item.id} player={item} />
                 ))}
             </HStack>
@@ -60,7 +55,7 @@ export const GameScoreboard = ({ scoreboard }: Props) => {
 };
 
 type PlayerCardProps = {
-    player?: PlayerRuntime;
+    player?: PlayerState;
 };
 
 const PlayerCard = ({ player }: PlayerCardProps) => {
@@ -117,10 +112,10 @@ export const Chatbox = () => {
     };
 
     const [value, setValue] = useState('');
-    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
         event.preventDefault();
         if (event.target.value === '13') {
-            connection.invoke('SendMessage', value);
+            await connection.invoke('SendMessage', value);
             setValue('');
         } else {
             setValue(event.target.value);

@@ -10,22 +10,20 @@ internal interface IEvent
 }
 // InvokerId is either UserId if user action, or GameId if game action
 
-public record TimerTicked(int Timer, Guid InvokerId) : IEvent;
+public record TimerTicked(Guid GameId, int Timer);
 
-public record PlayerJoined(PlayerState Runtime, Guid InvokerId) : IEvent;
+public record PlayerAnswered(Guid GameId, Guid PlayerId);
 
-public record PlayerStatusChanged(bool Status, Guid InvokerId) : IEvent;
+public record GameStarted(Guid GameId, QuizRuntime Runtime);
 
-public record PlayerAnswered(Guid InvokerId) : IEvent;
+public record GameEnded(Guid GameId);
 
-public record GameStarted(QuizRuntime Runtime, Guid InvokerId) : IEvent;
+public record GameReady(Guid GameId, QuizRuntime Runtime);
 
-public record GameEnded(Guid InvokerId) : IEvent;
+public record RoundEnded(Guid GameId, string CorrectAnswer, QuizRuntime Runtime);
 
-public record GameReady(QuizRuntime Runtime, Guid InvokerId) : IEvent;
+public record RoundStarted(Guid GameId, QuizRuntime Runtime);
 
-public record RoundEnded(string CorrectAnswer, QuizRuntime Runtime, Guid InvokerId) : IEvent;
+public record ScoreboardUpdated(Guid GameId, List<PlayerState> Scoreboard);
 
-public record RoundStarted(QuizRuntime Runtime, Guid InvokerId) : IEvent;
-
-public record ScoreboardUpdated(List<PlayerState> Scoreboard, Guid InvokerId) : IEvent;
+public record AllUsersReady(Guid GameId);

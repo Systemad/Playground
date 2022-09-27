@@ -12,3 +12,14 @@ const connection = new signalR.HubConnectionBuilder()
     .build();
 
 export default connection;
+
+export async function JoinGame(gameId: string) {
+    //if (connection.state === signalR.HubConnectionState.Connected) return;
+    if (connection.state !== signalR.HubConnectionState.Connected) return;
+    await connection.invoke('JoinGame', gameId);
+}
+
+export async function LeaveGame(gameId: string) {
+    if (connection.state !== signalR.HubConnectionState.Connected) return;
+    await connection.invoke('LeaveGame', gameId);
+}

@@ -25,7 +25,7 @@ public class Quiz : IQuiz
         _stream = stream;
     }
 
-    public Task SubmitGuess(Guid userId, string answer)
+    public async Task SubmitGuess(Guid userId, string answer)
     {
         EnsureGameIsInProgress();
         if (IsCorrect(answer))
@@ -37,36 +37,49 @@ public class Quiz : IQuiz
         if (AllPlayersAnswered)
             ResetRound();
         else
-            NextRound();
-        return Task.CompletedTask;
+            await NextRound();
     }
 
-    public Task SetStatus(Guid userId, bool status)
+    public async Task SetStatus(Guid playerId, bool status)
     {
-        _quizState.Scoreboard[userId].Ready = status;
-        return Task.CompletedTask;
+        if (_quizState.Scoreboard.TryGetValue(playerId, out var value))
+        {
+            var gameId = _quizState.GameId;
+            _quizState.Scoreboard[playerId].Ready = status;
+            await UpdateScoreboard();
+        }
+
+        if (AllPlayersReady)
+        {
+            var usersready = new AllUsersReady(_quizState.GameId);
+            await _stream.OnNextAsync(usersready);
+        }
     }
 
-    public async Task JoinGame(Guid userId, string name)
+    public async Task JoinGame(Guid playerId, string name)
     {
         var newPlayer = new PlayerState
         {
-            Id = userId,
+            Id = playerId,
             Name = name,
             Score = 0,
             Answered = false,
             AnsweredCorrectly = null,
-            Ready = true
+            Ready = false
         };
-        _quizState.Scoreboard[userId] = newPlayer;
-        var join = new PlayerJoined(newPlayer, userId);
-        await _stream.OnNextAsync(join);
+        _quizState.Scoreboard[playerId] = newPlayer;
+        _quizState.NumberOfPlayers = _quizState.Scoreboard.Count;
+        await UpdateScoreboard();
     }
 
-    public Task LeaveGame(Guid userId)
+    public async Task LeaveGame(Guid playerId)
     {
-        _quizState.Scoreboard.Remove(userId);
-        return Task.CompletedTask;
+        if (_quizState.Scoreboard.TryGetValue(playerId, out var value))
+        {
+            _quizState.Scoreboard.Remove(playerId);
+            _quizState.NumberOfPlayers = _quizState.Scoreboard.Count;
+            await UpdateScoreboard();
+        }
     }
 
     public Task Initialize(Guid gameId, Guid ownerId, QuizCreationModel settings)
@@ -81,10 +94,12 @@ public class Quiz : IQuiz
         return Task.CompletedTask;
     }
 
-    public Task NextRound()
+    public async Task NextRound()
     {
-        ResetRound();
-        return Task.CompletedTask;
+        if (_quizState.QuestionStep == _quizState.Questions.Count)
+            await EndGame();
+        else
+            ResetRound();
     }
 
     private void ResetRound()
@@ -99,6 +114,7 @@ public class Quiz : IQuiz
         _quizState.CurrentQuestion = _quizState.Questions[_quizState.QuestionStep].ProcessQuestion();
     }
 
+    // TODO: Fix
     public async Task Start(Guid playerId)
     {
         if (!_quizState.Active && _quizState.ownerId != playerId)
@@ -107,6 +123,9 @@ public class Quiz : IQuiz
         _quizState.Active = true;
         _quizState.Questions = await _client.GetQuestions(_quizState.QuizSettings);
         _quizState.CurrentQuestion = _quizState.Questions[1].ProcessQuestion();
+        var runtime = await GetGameState();
+        var startGameEvent = new GameStarted(_quizState.GameId, runtime);
+        await _stream.OnNextAsync(startGameEvent);
     }
 
     public Task<GameLobbySummary> GetLobbySummary()
@@ -143,7 +162,7 @@ public class Quiz : IQuiz
 
     public async Task SetTimer(int time)
     {
-        var tickevent = new TimerTicked(time, _quizState.GameId);
+        var tickevent = new TimerTicked(_quizState.GameId, time);
         await _stream.OnNextAsync(tickevent);
     }
 
@@ -157,11 +176,18 @@ public class Quiz : IQuiz
         return answer == _quizState.Questions[_quizState.QuestionStep].correct_answer;
     }
 
-    private Task EndGame()
+    private async Task EndGame()
     {
         _quizState.Active = false;
         _quizState.CurrentQuestion = null;
-        return Task.CompletedTask;
+        var endEvent = new GameEnded(_quizState.GameId);
+        await _stream.OnNextAsync(endEvent);
+    }
+
+    private async Task UpdateScoreboard()
+    {
+        var scoreboardUpdated = new ScoreboardUpdated(_quizState.GameId, _quizState.Scoreboard.Values.ToList());
+        await _stream.OnNextAsync(scoreboardUpdated);
     }
 
     private Task CalculateAndReturnResults()

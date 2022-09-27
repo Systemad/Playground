@@ -5,8 +5,12 @@ using Orleans.Streams;
 
 namespace API.Features.Quiz.API;
 
+public interface ISubscriber : IGrainWithGuidKey
+{
+}
+
 [ImplicitStreamSubscription(Constants.QuizNamespace)]
-public class QuizSocketBridge : Grain, IGrainWithGuidKey
+public class QuizSocketBridge : Grain, ISubscriber
 {
     private StreamSubscriptionHandle<object>? _subscriptionHandle;
     private IHubContext<GlobalHub> _hub;
@@ -32,7 +36,7 @@ public class QuizSocketBridge : Grain, IGrainWithGuidKey
     {
         switch (evt)
         {
-            case PlayerStatusChanged obj:
+            case ScoreboardUpdated obj:
                 return await Handle(obj);
             case PlayerAnswered obj:
                 return await Handle(obj);
@@ -48,64 +52,71 @@ public class QuizSocketBridge : Grain, IGrainWithGuidKey
                 return await Handle(obj);
             case TimerTicked obj:
                 return await Handle(obj);
+            case AllUsersReady obj:
+                return await Handle(obj);
             default:
                 return false;
         }
     }
 
-    private async Task<bool> Handle(PlayerStatusChanged evt)
-    {
-        await _hub.Clients.Group(this.GetPrimaryKey().ToString())
-            .SendAsync(nameof(WsEvents.ChangePlayerStatus), evt.InvokerId, evt.Status);
-        return true;
-    }
-
     private async Task<bool> Handle(TimerTicked evt)
     {
-        await _hub.Clients.Group(this.GetPrimaryKey().ToString())
-            .SendAsync(nameof(WsEvents.TimerTicked), evt);
+        await _hub.Clients.Group(evt.GameId.ToString())
+            .SendAsync(nameof(WsEvents.TimerTicked), evt.Timer);
         return true;
     }
 
     private async Task<bool> Handle(PlayerAnswered evt)
     {
-        await _hub.Clients.Group(this.GetPrimaryKey().ToString())
-            .SendAsync(nameof(WsEvents.PlayerAnswered), evt.InvokerId);
+        await _hub.Clients.Group(evt.GameId.ToString())
+            .SendAsync(nameof(WsEvents.PlayerAnswered), evt.PlayerId);
         return true;
     }
 
     private async Task<bool> Handle(GameStarted evt)
     {
-        await _hub.Clients.Group(this.GetPrimaryKey().ToString())
+        await _hub.Clients.Group(evt.GameId.ToString())
             .SendAsync(nameof(WsEvents.StartGame), evt.Runtime);
         return true;
     }
 
     private async Task<bool> Handle(GameEnded evt)
     {
-        await _hub.Clients.Group(this.GetPrimaryKey().ToString())
+        await _hub.Clients.Group(evt.GameId.ToString())
             .SendAsync(nameof(WsEvents.StopGame));
         return true;
     }
 
     private async Task<bool> Handle(GameReady evt)
     {
-        await _hub.Clients.Group(this.GetPrimaryKey().ToString())
+        await _hub.Clients.Group(evt.GameId.ToString())
             .SendAsync(nameof(WsEvents.StopGame), evt.Runtime);
         return true;
     }
 
     private async Task<bool> Handle(RoundEnded evt)
     {
-        await _hub.Clients.Group(this.GetPrimaryKey().ToString())
+        await _hub.Clients.Group(evt.GameId.ToString())
             .SendAsync(nameof(WsEvents.RoundResults), evt.CorrectAnswer, evt.Runtime.Scoreboard);
         return true;
     }
 
     private async Task<bool> Handle(RoundStarted evt)
     {
-        await _hub.Clients.Group(this.GetPrimaryKey().ToString())
+        await _hub.Clients.Group(evt.GameId.ToString())
             .SendAsync(nameof(WsEvents.NextRound), evt.Runtime);
+        return true;
+    }
+
+    private async Task<bool> Handle(ScoreboardUpdated evt)
+    {
+        await _hub.Clients.Group(evt.GameId.ToString()).SendAsync(nameof(WsEvents.UpdateScoreboard), evt.Scoreboard);
+        return true;
+    }
+
+    private async Task<bool> Handle(AllUsersReady evt)
+    {
+        await _hub.Clients.Group(evt.GameId.ToString()).SendAsync(nameof(WsEvents.AllUsersReady));
         return true;
     }
 
@@ -114,9 +125,4 @@ public class QuizSocketBridge : Grain, IGrainWithGuidKey
         await _subscriptionHandle!.UnsubscribeAsync();
         await base.OnDeactivateAsync();
     }
-
 }
-/*
-
-public record ScoreboardUpdated(List<PlayerState> Scoreboard, Guid InvokerId) : IEvent;
-*/

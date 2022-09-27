@@ -45,21 +45,21 @@ public class GlobalHub : Hub
     public async Task JoinGame(string gameId)
     {
         Console.WriteLine($"Hub: Joining game {gameId}");
-        await Groups.AddToGroupAsync(GetConnectionId, gameId);
         var gameGrain = _factory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
         await gameGrain.AddPlayer(GetUserId, GetUsername);
         var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
         await player.SetActiveGame(Guid.Parse(gameId));
+        await Groups.AddToGroupAsync(GetConnectionId, gameId);
     }
 
     public async Task LeaveGame(string gameId)
     {
         Console.WriteLine($"Hub: Leaving game {gameId}");
-        await Groups.RemoveFromGroupAsync(GetConnectionId, gameId);
         var gameGrain = _factory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
         await gameGrain.RemovePlayer(GetUserId);
         var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
         await player.RemoveActiveGame();
+        await Groups.RemoveFromGroupAsync(GetConnectionId, gameId);
     }
 
     public async Task StartGame(string gameId)
@@ -79,8 +79,5 @@ public class GlobalHub : Hub
     {
         var gameGrain = _factory.GetGrain<IMultiplayerGrain>(gameId);
         await gameGrain.SetPlayerStatus(GetUserId, status);
-
-        await Clients.Group(gameId.ToString())
-            .SendAsync(nameof(WsEvents.ChangePlayerStatus), GetUserId, status);
     }
 }

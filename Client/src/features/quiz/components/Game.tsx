@@ -21,8 +21,6 @@ import {
 } from '../api/quizAPI';
 import { Header } from '../components/Header';
 import { useCorrectAnswer } from '../hooks/useCorrectAnswer';
-import { UseQuizScoreboard } from '../hooks/useQuizScoreboard';
-import { UseQuizSocket } from '../hooks/useQuizSocket';
 import { buttonStatus, isButtonDisabled } from '../utils/Helper';
 
 type Props = {
@@ -34,9 +32,6 @@ export const Game = ({ gameId, runtime }: Props) => {
     const [selectedAnswer, setSelectedAnswer] = useState<string | undefined>();
 
     const correctAnswer = useCorrectAnswer();
-
-    UseQuizSocket(gameId);
-    UseQuizScoreboard(gameId);
 
     const handleAnswer = (answer: string) => {
         const isNoPreviouslySelectedAnswer = selectedAnswer === undefined;
