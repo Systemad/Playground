@@ -6,14 +6,12 @@ import { MyParams } from '../../../utils/routerParams';
 import { useQuizGetGameRuntimeQuery } from '../api/quizAPI';
 import { Game } from '../components/Game';
 import { PreGame } from '../components/PreGame';
-import { UseQuizSocket } from '../hooks/useQuizSocket';
 // TODO: When game ends, navigate to gameid/results
 export const Quiz = () => {
     const { gameId } = useParams<keyof MyParams>() as MyParams;
-    UseQuizSocket(gameId);
     const { data: game } = useQuizGetGameRuntimeQuery({ gameId: gameId });
+    //UseQuizSocket(gameId);
     const ready = game?.active === true;
-
     useEffect(() => {
         JoinGame(gameId);
         return () => {

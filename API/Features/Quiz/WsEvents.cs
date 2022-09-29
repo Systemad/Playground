@@ -20,6 +20,8 @@ public enum WsEvents
     AllUsersReady,
     ChangePlayerStatus,
 
-    TimerTicked
+    TimerTicked,
+
+    RuntimeUpdated
 
 }

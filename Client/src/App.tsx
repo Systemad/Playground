@@ -9,7 +9,7 @@ import { AppLayout } from './components/AppLayout';
 import { AppRoutes } from './routes/Routes';
 import { CustomNavigationClient } from './utils/auth/NavigationClient';
 import * as signalR from '@microsoft/signalr';
-import connection from './utils/api/signalr/Socket';
+import { hubConnection, useSignalR } from './utils/api/signalr/Socket';
 import { SimpleSidebar } from './components/layouts/Sidebar/Sidebar';
 
 type AppProps = {
@@ -22,16 +22,9 @@ function App({ pca }: AppProps) {
     pca.setNavigationClient(navigationClient);
 
     const { instance, accounts, inProgress } = useMsal();
-    const startConnection = async () => {
-        if (connection.state === signalR.HubConnectionState.Connected) return;
 
-        if (connection.state === signalR.HubConnectionState.Disconnected)
-            await connection.start();
-    };
-
-    useEffect(() => {
-        startConnection().then((r) => console.log(r));
-    }, [accounts, instance, connection]);
+    useSignalR(hubConnection, instance);
+    useEffect(() => {}, [accounts, instance]);
 
     return (
         <>

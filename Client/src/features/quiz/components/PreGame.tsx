@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 
-import connection from '../../../utils/api/signalr/Socket';
+import { hubConnection } from '../../../utils/api/signalr/Socket';
 import { PlayerState } from '../api/quizAPI';
 
 const readyStatus = (status?: boolean | null): string => {
@@ -40,26 +40,20 @@ export const PreGame = ({ gameId, ownerId, scoreboard }: Props) => {
     const [ready, setReady] = useState<boolean>(false);
     const canStartGame = isMeReady && ready && isOwner;
 
-    const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log('invoking start');
-        await connection.invoke(
-            'SetPlayerStatus',
-            gameId,
-            event.target.checked
-        );
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        hubConnection.invoke('SetPlayerStatus', gameId, event.target.checked);
     };
 
     useEffect(() => {
-        connection.on('AllUsersReady', () => {
+        hubConnection.on('AllUsersReady', () => {
             setReady(true);
         });
     }, []);
 
     const handleStartAsync = async () => {
         try {
-            console.log('starting');
             //if (canStartGame) {
-            await connection.invoke('StartGame', gameId);
+            await hubConnection.invoke('StartGame', gameId);
             //}
         } catch {
             toast({
@@ -104,7 +98,6 @@ export const PreGame = ({ gameId, ownerId, scoreboard }: Props) => {
                         {isMe && (
                             <>
                                 <Switch
-                                    defaultChecked={false}
                                     onChange={handleChange}
                                     isChecked={isMeReady}
                                     size="lg"

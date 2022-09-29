@@ -1,7 +1,7 @@
 import { Box, SimpleGrid, useToast } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 
-import connection from '../../../utils/api/signalr/Socket';
+import { hubConnection, JoinGame } from '../../../utils/api/signalr/Socket';
 import { GameMode, useLobbyGetGamesQuery } from '../api/lobbyAPI';
 import { LobbyCard } from '../components/LobbyCard';
 import { UseLobbySocket } from '../hooks/UseLobbySocket';
@@ -31,9 +31,7 @@ export const LobbyLayout = () => {
 
         try {
             if (id) {
-                await connection
-                    .invoke('JoinGame', id)
-                    .then(() => navigate(`${route}/${id}`));
+                JoinGame(id).then(() => navigate(`${route}/${id}`));
             }
         } catch {
             toast({

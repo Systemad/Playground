@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useAppDispatch } from '../../../providers/store';
-import connection from '../../../utils/api/signalr/Socket';
+import { hubConnection } from '../../../utils/api/signalr/Socket';
 import {
     PlayerState,
     ProcessedQuestion,
@@ -14,7 +14,7 @@ export function UseQuizSocket(gameId: string): void {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        connection.on(
+        hubConnection.on(
             WebsocketEvents.UpdateScoreboard,
             (scoreboard: PlayerState[]) => {
                 dispatch(
@@ -29,20 +29,17 @@ export function UseQuizSocket(gameId: string): void {
             }
         );
 
-        connection.on(WebsocketEvents.StartGame, (runtime: QuizRuntime) => {
-            if (runtime) {
-                console.log('startarat');
-                quizSplitApi.util.updateQueryData(
-                    'quizGetGameRuntime',
-                    { gameId: gameId },
-                    (draft) => {
-                        draft = runtime;
-                    }
-                );
-            }
+        hubConnection.on(WebsocketEvents.StartGame, (runtime: QuizRuntime) => {
+            quizSplitApi.util.updateQueryData(
+                'quizGetGameRuntime',
+                { gameId: gameId },
+                (draft) => {
+                    draft = runtime;
+                }
+            );
         });
 
-        connection.on(WebsocketEvents.StopGame, () => {
+        hubConnection.on(WebsocketEvents.StopGame, () => {
             quizSplitApi.util.updateQueryData(
                 'quizGetGameRuntime',
                 { gameId: gameId },
@@ -51,7 +48,7 @@ export function UseQuizSocket(gameId: string): void {
                 }
             );
         });
-        connection.on(
+        hubConnection.on(
             WebsocketEvents.NextQuestion,
             (question: ProcessedQuestion) => {
                 dispatch(

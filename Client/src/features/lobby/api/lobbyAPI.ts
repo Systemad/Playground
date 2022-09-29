@@ -5,10 +5,10 @@ const injectedRtkApi = api.injectEndpoints({
             LobbyGetGamesApiResponse,
             LobbyGetGamesApiArg
         >({
+            keepUnusedDataFor: 5,
             query: () => ({ url: `/api/v1/lobby/games` }),
         }),
     }),
-    overrideExisting: false,
 });
 export { injectedRtkApi as lobbySplitApi };
 export type LobbyGetGamesApiResponse = /** status 200  */ GameLobbySummary[];

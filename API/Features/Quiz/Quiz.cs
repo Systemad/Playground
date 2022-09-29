@@ -16,7 +16,7 @@ public class Quiz : IQuiz
         _quizState.Scoreboard.All(p => p.Value.Answered);
 
     private bool AllPlayersReady =>
-        _quizState.Scoreboard.All(p => p.Value.Ready);
+        _quizState.Scoreboard.All(p => p.Value.Ready); // > 2;
 
     public Quiz(QuizState quizState, IAsyncStream<object> stream)
     {
@@ -34,9 +34,11 @@ public class Quiz : IQuiz
             _quizState.Scoreboard[userId].AnsweredCorrectly = true;
         }
 
+        _quizState.Scoreboard[userId].Answered = true;
+        var playerAnswered = new PlayerAnswered(_quizState.GameId, userId);
+        await _stream.OnNextAsync(playerAnswered);
+
         if (AllPlayersAnswered)
-            ResetRound();
-        else
             await NextRound();
     }
 
@@ -97,21 +99,30 @@ public class Quiz : IQuiz
     public async Task NextRound()
     {
         if (_quizState.QuestionStep == _quizState.Questions.Count)
-            await EndGame();
-        else
-            ResetRound();
-    }
-
-    private void ResetRound()
-    {
-        foreach (var (key, value) in _quizState.Scoreboard)
         {
-            _quizState.Scoreboard[key].Answered = false;
-            _quizState.Scoreboard[key].AnsweredCorrectly = null;
+            await EndGame();
         }
+        else
+        {
+            await UpdateScoreboard();
+            // send correct answer
 
-        _quizState.QuestionStep++;
-        _quizState.CurrentQuestion = _quizState.Questions[_quizState.QuestionStep].ProcessQuestion();
+            var correct = new CorrectAnswer(_quizState.GameId,
+                _quizState.Questions[_quizState.QuestionStep].correct_answer);
+            await _stream.OnNextAsync(correct);
+            await Task.Delay(5000);
+            foreach (var (key, value) in _quizState.Scoreboard)
+            {
+                _quizState.Scoreboard[key].Answered = false;
+                _quizState.Scoreboard[key].AnsweredCorrectly = null;
+            }
+
+            _quizState.QuestionStep++;
+            _quizState.CurrentQuestion = _quizState.Questions[_quizState.QuestionStep].ProcessQuestion();
+            var runtime = await GetGameState();
+            var update = new RoundStarted(_quizState.GameId, runtime);
+            await _stream.OnNextAsync(update);
+        }
     }
 
     // TODO: Fix
@@ -122,7 +133,8 @@ public class Quiz : IQuiz
         if (!AllPlayersReady) throw new ArgumentException("All players not ready");
         _quizState.Active = true;
         _quizState.Questions = await _client.GetQuestions(_quizState.QuizSettings);
-        _quizState.CurrentQuestion = _quizState.Questions[1].ProcessQuestion();
+        _quizState.QuestionStep = 1;
+        _quizState.CurrentQuestion = _quizState.Questions[_quizState.QuestionStep].ProcessQuestion();
         var runtime = await GetGameState();
         var startGameEvent = new GameStarted(_quizState.GameId, runtime);
         await _stream.OnNextAsync(startGameEvent);
@@ -203,5 +215,10 @@ public class Quiz : IQuiz
         };
 
         return Task.FromResult(results);
+    }
+
+    private async Task PreQuestion()
+    {
+        await UpdateScoreboard();
     }
 }

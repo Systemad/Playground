@@ -12,13 +12,9 @@ internal interface IEvent
 
 public record TimerTicked(Guid GameId, int Timer);
 
-public record PlayerAnswered(Guid GameId, Guid PlayerId);
-
 public record GameStarted(Guid GameId, QuizRuntime Runtime);
 
 public record GameEnded(Guid GameId);
-
-public record GameReady(Guid GameId, QuizRuntime Runtime);
 
 public record RoundEnded(Guid GameId, string CorrectAnswer, QuizRuntime Runtime);
 
@@ -26,4 +22,8 @@ public record RoundStarted(Guid GameId, QuizRuntime Runtime);
 
 public record ScoreboardUpdated(Guid GameId, List<PlayerState> Scoreboard);
 
+public record PlayerAnswered(Guid GameId, Guid PlayerId);
+
 public record AllUsersReady(Guid GameId);
+
+public record CorrectAnswer(Guid GameId, string Runtime);

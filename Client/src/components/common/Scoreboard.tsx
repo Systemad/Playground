@@ -17,7 +17,7 @@ import {
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import { PlayerState } from '../../features/quiz/api/quizAPI';
-import connection from '../../utils/api/signalr/Socket';
+import { hubConnection } from '../../utils/api/signalr/Socket';
 
 type Props = {
     scoreboard?: PlayerState[];
@@ -58,13 +58,25 @@ type PlayerCardProps = {
     player?: PlayerState;
 };
 
+const CardBackground = (
+    answered?: boolean,
+    answeredCorrectly?: boolean | null
+): string => {
+    if (answered && answered !== null) return 'blue.700';
+    if (answered && answeredCorrectly) return 'green.700';
+    if (answered && !answeredCorrectly && answeredCorrectly === null)
+        return 'red.700';
+
+    return 'grey.700';
+};
+
 const PlayerCard = ({ player }: PlayerCardProps) => {
     return (
         <Center w="full" h="full">
             <Box
                 h="full"
                 w={'full'}
-                bg={player?.answeredCorrectly ? 'green.600' : 'blue.600'}
+                bg={CardBackground(player?.answered, player?.answeredCorrectly)}
                 rounded={'md'}
                 px={4}
                 textAlign={'center'}
@@ -115,7 +127,7 @@ export const Chatbox = () => {
     const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
         event.preventDefault();
         if (event.target.value === '13') {
-            await connection.invoke('SendMessage', value);
+            await hubConnection.invoke('SendMessage', value);
             setValue('');
         } else {
             setValue(event.target.value);
@@ -123,7 +135,7 @@ export const Chatbox = () => {
     };
 
     useEffect(() => {
-        connection.on('ReceiveMessage', (message: Message) => {
+        hubConnection.on('ReceiveMessage', (message: Message) => {
             setMessages((_messages) => [..._messages, message]);
         });
     });

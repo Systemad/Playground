@@ -1,4 +1,6 @@
 import { emptySplitApi as api } from '../../../providers/emptyApi';
+import { hubConnection } from '../../../utils/api/signalr/Socket';
+import { WebsocketEvents } from '../Events';
 const injectedRtkApi = api.injectEndpoints({
     endpoints: (build) => ({
         quizCreateGame: build.mutation<
@@ -19,6 +21,69 @@ const injectedRtkApi = api.injectEndpoints({
                 url: `/api/v1/quiz/id:guid/runtime`,
                 params: { gameId: queryArg.gameId },
             }),
+            async onCacheEntryAdded(
+                arg,
+                { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+            ) {
+                try {
+                    await cacheDataLoaded; // TODO: Fix this??
+
+                    const sbListener = (scoreboard: PlayerState[]) => {
+                        updateCachedData((draft) => {
+                            draft.scoreboard = scoreboard;
+                        });
+                    };
+
+                    const startGameListener = (runtime: QuizRuntime) => {
+                        console.log('Start in api');
+                        updateCachedData((draft) => {
+                            draft = runtime;
+                        });
+                    };
+                    const stopGameListener = (runtime: QuizRuntime) => {
+                        updateCachedData((draft) => {
+                            draft = runtime;
+                        });
+                    };
+
+                    const NextQuestionListener = (runtime: QuizRuntime) => {
+                        updateCachedData((draft) => {
+                            draft = runtime;
+                        });
+                    };
+
+                    const playerAnsweredEvent = (playerId: string) => {
+                        updateCachedData((draft) => {
+                            var pl = draft.scoreboard?.find(
+                                (p) => p.id == playerId
+                            );
+                            if (pl) pl.answered = true;
+                        });
+                    };
+
+                    hubConnection.on(
+                        WebsocketEvents.PlayerAnswered,
+                        playerAnsweredEvent
+                    );
+                    hubConnection.on(
+                        WebsocketEvents.NextQuestion,
+                        NextQuestionListener
+                    );
+                    hubConnection.on(
+                        WebsocketEvents.UpdateScoreboard,
+                        sbListener
+                    );
+                    hubConnection.on(
+                        WebsocketEvents.StartGame,
+                        startGameListener
+                    );
+                    hubConnection.on(
+                        WebsocketEvents.StopGame,
+                        stopGameListener
+                    );
+                } catch {}
+                await cacheEntryRemoved;
+            },
         }),
         quizGetGameResults: build.query<
             QuizGetGameResultsApiResponse,

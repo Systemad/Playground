@@ -12,6 +12,7 @@ namespace API.Features.Player;
 public class PlayerGrain : Grain, IPlayerGrain
 {
     private string _username = null!;
+    private string _connectionId;
     private Guid _activeGame = Guid.Empty!;
     private static string GrainType => nameof(PlayerGrain);
     private Guid GrainKey => this.GetPrimaryKey();
@@ -42,6 +43,23 @@ public class PlayerGrain : Grain, IPlayerGrain
     public Task<Guid> GetActiveGame()
     {
         return Task.FromResult(_activeGame);
+    }
+
+    public Task SetConnectionId(string connectionId)
+    {
+        _connectionId = connectionId;
+        return Task.CompletedTask;
+    }
+
+    public Task ResetConnectionId()
+    {
+        _connectionId = string.Empty;
+        return Task.CompletedTask;
+    }
+
+    public Task<string> GetConnectionId()
+    {
+        return Task.FromResult(_connectionId);
     }
 
     public Task SetActiveGame(Guid gameId)

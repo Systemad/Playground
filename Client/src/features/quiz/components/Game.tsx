@@ -1,24 +1,10 @@
-import {
-    Box,
-    Flex,
-    ScaleFade,
-    SimpleGrid,
-    Spacer,
-    Stack,
-} from '@chakra-ui/react';
+import { Box, ScaleFade, SimpleGrid } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 
 import { Answer } from '../../../components/common/AnswerButton';
 import { GameScoreboard } from '../../../components/common/Scoreboard';
-import connection from '../../../utils/api/signalr/Socket';
-import { MyParams } from '../../../utils/routerParams';
-import {
-    PlayerState,
-    ProcessedQuestion,
-    QuizRuntime,
-    useQuizGetGameRuntimeQuery,
-} from '../api/quizAPI';
+import { hubConnection } from '../../../utils/api/signalr/Socket';
+import { QuizRuntime } from '../api/quizAPI';
 import { Header } from '../components/Header';
 import { useCorrectAnswer } from '../hooks/useCorrectAnswer';
 import { buttonStatus, isButtonDisabled } from '../utils/Helper';
@@ -41,13 +27,13 @@ export const Game = ({ gameId, runtime }: Props) => {
     };
 
     useEffect(() => {
-        connection.invoke('SubmitAnswer', selectedAnswer);
-    }, [selectedAnswer, gameId]);
+        hubConnection.invoke('SubmitAnswer', selectedAnswer, gameId);
+    }, [selectedAnswer]);
 
     useEffect(() => {
         const resetAnswerListener = () => setSelectedAnswer(undefined);
 
-        connection.on('NextQuestion', resetAnswerListener);
+        hubConnection.on('NextQuestion', resetAnswerListener);
     }, [selectedAnswer]);
 
     return (

@@ -26,6 +26,7 @@ public class GlobalHub : Hub
     {
         var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
         await player.SetUsername(GetUsername);
+        await player.SetConnectionId(Context.ConnectionId);
         await base.OnConnectedAsync();
     }
 
@@ -33,6 +34,7 @@ public class GlobalHub : Hub
     {
         var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
         await player.RemoveActiveGame();
+        await player.ResetConnectionId();
         await base.OnDisconnectedAsync(exception);
     }
 
@@ -69,10 +71,10 @@ public class GlobalHub : Hub
         await gameGrain.StartGame(GetUserId);
     }
 
-    public async Task SubmitAnswer(AnswerModel answerModel)
+    public async Task SubmitAnswer(string answer, string gameId)
     {
-        var gameGrain = _factory.GetGrain<IQuizGrain>(answerModel.GameId);
-        await gameGrain.SubmitAnswer(GetUserId, answerModel.Answer);
+        var gameGrain = _factory.GetGrain<IQuizGrain>(Guid.Parse(gameId));
+        await gameGrain.SubmitAnswer(GetUserId, answer);
     }
 
     public async Task SetPlayerStatus(Guid gameId, bool status)

@@ -1,4 +1,5 @@
-﻿using API.Features.SignalR;
+﻿using API.Features.Player;
+using API.Features.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using Orleans;
 using Orleans.Streams;
@@ -44,8 +45,6 @@ public class QuizSocketBridge : Grain, ISubscriber
                 return await Handle(obj);
             case GameEnded obj:
                 return await Handle(obj);
-            case GameReady obj:
-                return await Handle(obj);
             case RoundStarted obj:
                 return await Handle(obj);
             case RoundEnded obj:
@@ -87,13 +86,6 @@ public class QuizSocketBridge : Grain, ISubscriber
         return true;
     }
 
-    private async Task<bool> Handle(GameReady evt)
-    {
-        await _hub.Clients.Group(evt.GameId.ToString())
-            .SendAsync(nameof(WsEvents.StopGame), evt.Runtime);
-        return true;
-    }
-
     private async Task<bool> Handle(RoundEnded evt)
     {
         await _hub.Clients.Group(evt.GameId.ToString())
@@ -110,7 +102,8 @@ public class QuizSocketBridge : Grain, ISubscriber
 
     private async Task<bool> Handle(ScoreboardUpdated evt)
     {
-        await _hub.Clients.Group(evt.GameId.ToString()).SendAsync(nameof(WsEvents.UpdateScoreboard), evt.Scoreboard);
+        await _hub.Clients.Group(evt.GameId.ToString())
+            .SendAsync(nameof(WsEvents.UpdateScoreboard), evt.Scoreboard);
         return true;
     }
 
