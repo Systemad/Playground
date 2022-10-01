@@ -9,12 +9,13 @@ public class ProcessedQuestion
     public string type { get; set; }
     public string difficulty { get; set; }
     public string question { get; set; }
+    public int number { get; set; }
     public List<string> answers { get; set; }
 }
 
 public static class Helpers
 {
-    public static ProcessedQuestion ProcessQuestion(this Result question)
+    public static ProcessedQuestion ProcessQuestion(this Result question, int number)
     {
         var rnd = new Random();
         var news = new List<string>();
@@ -27,6 +28,7 @@ public static class Helpers
             type = question.type,
             difficulty = question.difficulty,
             question = question.question,
+            number = number,
             answers = shuffle
         };
         return newq;

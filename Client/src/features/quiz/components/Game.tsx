@@ -1,22 +1,23 @@
-import { Box, ScaleFade, SimpleGrid } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import { Box, SimpleGrid } from '@chakra-ui/react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { Answer } from '../../../components/common/AnswerButton';
 import { GameScoreboard } from '../../../components/common/Scoreboard';
-import { hubConnection } from '../../../utils/api/signalr/Socket';
-import { QuizRuntime } from '../api/quizAPI';
+import { SocketContext } from '../../../utils/contexts/SignalrContext';
 import { Header } from '../components/Header';
+import { useAnswers } from '../hooks/useAnswers';
 import { useCorrectAnswer } from '../hooks/useCorrectAnswer';
+import { useQuestion } from '../hooks/useQuestion';
 import { buttonStatus, isButtonDisabled } from '../utils/Helper';
 
 type Props = {
     gameId: string;
-    runtime: QuizRuntime;
 };
-
-export const Game = ({ gameId, runtime }: Props) => {
+export const Game = ({ gameId }: Props) => {
     const [selectedAnswer, setSelectedAnswer] = useState<string | undefined>();
-
+    const socket = useContext(SocketContext);
+    const currentQuestion = useQuestion();
+    const currentAnswers = useAnswers();
     const correctAnswer = useCorrectAnswer();
 
     const handleAnswer = (answer: string) => {
@@ -27,53 +28,46 @@ export const Game = ({ gameId, runtime }: Props) => {
     };
 
     useEffect(() => {
-        hubConnection.invoke('SubmitAnswer', selectedAnswer, gameId);
-    }, [selectedAnswer]);
+        socket.invoke('SubmitAnswer', selectedAnswer, gameId);
+    }, [gameId, selectedAnswer, socket]);
 
     useEffect(() => {
         const resetAnswerListener = () => setSelectedAnswer(undefined);
 
-        hubConnection.on('NextQuestion', resetAnswerListener);
-    }, [selectedAnswer]);
+        socket.on('NextQuestion', resetAnswerListener);
+    }, [selectedAnswer, socket]);
 
     return (
         <>
-            <ScaleFade initialScale={0.5} in={runtime?.active}>
-                <Header
-                    key={runtime?.questionStep}
-                    currentQuestion={runtime?.currentQuestion?.question}
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    step={runtime!.questionStep!}
-                    total={runtime?.numberOfQuestions}
-                />
+            <Header
+                currentQuestion={currentQuestion?.question}
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                //step={currentQuestion.}
+                //total={runtime?.numberOfQuestions}
+            />
 
-                <Box my={12}>
-                    <SimpleGrid columns={[1, 2]} spacing={[4, 8]}>
-                        {runtime?.currentQuestion?.answers?.map(
-                            (answer, index) => (
-                                <Answer
-                                    key={index}
-                                    choice={answer}
-                                    colorStatus={buttonStatus(
-                                        answer,
-                                        selectedAnswer,
-                                        correctAnswer
-                                    )}
-                                    selected={
-                                        answer === selectedAnswer ? true : false
-                                    }
-                                    isDisabled={isButtonDisabled(
-                                        answer,
-                                        selectedAnswer,
-                                        correctAnswer
-                                    )}
-                                    onClick={handleAnswer}
-                                />
-                            )
-                        )}
-                    </SimpleGrid>
-                </Box>
-            </ScaleFade>
+            <Box my={12}>
+                <SimpleGrid columns={[1, 2]} spacing={[4, 8]}>
+                    {currentQuestion?.answers?.map((answer, index) => (
+                        <Answer
+                            key={index}
+                            choice={answer}
+                            colorStatus={buttonStatus(
+                                answer,
+                                selectedAnswer,
+                                correctAnswer
+                            )}
+                            selected={answer === selectedAnswer ? true : false}
+                            isDisabled={isButtonDisabled(
+                                answer,
+                                selectedAnswer,
+                                correctAnswer
+                            )}
+                            onClick={handleAnswer}
+                        />
+                    ))}
+                </SimpleGrid>
+            </Box>
 
             <GameScoreboard scoreboard={runtime.scoreboard} />
         </>

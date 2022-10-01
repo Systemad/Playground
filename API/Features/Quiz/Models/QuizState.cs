@@ -8,25 +8,22 @@ public class QuizState : MultiplayerState
     public int QuestionStep { get; set; } = 0;
     public int NumberOfPlayers { get; set; }
     public int Timeout { get; set; }
+
     public QuizSettings QuizSettings { get; set; } = new();
-    public ProcessedQuestion? CurrentQuestion { get; set; }
+
+    //public Result? CurrentQuestion { get; set; }
     public List<Result> Questions = new();
+
+    // use hook for scoreboard
     public Dictionary<Guid, PlayerState> Scoreboard { get; set; } = new();
 }
 
 public class QuizRuntime
 {
-    public bool Active { get; set; }
-    public int QuestionStep { get; set; } = 0;
-
     public int NumberOfQuestions { set; get; }
-
-    public int NumberOfPlayers { get; set; }
     public int Timeout { get; set; }
     public Guid OwnerId { get; set; }
     public QuizSettings QuizSettings { get; set; } = new();
-    public ProcessedQuestion? CurrentQuestion { get; set; }
-    public List<PlayerState> Scoreboard { get; set; } = new();
 }
 
 public class QuizResults

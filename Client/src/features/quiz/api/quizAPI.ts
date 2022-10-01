@@ -119,36 +119,32 @@ export type QuizCreationModel = {
     timeout?: number;
 };
 export type QuizSettings = {
-    type?: string;
-    category?: string;
-    difficulty?: string;
-    questions?: number;
+    type: string;
+    category: string;
+    difficulty: string;
+    questions: number;
 };
 export type ProcessedQuestion = {
-    category?: string;
-    type?: string;
-    difficulty?: string;
-    question?: string;
-    answers?: string[];
+    category: string;
+    type: string;
+    difficulty: string;
+    question: string;
+    number: number;
+    answers: string[];
 };
 export type PlayerState = {
-    id?: string;
-    name?: string;
-    score?: number;
+    id: string;
+    name: string;
+    score: number;
     answered?: boolean;
     answeredCorrectly?: boolean | null;
     ready?: boolean;
 };
 export type QuizRuntime = {
-    active?: boolean;
-    questionStep?: number;
-    numberOfQuestions?: number;
-    numberOfPlayers?: number;
-    ownerId?: string;
-    timeout?: number;
-    quizSettings?: QuizSettings;
-    currentQuestion?: ProcessedQuestion | null;
-    scoreboard?: PlayerState[];
+    numberOfQuestions: number;
+    ownerId: string;
+    timeout: number;
+    quizSettings: QuizSettings;
 };
 export type PlayerResult = {
     id?: string;

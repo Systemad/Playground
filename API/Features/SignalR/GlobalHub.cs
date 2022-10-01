@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using API.Features.Lobby;
 using API.Features.Player;
 using API.Features.Quiz;
 using API.Features.Quiz.Interfaces;
@@ -9,6 +10,7 @@ using Orleans;
 
 namespace API.Features.SignalR;
 
+// TODO: Convert everything to SignalR
 [Authorize]
 public class GlobalHub : Hub
 {
@@ -27,6 +29,9 @@ public class GlobalHub : Hub
         var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
         await player.SetUsername(GetUsername);
         await player.SetConnectionId(Context.ConnectionId);
+        var lobbyGrain = _factory.GetGrain<ILobbyGrain>(0);
+        var lobbies = await lobbyGrain.GetGames();
+        await Clients.Caller.SendAsync("games", lobbies);
         await base.OnConnectedAsync();
     }
 
@@ -81,5 +86,11 @@ public class GlobalHub : Hub
     {
         var gameGrain = _factory.GetGrain<IMultiplayerGrain>(gameId);
         await gameGrain.SetPlayerStatus(GetUserId, status);
+    }
+
+    public async Task GetLobbies()
+    {
+        var lobbyGrain = _factory.GetGrain<ILobbyGrain>(0);
+        var lobbies = await lobbyGrain.GetGames();
     }
 }

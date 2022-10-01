@@ -36,22 +36,4 @@ public class QuizController : ControllerBase
         await gameGrain.CreateGame(GetUserId, settings);
         return Ok(gameGuid);
     }
-
-    [HttpGet("id:guid/runtime", Name = "Get Game runtime")]
-    [ProducesResponseType(typeof(QuizRuntime), (int)HttpStatusCode.OK)]
-    public async Task<ActionResult> GetGameRuntime(Guid gameId)
-    {
-        var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
-        var gameSettings = await gameGrain.GetGameRuntime();
-        return Ok(gameSettings);
-    }
-
-    [HttpGet("id:guid/results", Name = "Get Game Results")]
-    [ProducesResponseType(typeof(GameResult), (int)HttpStatusCode.OK)]
-    public async Task<ActionResult> GetGameResults(Guid gameId)
-    {
-        var gameGrain = _factory.GetGrain<IQuizGrain>(gameId);
-        var scoreboard = await gameGrain.GetGameRuntime(); // change to results
-        return Ok(scoreboard);
-    }
 }

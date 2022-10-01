@@ -41,13 +41,7 @@ public class QuizSocketBridge : Grain, ISubscriber
                 return await Handle(obj);
             case PlayerAnswered obj:
                 return await Handle(obj);
-            case GameStarted obj:
-                return await Handle(obj);
             case GameEnded obj:
-                return await Handle(obj);
-            case RoundStarted obj:
-                return await Handle(obj);
-            case RoundEnded obj:
                 return await Handle(obj);
             case TimerTicked obj:
                 return await Handle(obj);
@@ -72,13 +66,6 @@ public class QuizSocketBridge : Grain, ISubscriber
         return true;
     }
 
-    private async Task<bool> Handle(GameStarted evt)
-    {
-        await _hub.Clients.Group(evt.GameId.ToString())
-            .SendAsync(nameof(WsEvents.StartGame), evt.Runtime);
-        return true;
-    }
-
     private async Task<bool> Handle(GameEnded evt)
     {
         await _hub.Clients.Group(evt.GameId.ToString())
@@ -86,19 +73,6 @@ public class QuizSocketBridge : Grain, ISubscriber
         return true;
     }
 
-    private async Task<bool> Handle(RoundEnded evt)
-    {
-        await _hub.Clients.Group(evt.GameId.ToString())
-            .SendAsync(nameof(WsEvents.RoundResults), evt.CorrectAnswer, evt.Runtime.Scoreboard);
-        return true;
-    }
-
-    private async Task<bool> Handle(RoundStarted evt)
-    {
-        await _hub.Clients.Group(evt.GameId.ToString())
-            .SendAsync(nameof(WsEvents.NextRound), evt.Runtime);
-        return true;
-    }
 
     private async Task<bool> Handle(ScoreboardUpdated evt)
     {

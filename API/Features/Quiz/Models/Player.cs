@@ -11,9 +11,9 @@ public class PlayerState
     public Guid Id { get; set; }
     public string Name { get; set; }
     public int Score { get; set; }
-    public bool Answered { get; set; } = false;
+    public bool Answered { get; set; }
     public bool? AnsweredCorrectly { get; set; }
-    public bool Ready { get; set; } = false;
+    public bool Ready { get; set; }
 }
 
 public class PlayerResult

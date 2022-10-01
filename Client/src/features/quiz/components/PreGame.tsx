@@ -9,10 +9,12 @@ import {
     Switch,
     useToast,
 } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 
-import { hubConnection } from '../../../utils/api/signalr/Socket';
+import { SocketContext } from '../../../utils/contexts/SignalrContext';
 import { PlayerState } from '../api/quizAPI';
+import { useCurrentGame } from '../hooks/useCurrentGame';
+import { useUsersReady } from '../hooks/useUsersReady';
 
 const readyStatus = (status?: boolean | null): string => {
     if (status === null && undefined) {
@@ -23,37 +25,34 @@ const readyStatus = (status?: boolean | null): string => {
     }
 };
 
-type Props = {
-    gameId: string;
-    ownerId?: string;
-    scoreboard?: PlayerState[];
-};
 type PlayerProps = {
-    player?: PlayerState;
+    player: PlayerState;
 };
-export const PreGame = ({ gameId, ownerId, scoreboard }: Props) => {
-    const toast = useToast();
+
+type Props = {
+    scoreboard: PlayerState[];
+    ownerId: string;
+};
+export const PreGame = ({ scoreboard, ownerId }: Props) => {
     const { instance } = useMsal();
+    const toast = useToast();
+    const gameId = useCurrentGame();
+    const usersReady = useUsersReady();
+
     const myId = instance.getActiveAccount()?.localAccountId;
     const isOwner = myId === ownerId;
+    const socket = useContext(SocketContext);
     const isMeReady = scoreboard?.find((p) => p.id === myId)?.ready === true;
-    const [ready, setReady] = useState<boolean>(false);
-    const canStartGame = isMeReady && ready && isOwner;
+    const canStartGame = isMeReady && usersReady && isOwner;
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        hubConnection.invoke('SetPlayerStatus', gameId, event.target.checked);
+        socket.invoke('SetPlayerStatus', gameId, event.target.checked);
     };
-
-    useEffect(() => {
-        hubConnection.on('AllUsersReady', () => {
-            setReady(true);
-        });
-    }, []);
 
     const handleStartAsync = async () => {
         try {
             //if (canStartGame) {
-            await hubConnection.invoke('StartGame', gameId);
+            await socket.invoke('StartGame', gameId);
             //}
         } catch {
             toast({

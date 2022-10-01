@@ -71,11 +71,6 @@ public class QuizGrain : Grain, IQuizGrain
         await _game.SubmitGuess(playerId, answer);
     }
 
-    public Task<QuizRuntime> GetGameRuntime()
-    {
-        return _game.GetGameState();
-    }
-
     public async Task SetPlayerStatus(Guid playerId, bool status)
     {
         await _game.SetStatus(playerId, status);
