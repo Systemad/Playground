@@ -39,13 +39,21 @@ public class QuizSocketBridge : Grain, ISubscriber
         {
             case ScoreboardUpdated obj:
                 return await Handle(obj);
-            case PlayerAnswered obj:
+            case GameStarted obj:
                 return await Handle(obj);
             case GameEnded obj:
                 return await Handle(obj);
             case TimerTicked obj:
                 return await Handle(obj);
+            case CorrectAnswer obj:
+                return await Handle(obj);
+            case NewQuestion obj:
+                return await Handle(obj);
             case AllUsersReady obj:
+                return await Handle(obj);
+            case FinishQuestion obj:
+                return await Handle(obj);
+            case QuizInfo obj:
                 return await Handle(obj);
             default:
                 return false;
@@ -55,21 +63,49 @@ public class QuizSocketBridge : Grain, ISubscriber
     private async Task<bool> Handle(TimerTicked evt)
     {
         await _hub.Clients.Group(evt.GameId.ToString())
-            .SendAsync(nameof(WsEvents.TimerTicked), evt.Timer);
+            .SendAsync(WsEvents.TimerUpdate, evt.Timer);
         return true;
     }
 
-    private async Task<bool> Handle(PlayerAnswered evt)
+    private async Task<bool> Handle(QuizInfo evt)
     {
         await _hub.Clients.Group(evt.GameId.ToString())
-            .SendAsync(nameof(WsEvents.PlayerAnswered), evt.PlayerId);
+            .SendAsync(WsEvents.QuizRuntime, evt.Runtime);
+        return true;
+    }
+
+    private async Task<bool> Handle(NewQuestion evt)
+    {
+        await _hub.Clients.Group(evt.GameId.ToString())
+            .SendAsync(WsEvents.NewQuestion, evt.Question);
+        return true;
+    }
+
+    private async Task<bool> Handle(FinishQuestion evt)
+    {
+        await _hub.Clients.Group(evt.GameId.ToString())
+            .SendAsync(WsEvents.FinishQuestion);
+        return true;
+    }
+
+    private async Task<bool> Handle(CorrectAnswer evt)
+    {
+        await _hub.Clients.Group(evt.GameId.ToString())
+            .SendAsync(WsEvents.CorrectAnswer, evt.Question);
         return true;
     }
 
     private async Task<bool> Handle(GameEnded evt)
     {
         await _hub.Clients.Group(evt.GameId.ToString())
-            .SendAsync(nameof(WsEvents.StopGame));
+            .SendAsync(WsEvents.StopGame);
+        return true;
+    }
+
+    private async Task<bool> Handle(GameStarted evt)
+    {
+        await _hub.Clients.Group(evt.GameId.ToString())
+            .SendAsync(WsEvents.StartGame);
         return true;
     }
 
@@ -77,13 +113,13 @@ public class QuizSocketBridge : Grain, ISubscriber
     private async Task<bool> Handle(ScoreboardUpdated evt)
     {
         await _hub.Clients.Group(evt.GameId.ToString())
-            .SendAsync(nameof(WsEvents.UpdateScoreboard), evt.Scoreboard);
+            .SendAsync(WsEvents.UpdateScoreboard, evt.Scoreboard);
         return true;
     }
 
     private async Task<bool> Handle(AllUsersReady evt)
     {
-        await _hub.Clients.Group(evt.GameId.ToString()).SendAsync(nameof(WsEvents.AllUsersReady));
+        await _hub.Clients.Group(evt.GameId.ToString()).SendAsync(WsEvents.UsersReady, evt.Status);
         return true;
     }
 

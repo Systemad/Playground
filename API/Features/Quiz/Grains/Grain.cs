@@ -12,6 +12,7 @@ namespace API.Features.Quiz.Grains;
 [Reentrant]
 public class QuizGrain : Grain, IQuizGrain
 {
+    private bool _gameHasBeenPlayed;
     private readonly ILogger _logger;
     private const int MaxCapacity = 4;
     private Quiz _game;
@@ -33,6 +34,8 @@ public class QuizGrain : Grain, IQuizGrain
 
     public override async Task OnActivateAsync()
     {
+        if (_gameHasBeenPlayed)
+            throw new ArgumentException("Game does not exist");
         var streamProvider = GetStreamProvider(Constants.InMemorySteam);
         var stream = streamProvider.GetStream<object>(GrainKey, Constants.QuizNamespace);
         var initState = new QuizState();
@@ -96,8 +99,11 @@ public class QuizGrain : Grain, IQuizGrain
         _tick++;
         if (_tick == _options.Timeout)
         {
-            await _game.NextRound();
-            ScheduleTimer();
+            var gameDone = await _game.NextRound();
+            if (!gameDone)
+                _gameHasBeenPlayed = true;
+            else
+                ScheduleTimer();
         }
         else
         {

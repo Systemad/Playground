@@ -1,7 +1,9 @@
 import { Box, SimpleGrid, useToast } from '@chakra-ui/react';
+import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { hubConnection, JoinGame } from '../../../utils/api/signalr/Socket';
+import { SocketContext } from '../../../utils/contexts/SignalrContext';
 import { GameMode, useLobbyGetGamesQuery } from '../api/lobbyAPI';
 import { LobbyCard } from '../components/LobbyCard';
 import { UseLobbySocket } from '../hooks/UseLobbySocket';
@@ -10,7 +12,7 @@ export const LobbyLayout = () => {
     const { data: lobbies } = useLobbyGetGamesQuery();
     const navigate = useNavigate();
     const toast = useToast();
-
+    const socket = useContext(SocketContext);
     UseLobbySocket();
 
     const handleJoinGame = async (id?: string, mode?: GameMode) => {
@@ -31,16 +33,19 @@ export const LobbyLayout = () => {
 
         try {
             if (id) {
-                JoinGame(id).then(() => navigate(`${route}/${id}`));
+                socket
+                    .invoke('joingame', id)
+                    .then(() => navigate(`${route}/${id}`));
             }
         } catch {
             toast({
                 title: 'An error occurred',
-                description: 'Could not join game, please try again!',
+                description: 'Game does not exist, create new onw',
                 status: 'error',
-                duration: 2500,
+                duration: 5000,
                 isClosable: true,
             });
+            navigate('/');
         }
     };
 

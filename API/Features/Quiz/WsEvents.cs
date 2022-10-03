@@ -1,27 +1,16 @@
 ﻿namespace API.Features.Quiz;
 
-public enum WsEvents
+public static class WsEvents
 {
-    PlayerAdded,
-    PlayerRemoved,
+    public const string StartGame = "start-game";
+    public const string StopGame = "stop-game";
+    public const string UsersReady = "all-users-ready";
 
-    StartGame,
-    StopGame,
+    public const string CorrectAnswer = "correct-answer";
+    public const string NewQuestion = "new-question";
+    public const string FinishQuestion = "finish-question";
 
-    RoundResults,
-    NextRound,
-
-
-    UpdateScoreboard,
-
-    PlayerAnswered,
-    CorrectAnswer,
-
-    AllUsersReady,
-    ChangePlayerStatus,
-
-    TimerTicked,
-
-    GameUpdated
-
+    public const string UpdateScoreboard = "update-scoreboard";
+    public const string TimerUpdate = "timer-update";
+    public const string QuizRuntime = "quiz-runtime";
 }

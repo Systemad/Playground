@@ -31,7 +31,7 @@ type PlayerProps = {
 
 type Props = {
     scoreboard: PlayerState[];
-    ownerId: string;
+    ownerId?: string;
 };
 export const PreGame = ({ scoreboard, ownerId }: Props) => {
     const { instance } = useMsal();

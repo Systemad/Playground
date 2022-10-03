@@ -30,6 +30,7 @@ import {
 import { FiHome, FiMenu } from 'react-icons/fi';
 import { Link as ReachLink } from 'react-router-dom';
 
+// TODO: https://reactrouter.com/en/main/hooks/use-match, to highlight active tab / item
 interface LinkItemProps {
     name: string;
     icon: IconType;

@@ -4,6 +4,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Answer } from '../../../components/common/AnswerButton';
 import { GameScoreboard } from '../../../components/common/Scoreboard';
 import { SocketContext } from '../../../utils/contexts/SignalrContext';
+import { QuizRuntime } from '../api/quizAPI';
 import { Header } from '../components/Header';
 import { useAnswers } from '../hooks/useAnswers';
 import { useCorrectAnswer } from '../hooks/useCorrectAnswer';
@@ -12,8 +13,9 @@ import { buttonStatus, isButtonDisabled } from '../utils/Helper';
 
 type Props = {
     gameId: string;
+    settings: QuizRuntime;
 };
-export const Game = ({ gameId }: Props) => {
+export const Game = ({ gameId, settings }: Props) => {
     const [selectedAnswer, setSelectedAnswer] = useState<string | undefined>();
     const socket = useContext(SocketContext);
     const currentQuestion = useQuestion();
@@ -28,7 +30,7 @@ export const Game = ({ gameId }: Props) => {
     };
 
     useEffect(() => {
-        socket.invoke('SubmitAnswer', selectedAnswer, gameId);
+        socket.invoke('guess', selectedAnswer, gameId);
     }, [gameId, selectedAnswer, socket]);
 
     useEffect(() => {
@@ -42,13 +44,13 @@ export const Game = ({ gameId }: Props) => {
             <Header
                 currentQuestion={currentQuestion?.question}
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                //step={currentQuestion.}
-                //total={runtime?.numberOfQuestions}
+                step={currentQuestion?.number ?? 0}
+                total={settings?.numberOfQuestions}
             />
 
             <Box my={12}>
                 <SimpleGrid columns={[1, 2]} spacing={[4, 8]}>
-                    {currentQuestion?.answers?.map((answer, index) => (
+                    {currentAnswers?.map((answer, index) => (
                         <Answer
                             key={index}
                             choice={answer}
@@ -69,7 +71,7 @@ export const Game = ({ gameId }: Props) => {
                 </SimpleGrid>
             </Box>
 
-            <GameScoreboard scoreboard={runtime.scoreboard} />
+            <GameScoreboard />
         </>
     );
 };

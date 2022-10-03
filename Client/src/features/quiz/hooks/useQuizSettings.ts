@@ -7,10 +7,12 @@ export const useQuizSettings = () => {
     const [settings, currentSettings] = useState<QuizRuntime>();
     const socket = useContext(SocketContext);
     useEffect(() => {
-        const newQuestion = (question: QuizRuntime) =>
+        const setQuizSettings = (question: QuizRuntime) => {
+            console.log('runtime');
             currentSettings(question);
+        };
 
-        socket.on('quiz-settings', newQuestion);
+        socket.on('quiz-runtime', setQuizSettings);
     }, [socket]);
 
     return settings;

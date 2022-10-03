@@ -7,8 +7,10 @@ export const useScoreboard = () => {
     const [scoreboard, setScoreboard] = useState<PlayerState[]>([]);
     const socket = useContext(SocketContext);
     useEffect(() => {
-        const updateScoreboard = (scores: PlayerState[]) =>
+        const updateScoreboard = (scores: PlayerState[]) => {
+            console.log('socreboatd-fetched');
             setScoreboard(scores);
+        };
 
         socket.on('update-scoreboard', updateScoreboard);
     }, [socket]);

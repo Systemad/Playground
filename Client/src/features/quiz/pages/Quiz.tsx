@@ -10,32 +10,62 @@ import { useQuizSettings } from '../hooks/useQuizSettings';
 import { useScoreboard } from '../hooks/useScoreboard';
 // TODO: When game ends, navigate to gameid/results
 export const Quiz = () => {
-    const ready = useGameActive();
+    const active = useGameActive();
     const gameId = useCurrentGame();
     const settings = useQuizSettings();
     const scoreboard = useScoreboard();
+    const navigate = useNavigate();
     const socket = useContext(SocketContext);
+
+    const JoinGame = async () => {
+        if (gameId) {
+            try {
+                await socket.invoke('joingame', gameId);
+            } catch {
+                navigate('/');
+            }
+        }
+    };
+
+    const LeaveGame = async () => {
+        if (gameId) {
+            try {
+                await socket.invoke('leavegame', gameId);
+            } catch {
+                navigate('/');
+            }
+        }
+    };
+
+    // FIX join when entering URL manually
     useEffect(() => {
-        if (gameId) socket.invoke('join-game', gameId); //.catch(() => navigate('/'));
+        JoinGame();
+
         return () => {
-            if (gameId) socket.invoke('leave-game', gameId);
+            LeaveGame();
         };
     }, [gameId, socket]);
 
     return (
         <>
-            {gameId && !ready && (
-                <PreGame scoreboard={scoreboard} ownerId={settings.ownerId} /> // TODO: Fix undefined
+            {gameId && !active && settings && (
+                <>
+                    not active with settings
+                    <PreGame
+                        scoreboard={scoreboard}
+                        ownerId={settings.ownerId}
+                    />
+                </>
             )}
-            {gameId && ready && <Game gameId={gameId} />}
+            {gameId && active && settings && (
+                <>
+                    active with settings
+                    <Game gameId={gameId} settings={settings} />
+                </>
+            )}
             {!gameId && (
                 <>You are not in a game, back out to home and join one</>
             )}
         </>
     );
 };
-
-// TODO: Handle joining Quiz with URL.
-// User Clicks joins game, it sends to server join game, then sends back to "new-quiz", so lobby does NOT NAVIGATE!!!
-// That should be handled by hook
-// if Game does not exist, throw exception in server, in Client catch that, and set game to UNDEFINED!!!

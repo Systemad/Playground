@@ -1,4 +1,4 @@
-import signalR from '@microsoft/signalr';
+import * as signalR from '@microsoft/signalr';
 import React, { createContext, ReactNode, useEffect } from 'react';
 
 import { acquireAccessToken, msalInstance } from '../auth/MsalKey';
@@ -30,15 +30,6 @@ export const socket = new signalR.HubConnectionBuilder()
 export const SocketContext = createContext(socket);
 
 export const SocketProvider = (props: Props) => {
-    useEffect(() => {
-        if (socket.state === signalR.HubConnectionState.Disconnected)
-            socket.start();
-
-        return () => {
-            socket.stop();
-        };
-    });
-
     return (
         <SocketContext.Provider value={socket}>
             {props.children}

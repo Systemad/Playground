@@ -49,6 +49,7 @@ public class GlobalHub : Hub
         await Clients.Group(gameId).SendAsync("ReceiveMessage", message);
     }
 
+    //[HubMethodName("join-game")]
     public async Task JoinGame(string gameId)
     {
         Console.WriteLine($"Hub: Joining game {gameId}");
@@ -59,6 +60,7 @@ public class GlobalHub : Hub
         await Groups.AddToGroupAsync(GetConnectionId, gameId);
     }
 
+    //[HubMethodName("leave-game")]
     public async Task LeaveGame(string gameId)
     {
         Console.WriteLine($"Hub: Leaving game {gameId}");
@@ -76,6 +78,7 @@ public class GlobalHub : Hub
         await gameGrain.StartGame(GetUserId);
     }
 
+    [HubMethodName("guess")]
     public async Task SubmitAnswer(string answer, string gameId)
     {
         var gameGrain = _factory.GetGrain<IQuizGrain>(Guid.Parse(gameId));

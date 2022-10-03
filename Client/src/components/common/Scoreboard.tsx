@@ -17,11 +17,8 @@ import {
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import { PlayerState } from '../../features/quiz/api/quizAPI';
+import { useScoreboard } from '../../features/quiz/hooks/useScoreboard';
 import { hubConnection } from '../../utils/api/signalr/Socket';
-
-type Props = {
-    scoreboard?: PlayerState[];
-};
 
 interface Message {
     id: string;
@@ -29,7 +26,8 @@ interface Message {
     content: string;
 }
 
-export const GameScoreboard = ({ scoreboard }: Props) => {
+export const GameScoreboard = () => {
+    const scoreboard = useScoreboard();
     return (
         <Flex
             overflow="hidden"
@@ -62,9 +60,10 @@ const CardBackground = (
     answered?: boolean,
     answeredCorrectly?: boolean | null
 ): string => {
-    if (answered && answered !== null) return 'blue.700';
-    if (answered && answeredCorrectly) return 'green.700';
-    if (answered && !answeredCorrectly && answeredCorrectly === null)
+    if (answered && answeredCorrectly === null) return 'blue.700';
+    if (answered && answeredCorrectly && answeredCorrectly !== null)
+        return 'green.700';
+    if (answered && (!answeredCorrectly !== answeredCorrectly) !== null)
         return 'red.700';
 
     return 'grey.700';

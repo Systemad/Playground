@@ -9,6 +9,10 @@ export const useAnswers = () => {
         const setAnswer = (answers: string[]) => setAnswers(answers);
 
         socket.on('new-question', setAnswer);
+
+        //return () => {
+        //    socket.off('new-question', setAnswer);
+        //};
     }, [socket]);
 
     useEffect(() => {
@@ -16,9 +20,9 @@ export const useAnswers = () => {
 
         socket.on('finish-question', setAnswer);
 
-        return () => {
-            socket.off('finish-question', setAnswer);
-        };
+        //return () => {
+        //    socket.off('finish-question', setAnswer);
+        //};
     }, [socket]);
 
     return answers;

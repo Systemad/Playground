@@ -18,10 +18,10 @@ function App({ pca }: AppProps) {
     const history = useNavigate();
     const navigationClient = new CustomNavigationClient(history);
     pca.setNavigationClient(navigationClient);
-    const { instance, accounts, inProgress } = useMsal();
+    //const { instance, accounts, inProgress } = useMsal();
 
     //useSignalR(hubConnection, instance);
-    useEffect(() => {}, [accounts, instance]);
+    //useEffect(() => {}, [accounts, instance]);
 
     return (
         <>

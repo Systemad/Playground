@@ -11,15 +11,17 @@ export const useQuestion = () => {
     useEffect(() => {
         const newQuestion = (question: ProcessedQuestion) =>
             setCurrentQuestion(question);
-
         socket.on('new-question', newQuestion);
+        return () => {
+            socket.off('new-question', newQuestion);
+        };
     }, [socket]);
 
     useEffect(() => {
         const resetQustion = () => setCurrentQuestion(undefined);
-        socket.on('new-question', resetQustion);
+        socket.on('finish-question', resetQustion);
         return () => {
-            socket.on('new-question', resetQustion);
+            socket.off('finish-question', resetQustion);
         };
     }, [socket]);
 
