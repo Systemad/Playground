@@ -21,11 +21,11 @@ export type GameStatus =
     | 'Finished'
     | 'Canceled';
 export type GameLobbySummary = {
-    id?: string;
-    name?: string;
-    mode?: GameMode;
-    players?: number;
-    status?: GameStatus;
-    difficulty?: string | null;
+    id: string;
+    name: string;
+    mode: GameMode;
+    players: number;
+    status: GameStatus;
+    difficulty?: string;
 };
 export const { useLobbyGetGamesQuery } = injectedRtkApi;

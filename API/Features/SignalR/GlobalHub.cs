@@ -7,6 +7,7 @@ using API.Features.Quiz.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Orleans;
+using WsEvents = API.Features.Lobby.WsEvents;
 
 namespace API.Features.SignalR;
 
@@ -29,9 +30,10 @@ public class GlobalHub : Hub
         var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
         await player.SetUsername(GetUsername);
         await player.SetConnectionId(Context.ConnectionId);
-        var lobbyGrain = _factory.GetGrain<ILobbyGrain>(0);
-        var lobbies = await lobbyGrain.GetGames();
-        await Clients.Caller.SendAsync("games", lobbies);
+
+        //var lobbyGrain = _factory.GetGrain<ILobbyGrain>(0);
+        //var lobbies = await lobbyGrain.GetGames();
+        //await Clients.Caller.SendAsync("all-games", lobbies);
         await base.OnConnectedAsync();
     }
 
@@ -49,18 +51,36 @@ public class GlobalHub : Hub
         await Clients.Group(gameId).SendAsync("ReceiveMessage", message);
     }
 
-    //[HubMethodName("join-game")]
-    public async Task JoinGame(string gameId)
+    [HubMethodName("get-all-games")]
+    public async Task GetGames()
     {
-        Console.WriteLine($"Hub: Joining game {gameId}");
-        var gameGrain = _factory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
-        await gameGrain.AddPlayer(GetUserId, GetUsername);
-        var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
-        await player.SetActiveGame(Guid.Parse(gameId));
-        await Groups.AddToGroupAsync(GetConnectionId, gameId);
+        var lobbyGrain = _factory.GetGrain<ILobbyGrain>(0);
+        var games = await lobbyGrain.GetGames();
+
+        await Clients.Caller.SendAsync(WsEvents.AllGames, games);
     }
 
-    //[HubMethodName("leave-game")]
+    [HubMethodName("join-game")]
+    public async Task JoinGame(string gameId)
+    {
+        try
+        {
+            var gameGrain = _factory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
+            await gameGrain.AddPlayer(GetUserId, GetUsername);
+            var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
+            await player.SetActiveGame(Guid.Parse(gameId));
+            await Groups.AddToGroupAsync(GetConnectionId, gameId);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        Console.WriteLine($"Hub: Joining game {gameId}");
+    }
+
+    [HubMethodName("leave-game")]
     public async Task LeaveGame(string gameId)
     {
         Console.WriteLine($"Hub: Leaving game {gameId}");
@@ -89,11 +109,5 @@ public class GlobalHub : Hub
     {
         var gameGrain = _factory.GetGrain<IMultiplayerGrain>(gameId);
         await gameGrain.SetPlayerStatus(GetUserId, status);
-    }
-
-    public async Task GetLobbies()
-    {
-        var lobbyGrain = _factory.GetGrain<ILobbyGrain>(0);
-        var lobbies = await lobbyGrain.GetGames();
     }
 }

@@ -4,8 +4,6 @@ namespace API.Features.Quiz.API;
 
 public class OpenTdbClient : IOpenTdbClient
 {
-    public List<Root>? QuizResponses { get; set; }
-
     private readonly HttpClient _httpClient;
 
     public OpenTdbClient()
@@ -16,23 +14,17 @@ public class OpenTdbClient : IOpenTdbClient
     public async Task<List<Result>> GetQuestions(QuizSettings model)
     {
         string postString;
-        var post = new OpenDtbModel
-        {
-            Amount = model.Questions,
-            Category = model.Category,
-            Difficulty = model.Difficulty
-        };
         if (model.Category == "0" && model.Difficulty == "any")
-            postString = $"https://opentdb.com/api.php?amount={model.Questions}&encode=url3986";
+            postString = $"https://opentdb.com/api.php?amount={model.Questions}";
         else if (model.Category == "0")
             postString =
-                $"https://opentdb.com/api.php?amount={model.Questions}&difficulty={model.Difficulty}&encode=url3986";
+                $"https://opentdb.com/api.php?amount={model.Questions}&difficulty={model.Difficulty}";
         else if (model.Difficulty == "any")
             postString =
-                $"https://opentdb.com/api.php?amount={model.Questions}&category={model.Category}&encode=url3986";
+                $"https://opentdb.com/api.php?amount={model.Questions}&category={model.Category}";
         else
             postString =
-                $"https://opentdb.com/api.php?amount={model.Questions}&encode=url3986";
+                $"https://opentdb.com/api.php?amount={model.Questions}";
         ;
         var response = await _httpClient.GetFromJsonAsync<Root>(postString);
         return response.results;

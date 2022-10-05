@@ -6,7 +6,6 @@ using Orleans.Streams;
 
 namespace API.Features.Quiz;
 
-// Merge evrything back into grain?
 public class Quiz : IQuiz
 {
     private readonly QuizState _quizState;
@@ -17,7 +16,7 @@ public class Quiz : IQuiz
         _quizState.Scoreboard.All(p => p.Value.Answered);
 
     private bool AllPlayersReady =>
-        _quizState.Scoreboard.Count(p => p.Value.Ready) > 2;
+        _quizState.Scoreboard.All(p => p.Value.Ready); // > 2;
 
     public Quiz(QuizState quizState, IAsyncStream<object> stream)
     {
@@ -44,6 +43,8 @@ public class Quiz : IQuiz
 
     public async Task JoinGame(Guid playerId, string name)
     {
+        if (_quizState.GameStatus != GameStatus.AwaitingPlayers && _quizState.Scoreboard.Keys.Count < 4)
+            throw new InvalidOperationException("Not able to join");
         var newPlayer = new PlayerState
         {
             Id = playerId,
@@ -57,6 +58,7 @@ public class Quiz : IQuiz
         _quizState.NumberOfPlayers = _quizState.Scoreboard.Keys.Count;
         var info = new QuizRuntime
         {
+            Status = _quizState.GameStatus,
             NumberOfQuestions = _quizState.QuizSettings.Questions,
             Timeout = _quizState.Timeout,
             OwnerId = _quizState.OwnerId,
@@ -70,7 +72,6 @@ public class Quiz : IQuiz
     {
         if (_quizState.Scoreboard.TryGetValue(playerId, out var value))
         {
-            var gameId = _quizState.GameId;
             _quizState.Scoreboard[playerId].Ready = status;
             await UpdateScoreboard();
         }
@@ -98,6 +99,7 @@ public class Quiz : IQuiz
         _quizState.Name = settings.Name;
         _quizState.OwnerId = ownerId;
         _quizState.Timeout = settings.Timeout;
+        _quizState.GameMode = GameMode.Quiz;
         return Task.CompletedTask;
     }
 
@@ -137,14 +139,15 @@ public class Quiz : IQuiz
 
     public async Task Start(Guid playerId)
     {
-        if (!_quizState.Active && _quizState.OwnerId != playerId)
+        if (_quizState.GameStatus != GameStatus.Ready && _quizState.OwnerId != playerId)
             throw new ArgumentException("Can't start game");
         if (!AllPlayersReady) throw new ArgumentException("All players not ready");
-        _quizState.Active = true;
         _quizState.Questions = await _client.GetQuestions(_quizState.QuizSettings);
         _quizState.QuestionStep = 1;
-        var startGameEvent = new GameStarted(_quizState.GameId);
-        await _stream.OnNextAsync(startGameEvent);
+        var newq = _quizState.Questions[_quizState.QuestionStep].ProcessQuestion(_quizState.QuestionStep);
+        await _stream.OnNextAsync(new GameStarted(_quizState.GameId));
+        await _stream.OnNextAsync(new NewQuestion(_quizState.GameId, newq));
+        await UpdateScoreboard();
     }
 
     public Task<GameLobbySummary> GetLobbySummary()
@@ -169,7 +172,8 @@ public class Quiz : IQuiz
 
     private void EnsureGameIsInProgress()
     {
-        if (!_quizState.Active) throw new InvalidOperationException("Game has already ended.");
+        if (_quizState.GameStatus != GameStatus.InProgress)
+            throw new InvalidOperationException("Game has already ended");
     }
 
     private bool IsCorrect(string answer)
@@ -179,7 +183,7 @@ public class Quiz : IQuiz
 
     private async Task EndGame()
     {
-        _quizState.Active = false;
+        _quizState.GameStatus = GameStatus.Finished;
         var endEvent = new GameEnded(_quizState.GameId);
         await _stream.OnNextAsync(endEvent);
     }

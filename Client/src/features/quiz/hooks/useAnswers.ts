@@ -6,8 +6,10 @@ export const useAnswers = () => {
     const [answers, setAnswers] = useState<string[]>();
     const socket = useContext(SocketContext);
     useEffect(() => {
-        const setAnswer = (answers: string[]) => setAnswers(answers);
-
+        const setAnswer = (answers: string[]) => {
+            console.log('answers-receive');
+            setAnswers(answers);
+        };
         socket.on('new-question', setAnswer);
 
         //return () => {

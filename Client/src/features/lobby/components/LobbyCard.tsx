@@ -36,12 +36,12 @@ const colors = [
 
 type Props = {
     id: string;
-    name?: string;
-    gameMode?: GameMode;
-    players?: number;
-    gameStatus?: GameStatus;
+    name: string;
+    gameMode: GameMode;
+    players: number;
+    gameStatus: GameStatus;
     difficulty?: string;
-    onClick: (id: string, mode?: GameMode) => void;
+    onClick: (id: string, mode: GameMode) => void;
 };
 
 export const LobbyCard = ({
@@ -49,7 +49,7 @@ export const LobbyCard = ({
     name,
     gameMode,
     players,
-    //gameStatus,
+    gameStatus,
     difficulty,
     onClick,
 }: Props) => {
@@ -120,6 +120,15 @@ export const LobbyCard = ({
                             fontWeight={'400'}
                         >
                             {gameMode}
+                        </Badge>
+
+                        <Badge
+                            px={2}
+                            py={1}
+                            bg={useColorModeValue('gray.50', 'gray.800')}
+                            fontWeight={'400'}
+                        >
+                            {gameStatus}
                         </Badge>
                         {difficulty && (
                             <Badge

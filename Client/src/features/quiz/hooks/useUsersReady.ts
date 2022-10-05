@@ -6,7 +6,8 @@ export const useUsersReady = () => {
     const [usersReady, setUsersReady] = useState<boolean>(false);
     const socket = useContext(SocketContext);
     useEffect(() => {
-        socket.on('users-ready', (status: boolean) => {
+        socket.on('all-users-ready', (status: boolean) => {
+            console.log('all-users-ready');
             setUsersReady(status);
         });
     });

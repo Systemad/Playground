@@ -1,21 +1,27 @@
 import { Box, SimpleGrid, useToast } from '@chakra-ui/react';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { hubConnection, JoinGame } from '../../../utils/api/signalr/Socket';
 import { SocketContext } from '../../../utils/contexts/SignalrContext';
-import { GameMode, useLobbyGetGamesQuery } from '../api/lobbyAPI';
+import { GameMode } from '../api/lobbyAPI';
 import { LobbyCard } from '../components/LobbyCard';
-import { UseLobbySocket } from '../hooks/UseLobbySocket';
+import { useLobbyGames } from '../hooks/useLobbyGames';
 
+// TODO: Fix undefined difficulty and gamemode
 export const LobbyLayout = () => {
-    const { data: lobbies } = useLobbyGetGamesQuery();
     const navigate = useNavigate();
     const toast = useToast();
     const socket = useContext(SocketContext);
-    UseLobbySocket();
+    const games = useLobbyGames();
 
-    const handleJoinGame = async (id?: string, mode?: GameMode) => {
+    useEffect(() => {
+        const GetGames = async () => {
+            await socket.invoke('get-all-games');
+        };
+        GetGames();
+    }, [socket]);
+    const handleJoinGame = async (id: string, mode: GameMode) => {
+        console.log(mode);
         let route: string;
         switch (mode as GameMode) {
             case 'Quiz':
@@ -34,13 +40,13 @@ export const LobbyLayout = () => {
         try {
             if (id) {
                 socket
-                    .invoke('joingame', id)
+                    .invoke('join-game', id)
                     .then(() => navigate(`${route}/${id}`));
             }
         } catch {
             toast({
                 title: 'An error occurred',
-                description: 'Game does not exist, create new onw',
+                description: 'Game does not exist, create new one',
                 status: 'error',
                 duration: 5000,
                 isClosable: true,
@@ -53,18 +59,24 @@ export const LobbyLayout = () => {
         <>
             <Box as="main" maxW="7xl" mx="auto" my="auto" p={6}>
                 <SimpleGrid columns={[1, 2, 3]} spacing="15px">
-                    {lobbies?.map((lobby) => (
-                        <LobbyCard
-                            id={lobby!.id!}
-                            key={lobby.id}
-                            difficulty={'hard'}
-                            name={lobby?.name}
-                            gameMode={lobby?.mode}
-                            gameStatus={lobby?.status}
-                            players={lobby?.players}
-                            onClick={handleJoinGame}
-                        />
-                    ))}
+                    {games ? (
+                        <>
+                            {games.map((games) => (
+                                <LobbyCard
+                                    key={games.id}
+                                    id={games.id}
+                                    name={games.name}
+                                    gameMode={games.mode}
+                                    players={games.players}
+                                    gameStatus={games.status}
+                                    difficulty={games?.difficulty}
+                                    onClick={handleJoinGame}
+                                />
+                            ))}
+                        </>
+                    ) : (
+                        <>No games are found, create one</>
+                    )}
                 </SimpleGrid>
             </Box>
         </>

@@ -62,10 +62,10 @@ export const useSignalR = (
 
 export async function JoinGame(gameId: string) {
     if (hubConnection.state !== signalR.HubConnectionState.Connected) return;
-    await hubConnection.invoke('JoinGame', gameId);
+    await hubConnection.invoke('join-game', gameId);
 }
 
 export async function LeaveGame(gameId: string) {
     if (hubConnection.state !== signalR.HubConnectionState.Connected) return;
-    await hubConnection.invoke('LeaveGame', gameId);
+    await hubConnection.invoke('leave-game', gameId);
 }

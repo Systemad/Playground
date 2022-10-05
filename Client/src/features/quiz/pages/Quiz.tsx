@@ -5,22 +5,20 @@ import { SocketContext } from '../../../utils/contexts/SignalrContext';
 import { Game } from '../components/Game';
 import { PreGame } from '../components/PreGame';
 import { useCurrentGame } from '../hooks/useCurrentGame';
-import { useGameActive } from '../hooks/useGameActive';
-import { useQuizSettings } from '../hooks/useQuizSettings';
+import { useQuizRuntime } from '../hooks/useQuizSettings';
 import { useScoreboard } from '../hooks/useScoreboard';
 // TODO: When game ends, navigate to gameid/results
 export const Quiz = () => {
-    const active = useGameActive();
+    //const active = useGameActive();
     const gameId = useCurrentGame();
-    const settings = useQuizSettings();
+    const runtime = useQuizRuntime();
     const scoreboard = useScoreboard();
     const navigate = useNavigate();
     const socket = useContext(SocketContext);
-
     const JoinGame = async () => {
         if (gameId) {
             try {
-                await socket.invoke('joingame', gameId);
+                await socket.invoke('join-game', gameId);
             } catch {
                 navigate('/');
             }
@@ -30,7 +28,7 @@ export const Quiz = () => {
     const LeaveGame = async () => {
         if (gameId) {
             try {
-                await socket.invoke('leavegame', gameId);
+                await socket.invoke('leave-game', gameId);
             } catch {
                 navigate('/');
             }
@@ -41,6 +39,8 @@ export const Quiz = () => {
     useEffect(() => {
         JoinGame();
 
+        //JoinGame().catch(() => navigate('/'));
+
         return () => {
             LeaveGame();
         };
@@ -48,19 +48,21 @@ export const Quiz = () => {
 
     return (
         <>
-            {gameId && !active && settings && (
+            {gameId && runtime && (
                 <>
-                    not active with settings
-                    <PreGame
-                        scoreboard={scoreboard}
-                        ownerId={settings.ownerId}
-                    />
-                </>
-            )}
-            {gameId && active && settings && (
-                <>
-                    active with settings
-                    <Game gameId={gameId} settings={settings} />
+                    {runtime.status === 'AwaitingPlayers' && (
+                        <PreGame
+                            scoreboard={scoreboard}
+                            ownerId={runtime.ownerId}
+                        />
+                    )}
+
+                    {runtime.status === 'InProgress' && (
+                        <>
+                            not active with settings
+                            <Game gameId={gameId} runtime={runtime} />
+                        </>
+                    )}
                 </>
             )}
             {!gameId && (

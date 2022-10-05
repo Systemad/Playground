@@ -9,8 +9,11 @@ export const useQuestion = () => {
     >();
     const socket = useContext(SocketContext);
     useEffect(() => {
-        const newQuestion = (question: ProcessedQuestion) =>
+        const newQuestion = (question: ProcessedQuestion) => {
+            console.log('nequestionrecived');
             setCurrentQuestion(question);
+        };
+
         socket.on('new-question', newQuestion);
         return () => {
             socket.off('new-question', newQuestion);

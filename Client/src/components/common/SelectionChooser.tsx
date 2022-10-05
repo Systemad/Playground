@@ -1,15 +1,15 @@
-import { Select } from '@chakra-ui/react'
+import { Select } from '@chakra-ui/react';
 
 type Base = {
-    id: string
-    name: string
-}
+    id: string;
+    name: string;
+};
 
 type Props<TValue> = {
-    label: string
-    selections?: TValue[]
-    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
-}
+    label: string;
+    selections?: TValue[];
+    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+};
 
 export const SelectionChooser = <TValue extends Base>({
     label,
@@ -30,4 +30,4 @@ export const SelectionChooser = <TValue extends Base>({
             </option>
         ))}
     </Select>
-)
+);

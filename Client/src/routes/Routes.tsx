@@ -22,12 +22,19 @@ export const AppRoutes = () => {
     );
 
     useEffect(() => {
-        if (socket.state === signalR.HubConnectionState.Disconnected)
-            socket.start();
+        const start = async () => {
+            if (socket.state === signalR.HubConnectionState.Disconnected)
+                await socket.start();
+        };
 
-        //return () => {
-        //    socket.stop();
-        //};
+        start();
+        return () => {
+            const stop = async () => {
+                if (socket.state === signalR.HubConnectionState.Connected)
+                    await socket.stop();
+            };
+            stop();
+        };
     }, [socket]);
     return (
         <>

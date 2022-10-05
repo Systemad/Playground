@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { SocketContext } from '../../../utils/contexts/SignalrContext';
 import { QuizRuntime } from '../api/quizAPI';
 
-export const useQuizSettings = () => {
+export const useQuizRuntime = () => {
     const [settings, currentSettings] = useState<QuizRuntime>();
     const socket = useContext(SocketContext);
     useEffect(() => {
