@@ -56,16 +56,11 @@ public class Quiz : IQuiz
         };
         _quizState.Scoreboard[playerId] = newPlayer;
         _quizState.NumberOfPlayers = _quizState.Scoreboard.Keys.Count;
-        var info = new QuizRuntime
-        {
-            Status = _quizState.GameStatus,
-            NumberOfQuestions = _quizState.QuizSettings.Questions,
-            Timeout = _quizState.Timeout,
-            OwnerId = _quizState.OwnerId,
-            QuizSettings = _quizState.QuizSettings
-        };
-        await _stream.OnNextAsync(new QuizInfo(_quizState.GameId, info));
-        await UpdateScoreboard();
+        if (_quizState.NumberOfPlayers == 4)
+            await Start(_quizState.OwnerId);
+        else
+            await UpdateScoreboard();
+        //await SendRuntime();
     }
 
     public async Task SetStatus(Guid playerId, bool status)
@@ -144,8 +139,10 @@ public class Quiz : IQuiz
         if (!AllPlayersReady) throw new ArgumentException("All players not ready");
         _quizState.Questions = await _client.GetQuestions(_quizState.QuizSettings);
         _quizState.QuestionStep = 1;
+        _quizState.GameStatus = GameStatus.InProgress;
+        await SendRuntime();
+        await Task.Delay(2000);
         var newq = _quizState.Questions[_quizState.QuestionStep].ProcessQuestion(_quizState.QuestionStep);
-        await _stream.OnNextAsync(new GameStarted(_quizState.GameId));
         await _stream.OnNextAsync(new NewQuestion(_quizState.GameId, newq));
         await UpdateScoreboard();
     }
@@ -212,5 +209,18 @@ public class Quiz : IQuiz
     private async Task PreQuestion()
     {
         await UpdateScoreboard();
+    }
+
+    private async Task SendRuntime()
+    {
+        var info = new QuizRuntime
+        {
+            Status = _quizState.GameStatus,
+            NumberOfQuestions = _quizState.QuizSettings.Questions,
+            Timeout = _quizState.Timeout,
+            OwnerId = _quizState.OwnerId,
+            QuizSettings = _quizState.QuizSettings
+        };
+        await _stream.OnNextAsync(new QuizInfo(_quizState.GameId, info));
     }
 }

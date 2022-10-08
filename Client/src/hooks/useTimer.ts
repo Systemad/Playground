@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 
-import connection from '../utils/api/signalr/Socket'
+import { useHubConnection } from '../utils/api/signalr/useHubConnection';
 
 enum Events {
     StartTimer = 'StartTimer',
@@ -9,19 +9,20 @@ enum Events {
 }
 // TODO: No timer implemented in backend, so ignore for now!
 export function UseTimer(duration: number) {
-    const [isRunning, setIsRunning] = useState(false)
+    const [isRunning, setIsRunning] = useState(false);
+    const hubConnection = useHubConnection();
 
     useEffect(() => {
-        connection.on(Events.StartTimer, (timer: boolean) => {
-            setIsRunning(true)
-        })
+        hubConnection?.on(Events.StartTimer, (timer: boolean) => {
+            setIsRunning(true);
+        });
 
-        connection.on(Events.StopTimer, (timer: boolean) => {
-            setIsRunning(false)
-        })
+        hubConnection?.on(Events.StopTimer, (timer: boolean) => {
+            setIsRunning(false);
+        });
 
-        connection.on(Events.ResetTimer, (timer: boolean) => {
-            setIsRunning(true)
-        })
-    }, [isRunning])
+        hubConnection?.on(Events.ResetTimer, (timer: boolean) => {
+            setIsRunning(true);
+        });
+    }, [hubConnection, isRunning]);
 }

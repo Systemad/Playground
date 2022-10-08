@@ -4,38 +4,18 @@ import {
     UnauthenticatedTemplate,
     useMsalAuthentication,
 } from '@azure/msal-react';
-import * as signalR from '@microsoft/signalr';
-import React, { useContext, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import { UnauthenticatedLayout } from '../components/layouts/UnauthenticatedLayout';
 import { LobbyPage } from '../features/lobby';
 import { Quiz, QuizHome, QuizResults } from '../features/quiz/';
 import { UserPage } from '../features/user';
-import { SocketContext } from '../utils/contexts/SignalrContext';
 
 export const AppRoutes = () => {
-    const socket = useContext(SocketContext);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { login, result, error } = useMsalAuthentication(
         InteractionType.Redirect
     );
-
-    useEffect(() => {
-        const start = async () => {
-            if (socket.state === signalR.HubConnectionState.Disconnected)
-                await socket.start();
-        };
-
-        start();
-        return () => {
-            const stop = async () => {
-                if (socket.state === signalR.HubConnectionState.Connected)
-                    await socket.stop();
-            };
-            stop();
-        };
-    }, [socket]);
     return (
         <>
             <AuthenticatedTemplate>

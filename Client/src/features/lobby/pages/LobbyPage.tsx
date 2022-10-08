@@ -16,6 +16,12 @@ export const LobbyPage = () => {
     );
     return (
         <>
+            <LobbyLayout />
+        </>
+    );
+};
+
+/*
             <AuthenticatedTemplate>
                 <LobbyLayout />
             </AuthenticatedTemplate>
@@ -23,6 +29,4 @@ export const LobbyPage = () => {
             <UnauthenticatedTemplate>
                 <UnauthenticatedLayout />
             </UnauthenticatedTemplate>
-        </>
-    );
-};
+            */

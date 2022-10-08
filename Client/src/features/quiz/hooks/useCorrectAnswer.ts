@@ -1,20 +1,23 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { SocketContext } from '../../../utils/contexts/SignalrContext';
+import { useHubConnection } from '../../../utils/api/signalr/useHubConnection';
 import { WebsocketEvents } from '../Events';
 
 export const useCorrectAnswer = () => {
     const [correctAnswer, setCorrectAnswer] = useState<string | undefined>();
-    const socket = useContext(SocketContext);
+    const hubConnection = useHubConnection();
     useEffect(() => {
-        socket.on(WebsocketEvents.CorrectAnswer, (correctAnswer: string) => {
-            setCorrectAnswer(correctAnswer);
-        });
-    });
+        hubConnection?.on(
+            WebsocketEvents.CorrectAnswer,
+            (correctAnswer: string) => {
+                setCorrectAnswer(correctAnswer);
+            }
+        );
+    }, [hubConnection]);
     useEffect(() => {
-        socket.on(WebsocketEvents.NextQuestion, () => {
+        hubConnection?.on(WebsocketEvents.NextQuestion, () => {
             setCorrectAnswer(undefined);
         });
-    });
+    }, [hubConnection]);
     return correctAnswer;
 };

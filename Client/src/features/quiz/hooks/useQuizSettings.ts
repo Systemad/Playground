@@ -1,19 +1,18 @@
 import { useContext, useEffect, useState } from 'react';
 
-import { SocketContext } from '../../../utils/contexts/SignalrContext';
+import { useHubConnection } from '../../../utils/api/signalr/useHubConnection';
 import { QuizRuntime } from '../api/quizAPI';
 
 export const useQuizRuntime = () => {
-    const [settings, currentSettings] = useState<QuizRuntime>();
-    const socket = useContext(SocketContext);
+    const [settings, setCurrentSettings] = useState<QuizRuntime>();
+    const hubConnection = useHubConnection();
     useEffect(() => {
         const setQuizSettings = (question: QuizRuntime) => {
-            console.log('runtime');
-            currentSettings(question);
+            setCurrentSettings(question);
         };
 
-        socket.on('quiz-runtime', setQuizSettings);
-    }, [socket]);
+        hubConnection?.on('quiz-runtime', setQuizSettings);
+    }, [hubConnection]);
 
     return settings;
 };

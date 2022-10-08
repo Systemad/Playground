@@ -1,21 +1,21 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { SocketContext } from '../../../utils/contexts/SignalrContext';
+import { useHubConnection } from '../../../utils/api/signalr/useHubConnection';
 
 export const useGameActive = () => {
     const [active, setActive] = useState<boolean>(false);
-    const socket = useContext(SocketContext);
+    const hubConnection = useHubConnection();
     useEffect(() => {
-        socket.on('start-game', () => {
+        hubConnection?.on('start-game', () => {
             setActive(true);
         });
-    });
+    }, [hubConnection]);
 
     useEffect(() => {
-        socket.on('stop-game', () => {
+        hubConnection?.on('stop-game', () => {
             setActive(false);
         });
-    });
+    }, [hubConnection]);
 
     return active;
 };

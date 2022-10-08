@@ -3,16 +3,16 @@ import {
     Configuration,
     LogLevel,
     RedirectRequest,
-} from '@azure/msal-browser'
+} from '@azure/msal-browser';
 
-const ua = window.navigator.userAgent
-const msie = ua.indexOf('MSIE ')
-const msie11 = ua.indexOf('Trident/')
-const msedge = ua.indexOf('Edge/')
-const firefox = ua.indexOf('Firefox')
-const isIE = msie > 0 || msie11 > 0
-const isEdge = msedge > 0
-const isFirefox = firefox > 0 // Only needed if you need to support the redirect flow in Firefox incognito
+const ua = window.navigator.userAgent;
+const msie = ua.indexOf('MSIE ');
+const msie11 = ua.indexOf('Trident/');
+const msedge = ua.indexOf('Edge/');
+const firefox = ua.indexOf('Firefox');
+const isIE = msie > 0 || msie11 > 0;
+const isEdge = msedge > 0;
+const isFirefox = firefox > 0; // Only needed if you need to support the redirect flow in Firefox incognito
 
 export const environment = {
     client: 'e6b54fdf-44c9-4ee1-b9a6-ce1c7f01bac9',
@@ -20,7 +20,7 @@ export const environment = {
         'https://danovas.b2clogin.com/danovas.onmicrosoft.com/B2C_1_signupsignin1',
     authrityDomain:
         'https://danovas.b2clogin.com/danovas.onmicrosoft.com/B2C_1_signupsignin1',
-}
+};
 
 export const b2cPolicies = {
     names: {
@@ -33,7 +33,7 @@ export const b2cPolicies = {
         },
     },
     authorityDomain: 'danovas.b2clogin.com',
-}
+};
 
 // Config object to be passed to Msal on creation
 export const msalConfig: Configuration = {
@@ -53,17 +53,17 @@ export const msalConfig: Configuration = {
         loggerOptions: {
             loggerCallback(logLevel: LogLevel, message: string) {
                 // eslint-disable-next-line no-console
-                console.log(message)
+                //console.log(message)
             },
             logLevel: LogLevel.Trace,
             piiLoggingEnabled: false,
         },
     },
-}
+};
 
 // Add here scopes for id token to be used at MS Identity Platform endpoints.
 export const loginRequest: RedirectRequest = {
     scopes: [
         'https://danovas.onmicrosoft.com/89be5e10-1770-45d7-813a-d47242ae2163/API.Access',
     ],
-}
+};

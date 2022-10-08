@@ -49,7 +49,10 @@ builder.Services.AddRouting(options =>
 
 // Add services to the container.
 builder.Services.AddAppAuthentication(builder.Configuration);
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options => { options.EnableDetailedErrors = true; }).AddJsonProtocol(options =>
+{
+    options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.AddCorsService();
 builder.Services.AddOpenApiServiceOath(builder.Configuration);
 builder.Services.AddRazorPages()
@@ -70,11 +73,6 @@ builder.Host.UseOrleans((context, silobuilder) =>
     else
     {
         //silobuilder.ConfigureEndpoints(endpointAddress, siloPort, gatewayPort);
-        silobuilder.Configure<ClusterOptions>(options =>
-        {
-            options.ClusterId = "dev";
-            options.ServiceId = "playgroundservice";
-        });
         silobuilder.UseAdoNetClustering(opt =>
         {
             opt.Invariant = "Npgsql";
@@ -87,6 +85,11 @@ builder.Host.UseOrleans((context, silobuilder) =>
         });
     }
 
+    silobuilder.Configure<ClusterOptions>(options =>
+    {
+        options.ClusterId = "dev";
+        options.ServiceId = "playgroundservice";
+    });
     silobuilder.ConfigureServices(sv =>
     {
         sv.AddSingleton(new QuizGrainOptions());

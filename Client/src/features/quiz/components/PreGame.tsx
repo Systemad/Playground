@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import React, { useContext } from 'react';
 
-import { SocketContext } from '../../../utils/contexts/SignalrContext';
+import { useHubConnection } from '../../../utils/api/signalr/useHubConnection';
 import { PlayerState } from '../api/quizAPI';
 import { useCurrentGame } from '../hooks/useCurrentGame';
 import { useUsersReady } from '../hooks/useUsersReady';
@@ -39,20 +39,25 @@ export const PreGame = ({ scoreboard, ownerId }: Props) => {
     const gameId = useCurrentGame();
     const usersReady = useUsersReady();
 
+    const hubConnection = useHubConnection();
     const myId = instance.getActiveAccount()?.localAccountId;
     const isOwner = myId === ownerId;
-    const socket = useContext(SocketContext);
+
     const isMeReady = scoreboard?.find((p) => p.id === myId)?.ready === true;
     const canStartGame = isMeReady && usersReady && isOwner;
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        socket.invoke('SetPlayerStatus', gameId, event.target.checked);
+    const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        await hubConnection?.invoke(
+            'SetPlayerStatus',
+            gameId,
+            event.target.checked
+        );
     };
 
     const handleStartAsync = async () => {
         try {
             //if (canStartGame) {
-            await socket.invoke('StartGame', gameId);
+            await hubConnection?.invoke('StartGame', gameId);
             //}
         } catch {
             toast({

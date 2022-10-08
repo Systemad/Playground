@@ -1,27 +1,27 @@
 import { Box, SimpleGrid, useToast } from '@chakra-ui/react';
+import * as signalR from '@microsoft/signalr';
 import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { SocketContext } from '../../../utils/contexts/SignalrContext';
+import { useHubConnection } from '../../../utils/api/signalr/useHubConnection';
 import { GameMode } from '../api/lobbyAPI';
 import { LobbyCard } from '../components/LobbyCard';
 import { useLobbyGames } from '../hooks/useLobbyGames';
 
-// TODO: Fix undefined difficulty and gamemode
 export const LobbyLayout = () => {
     const navigate = useNavigate();
     const toast = useToast();
-    const socket = useContext(SocketContext);
+    const hubConnection = useHubConnection();
     const games = useLobbyGames();
 
     useEffect(() => {
         const GetGames = async () => {
-            await socket.invoke('get-all-games');
+            if (hubConnection?.state === signalR.HubConnectionState.Connected)
+                await hubConnection?.invoke('get-all-games');
         };
         GetGames();
-    }, [socket]);
+    }, [hubConnection]);
     const handleJoinGame = async (id: string, mode: GameMode) => {
-        console.log(mode);
         let route: string;
         switch (mode as GameMode) {
             case 'Quiz':
@@ -39,9 +39,11 @@ export const LobbyLayout = () => {
 
         try {
             if (id) {
-                socket
-                    .invoke('join-game', id)
-                    .then(() => navigate(`${route}/${id}`));
+                navigate(`${mode}/${id}`);
+
+                //await hubConnection
+                //    ?.invoke('join-game', id)
+                //    .then(() => navigate(`${route}/${id}`));
             }
         } catch {
             toast({
@@ -59,7 +61,7 @@ export const LobbyLayout = () => {
         <>
             <Box as="main" maxW="7xl" mx="auto" my="auto" p={6}>
                 <SimpleGrid columns={[1, 2, 3]} spacing="15px">
-                    {games ? (
+                    {games.length > 0 ? (
                         <>
                             {games.map((games) => (
                                 <LobbyCard

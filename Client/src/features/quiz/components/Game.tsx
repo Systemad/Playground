@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 
 import { Answer } from '../../../components/common/AnswerButton';
 import { GameScoreboard } from '../../../components/common/Scoreboard';
-import { SocketContext } from '../../../utils/contexts/SignalrContext';
+import { useHubConnection } from '../../../utils/api/signalr/useHubConnection';
 import { QuizRuntime } from '../api/quizAPI';
 import { Header } from '../components/Header';
 import { useCorrectAnswer } from '../hooks/useCorrectAnswer';
@@ -16,7 +16,7 @@ type Props = {
 };
 export const Game = ({ gameId, runtime }: Props) => {
     const [selectedAnswer, setSelectedAnswer] = useState<string | undefined>();
-    const socket = useContext(SocketContext);
+    const hubConnection = useHubConnection();
     const currentQuestion = useQuestion();
     //const currentAnswers = useAnswers();
     const correctAnswer = useCorrectAnswer();
@@ -29,14 +29,17 @@ export const Game = ({ gameId, runtime }: Props) => {
     };
 
     useEffect(() => {
-        socket.invoke('guess', selectedAnswer, gameId);
-    }, [gameId, selectedAnswer, socket]);
+        const handleAnswer = async () => {
+            await hubConnection?.invoke('guess', selectedAnswer, gameId);
+        };
+        handleAnswer();
+    }, [gameId, hubConnection, selectedAnswer]);
 
     useEffect(() => {
         const resetAnswerListener = () => setSelectedAnswer(undefined);
 
-        socket.on('NextQuestion', resetAnswerListener);
-    }, [selectedAnswer, socket]);
+        hubConnection?.on('finish-question', resetAnswerListener);
+    }, [hubConnection, selectedAnswer]);
 
     return (
         <>

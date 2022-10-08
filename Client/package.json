@@ -55,7 +55,8 @@
         "pre-commit": "1.2.2",
         "prettier": "^2.7.1",
         "typescript": "^4.8.3",
-        "vite": "3.1.0"
+        "vite": "3.1.0",
+        "vite-plugin-environment": "^1.1.2"
     },
     "pre-commit": "lint",
     "license": "MIT"

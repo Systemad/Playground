@@ -14,11 +14,17 @@ import {
     Text,
     useColorModeValue,
 } from '@chakra-ui/react';
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, {
+    ChangeEvent,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 
 import { PlayerState } from '../../features/quiz/api/quizAPI';
 import { useScoreboard } from '../../features/quiz/hooks/useScoreboard';
-import { hubConnection } from '../../utils/api/signalr/Socket';
+import { useHubConnection } from '../../utils/api/signalr/useHubConnection';
 
 interface Message {
     id: string;
@@ -111,6 +117,7 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
 
 export const Chatbox = () => {
     const [messages, setMessages] = useState<Message[]>([]);
+    const hubConnection = useHubConnection();
 
     const AlwaysScrollToBottom = () => {
         const elementRef = useRef<HTMLDivElement>(null);
@@ -126,7 +133,7 @@ export const Chatbox = () => {
     const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
         event.preventDefault();
         if (event.target.value === '13') {
-            await hubConnection.invoke('SendMessage', value);
+            await hubConnection?.invoke('SendMessage', value);
             setValue('');
         } else {
             setValue(event.target.value);
@@ -134,7 +141,7 @@ export const Chatbox = () => {
     };
 
     useEffect(() => {
-        hubConnection.on('ReceiveMessage', (message: Message) => {
+        hubConnection?.on('ReceiveMessage', (message: Message) => {
             setMessages((_messages) => [..._messages, message]);
         });
     });

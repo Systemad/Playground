@@ -31,6 +31,7 @@ public class GlobalHub : Hub
         await player.SetUsername(GetUsername);
         await player.SetConnectionId(Context.ConnectionId);
 
+        Console.WriteLine("connected");
         //var lobbyGrain = _factory.GetGrain<ILobbyGrain>(0);
         //var lobbies = await lobbyGrain.GetGames();
         //await Clients.Caller.SendAsync("all-games", lobbies);
