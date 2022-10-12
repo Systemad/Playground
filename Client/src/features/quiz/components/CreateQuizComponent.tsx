@@ -9,11 +9,12 @@ import {
     useColorModeValue,
     useToast,
 } from '@chakra-ui/react';
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { SelectionChooser } from '../../../components/common/SelectionChooser';
 import { useAppDispatch, useAppSelector } from '../../../providers/store';
+import { socketctx } from '../../../utils/api/signalr/ContextV2';
 import { useGetCategoriesQuery } from '../api/CategoryAPI';
 import { useQuizCreateGameMutation } from '../api/quizAPI';
 import {
@@ -44,6 +45,7 @@ export const CreateQuizComponent = () => {
     const toast = useToast();
     const options = useAppSelector(selectQuizOptions);
     const [create, result] = useQuizCreateGameMutation();
+    const socket = useContext(socketctx);
     const { data, isLoading, isSuccess, isError, error } =
         useGetCategoriesQuery();
 
@@ -64,11 +66,15 @@ export const CreateQuizComponent = () => {
         dispatch(setDifficulty(value));
     };
 
+    const joinGame = async (id?: string) => {
+        if (id) await socket?.invoke('join-game', id);
+    };
     const handleCreateQuiz = async () => {
         try {
             await create({ quizCreationModel: options })
                 .unwrap()
-                .then((payload) => navigate(payload));
+                .then((payload) => joinGame(payload))
+                .then(() => navigate('/quiz'));
         } catch {
             toast({
                 title: 'An error occurred',

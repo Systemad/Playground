@@ -1,31 +1,30 @@
 import { useContext, useEffect, useState } from 'react';
 
-import { useHubConnection } from '../../../utils/api/signalr/useHubConnection';
+import { socketctx } from '../../../utils/api/signalr/ContextV2';
 
 export const useAnswers = () => {
     const [answers, setAnswers] = useState<string[]>();
-    const hubConnection = useHubConnection();
+    const connection = useContext(socketctx);
     useEffect(() => {
         const setAnswer = (answers: string[]) => {
-            console.log('answers-receive');
             setAnswers(answers);
         };
-        hubConnection?.on('new-question', setAnswer);
+        connection?.on('new-question', setAnswer);
 
-        //return () => {
-        //    socket.off('new-question', setAnswer);
-        //};
-    }, [hubConnection]); // socket as dependcy?
+        return () => {
+            connection?.off('new-question', setAnswer);
+        };
+    }, [connection]);
 
     useEffect(() => {
         const setAnswer = () => setAnswers([]);
 
-        hubConnection?.on('finish-question', setAnswer);
+        connection?.on('finish-question', setAnswer);
 
-        //return () => {
-        //    socket.off('finish-question', setAnswer);
-        //};
-    }, [hubConnection]);
+        return () => {
+            connection?.off('finish-question', setAnswer);
+        };
+    }, [connection]);
 
     return answers;
 };

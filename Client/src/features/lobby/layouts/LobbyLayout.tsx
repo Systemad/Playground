@@ -1,9 +1,9 @@
 import { Box, SimpleGrid, useToast } from '@chakra-ui/react';
-import * as signalR from '@microsoft/signalr';
+import { HubConnectionState } from '@microsoft/signalr';
 import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useHubConnection } from '../../../utils/api/signalr/useHubConnection';
+import { socketctx } from '../../../utils/api/signalr/ContextV2';
 import { GameMode } from '../api/lobbyAPI';
 import { LobbyCard } from '../components/LobbyCard';
 import { useLobbyGames } from '../hooks/useLobbyGames';
@@ -11,40 +11,22 @@ import { useLobbyGames } from '../hooks/useLobbyGames';
 export const LobbyLayout = () => {
     const navigate = useNavigate();
     const toast = useToast();
-    const hubConnection = useHubConnection();
+    const socket = useContext(socketctx);
+    //const connection = useContext(socketctx);
     const games = useLobbyGames();
 
     useEffect(() => {
         const GetGames = async () => {
-            if (hubConnection?.state === signalR.HubConnectionState.Connected)
-                await hubConnection?.invoke('get-all-games');
+            if (socket?.state === HubConnectionState.Connected)
+                await socket?.invoke('get-all-games');
         };
         GetGames();
-    }, [hubConnection]);
-    const handleJoinGame = async (id: string, mode: GameMode) => {
-        let route: string;
-        switch (mode as GameMode) {
-            case 'Quiz':
-                route = 'quiz';
-                break;
-            case 'TicTacToe':
-                route = 'tictactoe';
-                break;
-            case 'Guessing':
-                route = 'guessing';
-                break;
-            default:
-                break;
-        }
-
+    }, [socket]);
+    const handleJoinGame = async (id: string) => {
         try {
-            if (id) {
-                navigate(`${mode}/${id}`);
-
-                //await hubConnection
-                //    ?.invoke('join-game', id)
-                //    .then(() => navigate(`${route}/${id}`));
-            }
+            //navigate('/quiz');
+            await socket?.invoke('join-game', id); //.then(() => navigate('/quiz'));
+            navigate('/quiz');
         } catch {
             toast({
                 title: 'An error occurred',

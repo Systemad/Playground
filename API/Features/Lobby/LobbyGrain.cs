@@ -21,7 +21,7 @@ public class LobbyGrain : Grain, ILobbyGrain
         try
         {
             _cache.TryRemove(gameId, out var remove);
-            await _hubContext.Clients.All.SendAsync(WsEvents.RemoveGame, gameId);
+            await _hubContext.Clients.All.SendAsync(LobbyWsEvents.RemoveGame, gameId);
         }
         catch (Exception e)
         {
@@ -35,12 +35,12 @@ public class LobbyGrain : Grain, ILobbyGrain
         if (_cache.TryGetValue(gameId, out var retrieved))
         {
             if (!_cache.TryUpdate(gameId, summary, retrieved)) throw new ArgumentException("Game could not be updates");
-            await _hubContext.Clients.All.SendAsync(WsEvents.AddGame, summary);
+            await _hubContext.Clients.All.SendAsync(LobbyWsEvents.AddGame, summary);
         }
         else
         {
             _cache.TryAdd(gameId, summary);
-            await _hubContext.Clients.All.SendAsync(WsEvents.UpdateGame, summary);
+            await _hubContext.Clients.All.SendAsync(LobbyWsEvents.UpdateGame, summary);
         }
     }
 

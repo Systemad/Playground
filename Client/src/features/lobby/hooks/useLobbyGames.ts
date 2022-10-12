@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 
-import { useHubConnection } from '../../../utils/api/signalr/useHubConnection';
+import { socketctx } from '../../../utils/api/signalr/ContextV2';
 import { GameLobbySummary } from '../api/lobbyAPI';
 
 enum LobbyActions {
@@ -12,25 +12,22 @@ enum LobbyActions {
 
 export const useLobbyGames = () => {
     const [games, setGames] = useState<GameLobbySummary[]>([]);
-    const hubConnection = useHubConnection();
+    const socket = useContext(socketctx);
+    //const connection = useContext(socketctx);
     useEffect(() => {
-        hubConnection?.on(
-            LobbyActions.AllGames,
-            (games: GameLobbySummary[]) => {
-                console.log('got all games');
-                setGames(games);
-            }
-        );
+        socket?.on(LobbyActions.AllGames, (games: GameLobbySummary[]) => {
+            setGames(games);
+        });
 
-        hubConnection?.on(LobbyActions.AddGame, (game: GameLobbySummary) => {
+        socket?.on(LobbyActions.AddGame, (game: GameLobbySummary) => {
             setGames([...games, game]);
         });
 
-        hubConnection?.on(LobbyActions.RemoveGame, (gameId: string) => {
+        socket?.on(LobbyActions.RemoveGame, (gameId: string) => {
             setGames(games.filter((g) => g.id !== gameId));
         });
 
-        hubConnection?.on(LobbyActions.EditGame, (game: GameLobbySummary) => {
+        socket?.on(LobbyActions.EditGame, (game: GameLobbySummary) => {
             const newArray = games.map((g, i) => {
                 if (g.id === game.id) {
                     return game;
@@ -39,6 +36,6 @@ export const useLobbyGames = () => {
             });
             setGames(newArray);
         });
-    }, [games, hubConnection]);
+    }, [games, socket]);
     return games;
 };

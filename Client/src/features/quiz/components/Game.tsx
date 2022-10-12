@@ -1,24 +1,26 @@
 import { Box, SimpleGrid } from '@chakra-ui/react';
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import { Answer } from '../../../components/common/AnswerButton';
 import { GameScoreboard } from '../../../components/common/Scoreboard';
-import { useHubConnection } from '../../../utils/api/signalr/useHubConnection';
-import { QuizRuntime } from '../api/quizAPI';
+import { GameContext } from '../../../contexts/GameContext';
+import { socketctx } from '../../../utils/api/signalr/ContextV2';
+import { PlayerState, QuizRuntime } from '../api/quizAPI';
 import { Header } from '../components/Header';
 import { useCorrectAnswer } from '../hooks/useCorrectAnswer';
 import { useQuestion } from '../hooks/useQuestion';
 import { buttonStatus, isButtonDisabled } from '../utils/Helper';
 
 type Props = {
-    gameId: string;
     runtime: QuizRuntime;
+    scoreboard: PlayerState[];
 };
-export const Game = ({ gameId, runtime }: Props) => {
+export const Game = ({ runtime, scoreboard }: Props) => {
     const [selectedAnswer, setSelectedAnswer] = useState<string | undefined>();
-    const hubConnection = useHubConnection();
+    const connection = useContext(socketctx);
+    const gameId = useContext(GameContext);
+
     const currentQuestion = useQuestion();
-    //const currentAnswers = useAnswers();
     const correctAnswer = useCorrectAnswer();
 
     const handleAnswer = (answer: string) => {
@@ -30,16 +32,16 @@ export const Game = ({ gameId, runtime }: Props) => {
 
     useEffect(() => {
         const handleAnswer = async () => {
-            await hubConnection?.invoke('guess', selectedAnswer, gameId);
+            await connection?.invoke('guess', selectedAnswer, gameId);
         };
         handleAnswer();
-    }, [gameId, hubConnection, selectedAnswer]);
+    }, [gameId, connection, selectedAnswer]);
 
     useEffect(() => {
         const resetAnswerListener = () => setSelectedAnswer(undefined);
 
-        hubConnection?.on('finish-question', resetAnswerListener);
-    }, [hubConnection, selectedAnswer]);
+        connection?.on('finish-question', resetAnswerListener);
+    }, [connection, selectedAnswer]);
 
     return (
         <>
@@ -78,7 +80,7 @@ export const Game = ({ gameId, runtime }: Props) => {
                         </SimpleGrid>
                     </Box>
 
-                    <GameScoreboard />
+                    <GameScoreboard scoreboard={scoreboard} />
                 </>
             )}
         </>

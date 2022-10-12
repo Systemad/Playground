@@ -15,9 +15,11 @@ public record GameEnded(Guid GameId);
 
 public record GameStarted(Guid GameId);
 
-public record ScoreboardUpdated(Guid GameId, List<PlayerState> Scoreboard);
+public record ScoreboardUpdated(Guid GameId, List<PlayerStateDto> Scoreboard);
 
 public record AllUsersReady(Guid GameId, bool Status);
+
+public record PreGameUsers(Guid GameId, List<PlayerReadyData> Players);
 
 public record CorrectAnswer(Guid GameId, string Question);
 

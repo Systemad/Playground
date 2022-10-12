@@ -11,43 +11,34 @@ import {
 } from '@chakra-ui/react';
 import React, { useContext } from 'react';
 
-import { useHubConnection } from '../../../utils/api/signalr/useHubConnection';
-import { PlayerState } from '../api/quizAPI';
-import { useCurrentGame } from '../hooks/useCurrentGame';
+import { GameContext } from '../../../contexts/GameContext';
+import { socketctx } from '../../../utils/api/signalr/ContextV2';
 import { useUsersReady } from '../hooks/useUsersReady';
-
-const readyStatus = (status?: boolean | null): string => {
-    if (status === null && undefined) {
-        return 'blue.700';
-    } else {
-        if (status === true && !undefined) return 'green.700';
-        else return 'red.700';
-    }
-};
+import { PlayerReadyData, useUsersReadyList } from '../hooks/useUsersReadyList';
 
 type PlayerProps = {
-    player: PlayerState;
+    player: PlayerReadyData;
 };
 
 type Props = {
-    scoreboard: PlayerState[];
     ownerId?: string;
 };
-export const PreGame = ({ scoreboard, ownerId }: Props) => {
+export const PreGame = ({ ownerId }: Props) => {
     const { instance } = useMsal();
     const toast = useToast();
-    const gameId = useCurrentGame();
     const usersReady = useUsersReady();
-
-    const hubConnection = useHubConnection();
+    const gameId = useContext(GameContext);
+    const connection = useContext(socketctx);
     const myId = instance.getActiveAccount()?.localAccountId;
     const isOwner = myId === ownerId;
 
-    const isMeReady = scoreboard?.find((p) => p.id === myId)?.ready === true;
+    const usersReadyList = useUsersReadyList();
+
+    const isMeReady = usersReadyList?.find((p) => p.id === myId)?.ready;
     const canStartGame = isMeReady && usersReady && isOwner;
 
     const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        await hubConnection?.invoke(
+        await connection?.invoke(
             'SetPlayerStatus',
             gameId,
             event.target.checked
@@ -57,7 +48,7 @@ export const PreGame = ({ scoreboard, ownerId }: Props) => {
     const handleStartAsync = async () => {
         try {
             //if (canStartGame) {
-            await hubConnection?.invoke('StartGame', gameId);
+            await connection?.invoke('start-game', gameId);
             //}
         } catch {
             toast({
@@ -86,7 +77,7 @@ export const PreGame = ({ scoreboard, ownerId }: Props) => {
                     <Box
                         w="full"
                         h="50px"
-                        bg={readyStatus(player?.ready)}
+                        bg={player.ready ? 'green.700' : 'red.700'}
                         mt={4}
                         p="4"
                         fontSize={'sm'}
@@ -137,7 +128,7 @@ export const PreGame = ({ scoreboard, ownerId }: Props) => {
                 spacingX="40px"
                 spacingY="20px"
             >
-                {scoreboard?.map((item) => (
+                {usersReadyList?.map((item) => (
                     <PlayerCard key={item.id} player={item} />
                 ))}
             </SimpleGrid>

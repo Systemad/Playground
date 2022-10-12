@@ -1,32 +1,31 @@
 import { useContext, useEffect, useState } from 'react';
 
-import { useHubConnection } from '../../../utils/api/signalr/useHubConnection';
+import { socketctx } from '../../../utils/api/signalr/ContextV2';
 import { ProcessedQuestion } from '../api/quizAPI';
 
 export const useQuestion = () => {
     const [currentQuestion, setCurrentQuestion] = useState<
         ProcessedQuestion | undefined
     >();
-    const hubConnection = useHubConnection();
+    const connection = useContext(socketctx);
     useEffect(() => {
         const newQuestion = (question: ProcessedQuestion) => {
-            console.log('nequestionrecived');
             setCurrentQuestion(question);
         };
 
-        hubConnection?.on('new-question', newQuestion);
+        connection?.on('new-question', newQuestion);
         return () => {
-            hubConnection?.off('new-question', newQuestion);
+            connection?.off('new-question', newQuestion);
         };
-    }, [hubConnection]);
+    }, [connection]);
 
     useEffect(() => {
         const resetQustion = () => setCurrentQuestion(undefined);
-        hubConnection?.on('finish-question', resetQustion);
+        connection?.on('finish-question', resetQustion);
         return () => {
-            hubConnection?.off('finish-question', resetQustion);
+            connection?.off('finish-question', resetQustion);
         };
-    }, [hubConnection]);
+    }, [connection]);
 
     return currentQuestion;
 };

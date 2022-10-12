@@ -7,7 +7,6 @@ using API.Features.Quiz.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Orleans;
-using WsEvents = API.Features.Lobby.WsEvents;
 
 namespace API.Features.SignalR;
 
@@ -31,7 +30,7 @@ public class GlobalHub : Hub
         await player.SetUsername(GetUsername);
         await player.SetConnectionId(Context.ConnectionId);
 
-        Console.WriteLine("connected");
+        Console.WriteLine("connected " + Context.ConnectionId);
         //var lobbyGrain = _factory.GetGrain<ILobbyGrain>(0);
         //var lobbies = await lobbyGrain.GetGames();
         //await Clients.Caller.SendAsync("all-games", lobbies);
@@ -41,8 +40,13 @@ public class GlobalHub : Hub
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
+        Console.WriteLine("disconnected " + Context.ConnectionId);
         await player.RemoveActiveGame();
         await player.ResetConnectionId();
+
+        // Cleanup
+        var pl = await player.GetActiveGame();
+        await Groups.RemoveFromGroupAsync(GetConnectionId, pl.ToString());
         await base.OnDisconnectedAsync(exception);
     }
 
@@ -58,7 +62,8 @@ public class GlobalHub : Hub
         var lobbyGrain = _factory.GetGrain<ILobbyGrain>(0);
         var games = await lobbyGrain.GetGames();
 
-        await Clients.Caller.SendAsync(WsEvents.AllGames, games);
+        Console.WriteLine("all games");
+        await Clients.Caller.SendAsync(LobbyWsEvents.AllGames, games);
     }
 
     [HubMethodName("join-game")]
@@ -66,6 +71,7 @@ public class GlobalHub : Hub
     {
         try
         {
+            await Clients.Caller.SendAsync(WsEvents.NewGame, gameId);
             var gameGrain = _factory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
             await gameGrain.AddPlayer(GetUserId, GetUsername);
             var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
@@ -90,8 +96,10 @@ public class GlobalHub : Hub
         var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
         await player.RemoveActiveGame();
         await Groups.RemoveFromGroupAsync(GetConnectionId, gameId);
+        await Clients.Caller.SendAsync(WsEvents.GameFinished);
     }
 
+    [HubMethodName("start-game")]
     public async Task StartGame(string gameId)
     {
         Console.WriteLine($"Hub: Start game {gameId}");

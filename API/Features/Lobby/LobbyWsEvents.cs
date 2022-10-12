@@ -1,6 +1,6 @@
 ﻿namespace API.Features.Lobby;
 
-public static class WsEvents
+public static class LobbyWsEvents
 {
     public const string AllGames = "all-games";
     public const string RemoveGame = "remove-game";

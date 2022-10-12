@@ -1,39 +1,27 @@
 import {
-    Avatar,
-    Badge,
     Box,
-    Button,
     Center,
     Flex,
     Heading,
     HStack,
     Input,
-    Link,
-    Spacer,
     Stack,
-    Text,
-    useColorModeValue,
 } from '@chakra-ui/react';
-import React, {
-    ChangeEvent,
-    useContext,
-    useEffect,
-    useRef,
-    useState,
-} from 'react';
+import { ChangeEvent, useContext, useEffect, useRef, useState } from 'react';
 
 import { PlayerState } from '../../features/quiz/api/quizAPI';
-import { useScoreboard } from '../../features/quiz/hooks/useScoreboard';
-import { useHubConnection } from '../../utils/api/signalr/useHubConnection';
+import { socketctx } from '../../utils/api/signalr/ContextV2';
 
 interface Message {
     id: string;
     name: string;
     content: string;
 }
+type Props = {
+    scoreboard: PlayerState[];
+};
 
-export const GameScoreboard = () => {
-    const scoreboard = useScoreboard();
+export const GameScoreboard = ({ scoreboard }: Props) => {
     return (
         <Flex
             overflow="hidden"
@@ -117,7 +105,7 @@ const PlayerCard = ({ player }: PlayerCardProps) => {
 
 export const Chatbox = () => {
     const [messages, setMessages] = useState<Message[]>([]);
-    const hubConnection = useHubConnection();
+    const connection = useContext(socketctx);
 
     const AlwaysScrollToBottom = () => {
         const elementRef = useRef<HTMLDivElement>(null);
@@ -133,7 +121,7 @@ export const Chatbox = () => {
     const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
         event.preventDefault();
         if (event.target.value === '13') {
-            await hubConnection?.invoke('SendMessage', value);
+            await connection?.invoke('SendMessage', value);
             setValue('');
         } else {
             setValue(event.target.value);
@@ -141,7 +129,7 @@ export const Chatbox = () => {
     };
 
     useEffect(() => {
-        hubConnection?.on('ReceiveMessage', (message: Message) => {
+        connection?.on('ReceiveMessage', (message: Message) => {
             setMessages((_messages) => [..._messages, message]);
         });
     });

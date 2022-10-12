@@ -55,6 +55,8 @@ public class QuizSocketBridge : Grain, ISubscriber
                 return await Handle(obj);
             case QuizInfo obj:
                 return await Handle(obj);
+            case PreGameUsers obj:
+                return await Handle(obj);
             default:
                 return false;
         }
@@ -71,6 +73,13 @@ public class QuizSocketBridge : Grain, ISubscriber
     {
         await _hub.Clients.Group(evt.GameId.ToString())
             .SendAsync(WsEvents.QuizRuntime, evt.Runtime);
+        return true;
+    }
+
+    private async Task<bool> Handle(PreGameUsers evt)
+    {
+        await _hub.Clients.Group(evt.GameId.ToString())
+            .SendAsync(WsEvents.PreGameUsers, evt.Players);
         return true;
     }
 

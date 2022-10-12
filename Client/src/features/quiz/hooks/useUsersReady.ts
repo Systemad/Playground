@@ -1,16 +1,21 @@
 import { useContext, useEffect, useState } from 'react';
 
-import { useHubConnection } from '../../../utils/api/signalr/useHubConnection';
+import { socketctx } from '../../../utils/api/signalr/ContextV2';
 
 export const useUsersReady = () => {
     const [usersReady, setUsersReady] = useState<boolean>(false);
-    const hubConnection = useHubConnection();
+    const connection = useContext(socketctx);
     useEffect(() => {
-        hubConnection?.on('all-users-ready', (status: boolean) => {
+        const usersReadyListener = (status: boolean) => {
             console.log('all-users-ready');
             setUsersReady(status);
-        });
-    }, [hubConnection]);
+        };
+        connection?.on('all-users-ready', usersReadyListener);
+
+        return () => {
+            connection?.off('all-users-ready', usersReadyListener);
+        };
+    }, [connection]);
 
     return usersReady;
 };

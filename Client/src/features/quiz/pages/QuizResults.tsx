@@ -1,15 +1,11 @@
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import {
     Avatar,
-    Badge,
     Box,
-    Button,
     Center,
     Heading,
-    Link,
     SimpleGrid,
     Stack,
-    Text,
     useColorModeValue,
 } from '@chakra-ui/react';
 

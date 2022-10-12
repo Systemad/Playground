@@ -57,7 +57,8 @@ public class QuizGrain : Grain, IQuizGrain
     {
         try
         {
-            await _game.LeaveGame(playerId);
+            var disband = await _game.LeaveGame(playerId);
+
         }
         catch (Exception e)
         {
@@ -109,6 +110,43 @@ public class QuizGrain : Grain, IQuizGrain
         }
     }
 
+    // TODO: Move to a watcher in lobby, and invoke method from there
+    private async Task Disband()
+    {
+        var lobbyGrain = GrainFactory.GetGrain<ILobbyGrain>(0);
+        await lobbyGrain.RemoveGame(GrainKey);
+    }
+
+    /*
+    private async Task ResetGame()
+    {
+
+        var players = _game.GetPlayerIds();
+        foreach (var VARIABLE in players)
+        {
+
+        }
+
+        Console.WriteLine($"Hub: Leaving game {gameId}");
+        var gameGrain = GrainFactory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
+        await gameGrain.RemovePlayer(GetUserId);
+        var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
+        await player.RemoveActiveGame();
+        await Groups.RemoveFromGroupAsync(GetConnectionId, gameId);
+        await Clients.Caller.SendAsync(WsEvents.GameFinished);
+
+
+        var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
+        Console.WriteLine("disconnected " + Context.ConnectionId);
+        await player.RemoveActiveGame();
+        await player.ResetConnectionId();
+
+        // Cleanup
+        var pl = await player.GetActiveGame();
+        await Groups.RemoveFromGroupAsync(GetConnectionId, pl.ToString());
+        await base.OnDisconnectedAsync(exception);
+    }
+*/
     private void ScheduleTimer()
     {
         StopTimer();

@@ -1,5 +1,4 @@
 import { emptySplitApi as api } from '../../../providers/emptyApi';
-import { hubConnection } from '../../../utils/api/signalr/Socket';
 import { GameStatus } from '../../lobby/api/lobbyAPI';
 import { WebsocketEvents } from '../Events';
 const injectedRtkApi = api.injectEndpoints({
@@ -85,13 +84,12 @@ export type PlayerState = {
     score: number;
     answered?: boolean;
     answeredCorrectly?: boolean | null;
-    ready?: boolean;
 };
 export type QuizRuntime = {
     status: GameStatus;
     numberOfQuestions: number;
-    ownerId: string;
     timeout: number;
+    ownerId: string;
     quizSettings: QuizSettings;
 };
 export type PlayerResult = {

@@ -11,6 +11,7 @@ import {
     Flex,
     FlexProps,
     Icon,
+    IconButton,
     Link,
     Text,
     useColorMode,
@@ -274,6 +275,9 @@ const ThemeSwitcher = () => {
 };
 
 const HomeButton = () => {
+    const click = () => {
+        window.location.reload();
+    };
     return (
         <Link
             as={ReachLink}
@@ -293,13 +297,15 @@ const HomeButton = () => {
                     color: 'white',
                 }}
             >
-                <Icon
+                <IconButton
+                    aria-label="Home"
+                    onClick={() => window.location.reload()}
                     mr="4"
                     fontSize="16"
                     _groupHover={{
                         color: 'white',
                     }}
-                    as={FiHome}
+                    icon={<FiHome />}
                 />
                 Home
             </Flex>

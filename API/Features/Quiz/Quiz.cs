@@ -41,9 +41,9 @@ public class Quiz : IQuiz
             await NextRound();
     }
 
-    public async Task JoinGame(Guid playerId, string name)
+    public Task JoinGame(Guid playerId, string name)
     {
-        if (_quizState.GameStatus != GameStatus.AwaitingPlayers && _quizState.Scoreboard.Keys.Count < 4)
+        if (_quizState.GameStatus != GameStatus.AwaitingPlayers || _quizState.Scoreboard.Keys.Count == 4)
             throw new InvalidOperationException("Not able to join");
         var newPlayer = new PlayerState
         {
@@ -56,26 +56,32 @@ public class Quiz : IQuiz
         };
         _quizState.Scoreboard[playerId] = newPlayer;
         _quizState.NumberOfPlayers = _quizState.Scoreboard.Keys.Count;
-        if (_quizState.NumberOfPlayers == 4)
-            await Start(_quizState.OwnerId);
-        else
-            await UpdateScoreboard();
+
         //await SendRuntime();
+        return Task.CompletedTask;
     }
 
     public async Task SetStatus(Guid playerId, bool status)
     {
-        if (_quizState.Scoreboard.TryGetValue(playerId, out var value))
-        {
-            _quizState.Scoreboard[playerId].Ready = status;
-            await UpdateScoreboard();
-        }
+        if (_quizState.Scoreboard.TryGetValue(playerId, out var value)) _quizState.Scoreboard[playerId].Ready = status;
 
-        var usersready = new AllUsersReady(_quizState.GameId, AllPlayersReady);
-        await _stream.OnNextAsync(usersready);
+        if (AllPlayersReady)
+        {
+            var usersready = new AllUsersReady(_quizState.GameId, AllPlayersReady);
+            await _stream.OnNextAsync(usersready);
+        }
+        else
+        {
+            var usersReady = _quizState.Scoreboard.Values
+                .Select(player => new PlayerReadyData { Id = player.Id, Name = player.Name, Ready = player.Ready })
+                .ToList();
+
+            var theseUsersReady = new PreGameUsers(_quizState.GameId, usersReady);
+            await _stream.OnNextAsync(theseUsersReady);
+        }
     }
 
-    public async Task LeaveGame(Guid playerId)
+    public async Task<bool> LeaveGame(Guid playerId)
     {
         if (_quizState.Scoreboard.TryGetValue(playerId, out var value))
         {
@@ -83,6 +89,9 @@ public class Quiz : IQuiz
             _quizState.NumberOfPlayers = _quizState.Scoreboard.Count;
             await UpdateScoreboard();
         }
+
+        // If 0, disband lobby
+        return _quizState.Scoreboard.Keys.Count < 1;
     }
 
     public Task Initialize(Guid gameId, Guid ownerId, QuizCreationModel settings)
@@ -167,6 +176,11 @@ public class Quiz : IQuiz
         await _stream.OnNextAsync(tickevent);
     }
 
+    public List<Guid> GetPlayerIds()
+    {
+        return _quizState.Scoreboard.Keys.ToList();
+    }
+
     private void EnsureGameIsInProgress()
     {
         if (_quizState.GameStatus != GameStatus.InProgress)
@@ -187,7 +201,17 @@ public class Quiz : IQuiz
 
     private async Task UpdateScoreboard()
     {
-        var scoreboardUpdated = new ScoreboardUpdated(_quizState.GameId, _quizState.Scoreboard.Values.ToList());
+        var users = _quizState.Scoreboard.Values.Select(user => new PlayerStateDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Score = user.Score,
+                Answered = user.Answered,
+                AnsweredCorrectly = user.AnsweredCorrectly
+            })
+            .ToList();
+
+        var scoreboardUpdated = new ScoreboardUpdated(_quizState.GameId, users);
         await _stream.OnNextAsync(scoreboardUpdated);
     }
 
@@ -204,11 +228,6 @@ public class Quiz : IQuiz
         };
 
         return Task.FromResult(results);
-    }
-
-    private async Task PreQuestion()
-    {
-        await UpdateScoreboard();
     }
 
     private async Task SendRuntime()
