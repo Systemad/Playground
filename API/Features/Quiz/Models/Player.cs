@@ -1,6 +1,6 @@
 ﻿namespace API.Features.Quiz.Models;
 
-public class PlayerReadyData
+public class LobbyPlayer
 {
     public Guid Id { get; set; }
     public string Name { get; set; }

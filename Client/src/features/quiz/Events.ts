@@ -3,6 +3,7 @@ export enum WebsocketEvents {
 
     ChangePlayerStatus = 'ChangePlayerStatus',
     PlayerAnswered = 'PlayerAnswered',
+    GameStatus = 'GameStatus',
     StartGame = 'StartGame',
     StopGame = 'StopGame',
 

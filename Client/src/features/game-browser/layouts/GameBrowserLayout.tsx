@@ -4,16 +4,14 @@ import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { socketctx } from '../../../utils/api/signalr/ContextV2';
-import { GameMode } from '../api/lobbyAPI';
-import { LobbyCard } from '../components/LobbyCard';
-import { useLobbyGames } from '../hooks/useLobbyGames';
+import { GameCard } from '../components/GameCard';
+import { useGames } from '../hooks/useGames';
 
-export const LobbyLayout = () => {
+export const GameBrowserLayout = () => {
     const navigate = useNavigate();
     const toast = useToast();
     const socket = useContext(socketctx);
-    //const connection = useContext(socketctx);
-    const games = useLobbyGames();
+    const games = useGames();
 
     useEffect(() => {
         const GetGames = async () => {
@@ -46,7 +44,7 @@ export const LobbyLayout = () => {
                     {games.length > 0 ? (
                         <>
                             {games.map((games) => (
-                                <LobbyCard
+                                <GameCard
                                     key={games.id}
                                     id={games.id}
                                     name={games.name}

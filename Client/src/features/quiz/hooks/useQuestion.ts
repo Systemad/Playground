@@ -10,6 +10,7 @@ export const useQuestion = () => {
     const connection = useContext(socketctx);
     useEffect(() => {
         const newQuestion = (question: ProcessedQuestion) => {
+            console.log('useQuestion: new qustion');
             setCurrentQuestion(question);
         };
 
@@ -20,7 +21,10 @@ export const useQuestion = () => {
     }, [connection]);
 
     useEffect(() => {
-        const resetQustion = () => setCurrentQuestion(undefined);
+        const resetQustion = () => {
+            console.log('useQuestion: finish-qeustion');
+            setCurrentQuestion(undefined);
+        };
         connection?.on('finish-question', resetQustion);
         return () => {
             connection?.off('finish-question', resetQustion);

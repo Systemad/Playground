@@ -1,23 +1,22 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 
+import { useAppDispatch } from '../../../providers/store';
+import { PlayerStateDto, updateScoreboard } from '../../../redux/quizSlice';
 import { socketctx } from '../../../utils/api/signalr/ContextV2';
-import { PlayerState } from '../api/quizAPI';
 
 export const useScoreboard = () => {
-    const [scoreboard, setScoreboard] = useState<PlayerState[]>([]);
     const connection = useContext(socketctx);
+    const dispatch = useAppDispatch();
     useEffect(() => {
-        const updateScoreboard = (scores: PlayerState[]) => {
+        const updateScores = (scores: PlayerStateDto[]) => {
             console.log('update score');
-            setScoreboard(scores);
+            dispatch(updateScoreboard(scores));
         };
 
-        connection?.on('update-scoreboard', updateScoreboard);
+        connection?.on('update-scoreboard', updateScores);
 
         return () => {
-            connection?.off('update-scoreboard', updateScoreboard);
+            connection?.off('update-scoreboard', updateScores);
         };
-    }, [connection]);
-
-    return scoreboard;
+    }, [connection, dispatch]);
 };

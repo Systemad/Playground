@@ -3,44 +3,46 @@ import {
     Box,
     Button,
     Center,
+    Flex,
     Heading,
     HStack,
     SimpleGrid,
+    Stack,
     Switch,
     useToast,
+    VStack,
 } from '@chakra-ui/react';
 import React, { useContext } from 'react';
 
-import { GameContext } from '../../../contexts/GameContext';
+import { useAppSelector } from '../../../providers/store';
+import { selectGame } from '../../../redux/quizSlice';
 import { socketctx } from '../../../utils/api/signalr/ContextV2';
+import { LobbyPlayer, useLobbyPlayers } from '../hooks/useLobbyPlayers';
 import { useUsersReady } from '../hooks/useUsersReady';
-import { PlayerReadyData, useUsersReadyList } from '../hooks/useUsersReadyList';
 
 type PlayerProps = {
-    player: PlayerReadyData;
+    player: LobbyPlayer;
 };
 
-type Props = {
-    ownerId?: string;
-};
-export const PreGame = ({ ownerId }: Props) => {
+export const QuizLobby = () => {
+    const game = useAppSelector(selectGame);
+    const usersReady = useUsersReady();
+    const connection = useContext(socketctx);
+    const usersReadyList = useLobbyPlayers();
+
     const { instance } = useMsal();
     const toast = useToast();
-    const usersReady = useUsersReady();
-    const gameId = useContext(GameContext);
-    const connection = useContext(socketctx);
+
     const myId = instance.getActiveAccount()?.localAccountId;
-    const isOwner = myId === ownerId;
-
-    const usersReadyList = useUsersReadyList();
-
+    const isOwner = myId === game.runtime?.ownerId;
     const isMeReady = usersReadyList?.find((p) => p.id === myId)?.ready;
     const canStartGame = isMeReady && usersReady && isOwner;
 
     const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        console.log('invoking handlechange');
         await connection?.invoke(
             'SetPlayerStatus',
-            gameId,
+            game.runtime?.gameId,
             event.target.checked
         );
     };
@@ -48,7 +50,8 @@ export const PreGame = ({ ownerId }: Props) => {
     const handleStartAsync = async () => {
         try {
             //if (canStartGame) {
-            await connection?.invoke('start-game', gameId);
+            if (game && game.runtime?.gameId)
+                await connection?.invoke('start-game', game.runtime.gameId);
             //}
         } catch {
             toast({
@@ -65,20 +68,20 @@ export const PreGame = ({ ownerId }: Props) => {
     const PlayerCard = ({ player }: PlayerProps) => {
         const isMe = myId === player?.id;
         return (
-            <Center py={6}>
+            <Center py={2}>
                 <Box
-                    h="200px"
+                    h="150px"
                     w={'300px'}
                     bg={'gray.900'}
                     rounded={'md'}
-                    px={4}
+                    px={2}
                     textAlign={'center'}
                 >
                     <Box
                         w="full"
                         h="50px"
                         bg={player.ready ? 'green.700' : 'red.700'}
-                        mt={4}
+                        mt={2}
                         p="4"
                         fontSize={'sm'}
                         rounded={'md'}
@@ -89,7 +92,7 @@ export const PreGame = ({ ownerId }: Props) => {
                         {player?.name}
                     </Heading>
 
-                    <HStack w="full" mt="6" mb="2">
+                    <HStack w="full" mb="2">
                         {isMe && (
                             <>
                                 <Switch
@@ -97,6 +100,18 @@ export const PreGame = ({ ownerId }: Props) => {
                                     isChecked={isMeReady}
                                     size="lg"
                                 />
+                                <Button
+                                    isDisabled={!canStartGame}
+                                    borderRadius="md"
+                                    bgColor="#4C566A"
+                                    w="full"
+                                    mx="auto"
+                                    my="auto"
+                                    p={6}
+                                    onClick={handleStartAsync}
+                                >
+                                    Start
+                                </Button>
                                 {isOwner && (
                                     <Button
                                         isDisabled={!canStartGame}
@@ -120,18 +135,28 @@ export const PreGame = ({ ownerId }: Props) => {
     };
 
     return (
-        <Box textAlign="center" py={10} px={6}>
-            <SimpleGrid
-                borderRadius="md"
-                h="full"
-                columns={2}
-                spacingX="40px"
-                spacingY="20px"
-            >
-                {usersReadyList?.map((item) => (
-                    <PlayerCard key={item.id} player={item} />
-                ))}
-            </SimpleGrid>
-        </Box>
+        <Stack
+            overflow={'hidden'}
+            h={'95vh'}
+            direction={{ base: 'column', md: 'row' }}
+        >
+            <Flex flex={1} bgColor="green" align={'left'} justify={'left'}>
+                <Stack
+                    spacing={4}
+                    h="full"
+                    w={'full'}
+                    bgColor="yellow"
+                    maxW={'lg'}
+                >
+                    {usersReadyList?.map((item) => (
+                        <PlayerCard key={item.id} player={item} />
+                    ))}
+                </Stack>
+            </Flex>
+
+            <Flex flex={1} bgColor="blue">
+                aa
+            </Flex>
+        </Stack>
     );
 };

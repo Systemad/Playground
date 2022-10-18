@@ -1,5 +1,5 @@
 import { emptySplitApi as api } from '../../../providers/emptyApi';
-import { GameStatus } from '../../lobby/api/lobbyAPI';
+import { GameStatus } from '../../game-browser/api/lobbyAPI';
 import { WebsocketEvents } from '../Events';
 const injectedRtkApi = api.injectEndpoints({
     endpoints: (build) => ({
@@ -86,7 +86,7 @@ export type PlayerState = {
     answeredCorrectly?: boolean | null;
 };
 export type QuizRuntime = {
-    status: GameStatus;
+    //status: GameStatus;
     numberOfQuestions: number;
     timeout: number;
     ownerId: string;

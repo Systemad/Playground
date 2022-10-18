@@ -1,22 +1,16 @@
 import { InteractionType } from '@azure/msal-browser';
-import {
-    AuthenticatedTemplate,
-    UnauthenticatedTemplate,
-    useMsalAuthentication,
-} from '@azure/msal-react';
-import React from 'react';
+import { useMsalAuthentication } from '@azure/msal-react';
 
-import { UnauthenticatedLayout } from '../../../components/layouts/UnauthenticatedLayout';
-import { LobbyLayout } from '../layouts/LobbyLayout';
+import { GameBrowserLayout } from '../layouts/GameBrowserLayout';
 
-export const LobbyPage = () => {
+export const GameBrowserPage = () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { login, result, error } = useMsalAuthentication(
         InteractionType.Redirect
     );
     return (
         <>
-            <LobbyLayout />
+            <GameBrowserLayout />
         </>
     );
 };

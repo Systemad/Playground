@@ -4,7 +4,7 @@ using Microsoft.Identity.Web;
 namespace API.Extensions;
 
 public static class AuthenticationExtension
-{ 
+{
     public static void AddAppAuthentication(this IServiceCollection services,
         IConfiguration configuration)
     {
@@ -29,11 +29,9 @@ public static class AuthenticationExtension
                         // If the request is for our hub...
                         var path = context.HttpContext.Request.Path;
                         if (!string.IsNullOrEmpty(accessToken) &&
-                            (path.StartsWithSegments("/hub")))
-                        {
+                            path.StartsWithSegments("/hubs"))
                             // Read the token out of the query string
                             context.Token = accessToken;
-                        }
 
                         return Task.CompletedTask;
                     }

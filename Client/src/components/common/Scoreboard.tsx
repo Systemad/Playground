@@ -9,7 +9,8 @@ import {
 } from '@chakra-ui/react';
 import { ChangeEvent, useContext, useEffect, useRef, useState } from 'react';
 
-import { PlayerState } from '../../features/quiz/api/quizAPI';
+import { useAppSelector } from '../../providers/store';
+import { PlayerStateDto, selectGame } from '../../redux/quizSlice';
 import { socketctx } from '../../utils/api/signalr/ContextV2';
 
 interface Message {
@@ -17,11 +18,9 @@ interface Message {
     name: string;
     content: string;
 }
-type Props = {
-    scoreboard: PlayerState[];
-};
 
-export const GameScoreboard = ({ scoreboard }: Props) => {
+export const GameScoreboard = () => {
+    const scoreboard = useAppSelector(selectGame).runtime?.scoreboard;
     return (
         <Flex
             overflow="hidden"
@@ -47,7 +46,7 @@ export const GameScoreboard = ({ scoreboard }: Props) => {
 };
 
 type PlayerCardProps = {
-    player?: PlayerState;
+    player?: PlayerStateDto;
 };
 
 const CardBackground = (

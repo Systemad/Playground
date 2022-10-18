@@ -14,7 +14,6 @@ using Orleans.CodeGeneration;
 using Orleans.Configuration;
 using Orleans.Hosting;
 
-[assembly: KnownAssembly(typeof(Constants))]
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration["postgres"];
 
@@ -92,17 +91,13 @@ builder.Host.UseOrleans((context, silobuilder) =>
     });
     silobuilder.ConfigureServices(sv =>
     {
-        sv.AddSingleton(new QuizGrainOptions());
         sv.AddSingleton<IOpenTdbClient, OpenTdbClient>();
         sv.AddHttpClient<IOpenTdbClient, OpenTdbClient>(client =>
         {
             client.BaseAddress = new Uri("https://opentdb.com/");
         });
     });
-    silobuilder.AddMemoryGrainStorage("quizStore");
-    silobuilder.AddMemoryGrainStorage("settingStore");
-    silobuilder.AddSimpleMessageStreamProvider(Constants.InMemorySteam);
-    silobuilder.AddMemoryGrainStorage("PubSubStore");
+    silobuilder.AddMemoryGrainStorage(nameof(QuizGrain));
     silobuilder.ConfigureLogging(
         log => log
             .AddFilter("Orleans.Runtime.Management.ManagementGrain", LogLevel.Warning)
@@ -130,7 +125,7 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();
-app.MapHub<GlobalHub>("/hub");
+app.MapHub<QuizHub>("/hubs/quiz");
 
 if (app.Environment.IsDevelopment())
 {

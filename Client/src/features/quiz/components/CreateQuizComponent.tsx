@@ -39,7 +39,7 @@ const difficulties: DifficultyLevel[] = [
 export const CreateQuizComponent = () => {
     let content;
 
-    const bgColor = useColorModeValue('white', 'gray.700');
+    const bgColor = useColorModeValue('white', 'gray.800');
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const toast = useToast();
@@ -66,15 +66,15 @@ export const CreateQuizComponent = () => {
         dispatch(setDifficulty(value));
     };
 
-    const joinGame = async (id?: string) => {
-        if (id) await socket?.invoke('join-game', id);
+    const joinGame = (id?: string) => {
+        if (id) socket?.invoke('join-game', id);
     };
     const handleCreateQuiz = async () => {
         try {
             await create({ quizCreationModel: options })
                 .unwrap()
-                .then((payload) => joinGame(payload))
-                .then(() => navigate('/quiz'));
+                .then((payload) => joinGame(payload));
+            //.then(() => navigate('/quiz'));
         } catch {
             toast({
                 title: 'An error occurred',

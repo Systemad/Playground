@@ -1,67 +1,62 @@
 import { Box, SimpleGrid } from '@chakra-ui/react';
 import { useContext, useEffect, useState } from 'react';
 
-import { Answer } from '../../../components/common/AnswerButton';
-import { GameScoreboard } from '../../../components/common/Scoreboard';
-import { useAppSelector } from '../../../providers/store';
-import { selectGame } from '../../../redux/quizSlice';
-import { socketctx } from '../../../utils/api/signalr/ContextV2';
-import { Header } from '../components/Header';
-import { useCorrectAnswer } from '../hooks/useCorrectAnswer';
-import { useQuestion } from '../hooks/useQuestion';
-import { useQuizRuntime } from '../hooks/useQuizSettings';
-import { useScoreboard } from '../hooks/useScoreboard';
-import { buttonStatus, isButtonDisabled } from '../utils/Helper';
+import { Answer } from '../components/common/AnswerButton';
+import { Header } from '../features/quiz/components/Header';
+import { buttonStatus, isButtonDisabled } from '../features/quiz/utils/Helper';
 
-export const Game = () => {
+/*
+ */
+
+export type ProcessedQuestion = {
+    category: string;
+    type: string;
+    difficulty: string;
+    question: string;
+    number: number;
+    answers: string[];
+};
+
+const question1: ProcessedQuestion = {
+    category: 'swe',
+    type: 'multiple',
+    difficulty: 'hard',
+    question: 'qeustion 1',
+    number: 1,
+    answers: ['ans1', 'ans2', 'ans3', 'ans4'],
+};
+export const Test = () => {
     const [selectedAnswer, setSelectedAnswer] = useState<string | undefined>();
-    const connection = useContext(socketctx);
-    const game = useAppSelector(selectGame);
 
-    const runtime = useQuizRuntime();
-
-    useScoreboard();
-
-    const currentQuestion = useQuestion();
-    const correctAnswer = useCorrectAnswer();
+    const correctAnswer = undefined;
 
     const handleAnswer = (answer: string) => {
         const isNoPreviouslySelectedAnswer = selectedAnswer === undefined;
-        console.log('handle answer');
         if (isNoPreviouslySelectedAnswer) {
-            console.log('selected answer');
             setSelectedAnswer(answer);
         }
     };
 
     useEffect(() => {
-        const resetAnswerListener = () => setSelectedAnswer(undefined);
-
-        connection?.on('finish-question', resetAnswerListener);
-    }, [connection, selectedAnswer]);
-
-    useEffect(() => {
-        const isSelectedAnswer = selectedAnswer !== undefined;
-        if (isSelectedAnswer) {
-            console.log('invoking guess: selected answer');
-            connection?.invoke('guess', selectedAnswer, game?.runtime?.gameId);
-        }
-    }, [connection, game?.runtime?.gameId, selectedAnswer]);
+        return () => {
+            setSelectedAnswer(undefined);
+        };
+    });
 
     return (
         <>
-            {currentQuestion && (
+            {question1 && (
                 <>
                     <Header
-                        currentQuestion={currentQuestion.question}
+                        currentQuestion={question1.question}
                         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        step={currentQuestion.number}
-                        total={runtime?.numberOfQuestions}
+                        step={question1.number}
+                        total={10}
                     />
 
                     <Box my={12}>
                         <SimpleGrid columns={[1, 2]} spacing={[4, 8]}>
-                            {currentQuestion.answers.map((answer, index) => (
+                            {question1.answers.map((answer, index) => (
                                 // TODO: Add ifficulty and category
                                 <Answer
                                     key={answer}
@@ -84,8 +79,6 @@ export const Game = () => {
                             ))}
                         </SimpleGrid>
                     </Box>
-
-                    <GameScoreboard />
                 </>
             )}
         </>

@@ -10,16 +10,15 @@ using Orleans;
 
 namespace API.Features.SignalR;
 
-// TODO: Convert everything to SignalR
 [Authorize]
-public class GlobalHub : Hub
+public class QuizHub : Hub
 {
     private readonly IGrainFactory _factory;
     private Guid GetUserId => new(Context.User.Claims.Single(e => e.Type == ClaimTypes.NameIdentifier).Value);
     private string GetUsername => new(Context.User.Identity.Name); // For username retrieval
     private string GetConnectionId => new(Context.ConnectionId);
 
-    public GlobalHub(IGrainFactory factory)
+    public QuizHub(IGrainFactory factory)
     {
         _factory = factory;
     }
@@ -39,15 +38,8 @@ public class GlobalHub : Hub
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
         Console.WriteLine("disconnected " + Context.ConnectionId);
-        await player.RemoveActiveGame();
-        await player.ResetConnectionId();
-
-        // Cleanup
-        var pl = await player.GetActiveGame();
-        await Groups.RemoveFromGroupAsync(GetConnectionId, pl.ToString());
-        await base.OnDisconnectedAsync(exception);
+        await CleanupPlayer();
     }
 
     public async Task SendMessage(string gameId, string content)
@@ -71,12 +63,11 @@ public class GlobalHub : Hub
     {
         try
         {
+            //await CleanupPlayer();
             await Clients.Caller.SendAsync(WsEvents.NewGame, gameId);
-            var gameGrain = _factory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
-            await gameGrain.AddPlayer(GetUserId, GetUsername);
-            var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
-            await player.SetActiveGame(Guid.Parse(gameId));
             await Groups.AddToGroupAsync(GetConnectionId, gameId);
+            var gameGrain = _factory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
+            await gameGrain.AddPlayer(GetUserId);
         }
         catch (Exception e)
         {
@@ -93,10 +84,8 @@ public class GlobalHub : Hub
         Console.WriteLine($"Hub: Leaving game {gameId}");
         var gameGrain = _factory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
         await gameGrain.RemovePlayer(GetUserId);
-        var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
-        await player.RemoveActiveGame();
-        await Groups.RemoveFromGroupAsync(GetConnectionId, gameId);
-        await Clients.Caller.SendAsync(WsEvents.GameFinished);
+        //await CleanupPlayer();
+        await Clients.Caller.SendAsync(WsEvents.GameReset); // Send this when game ends as well
     }
 
     [HubMethodName("start-game")]
@@ -118,5 +107,16 @@ public class GlobalHub : Hub
     {
         var gameGrain = _factory.GetGrain<IMultiplayerGrain>(gameId);
         await gameGrain.SetPlayerStatus(GetUserId, status);
+    }
+
+    // Cleanup player when disconnecting / joining another game
+    private async Task CleanupPlayer()
+    {
+        Console.Write("Cleanup player " + GetUserId);
+        var player = _factory.GetGrain<IPlayerGrain>(GetUserId);
+        var pl = await player.GetActiveGame();
+        await player.RemoveActiveGame();
+        await player.ResetConnectionId();
+        await Groups.RemoveFromGroupAsync(GetConnectionId, pl.ToString());
     }
 }

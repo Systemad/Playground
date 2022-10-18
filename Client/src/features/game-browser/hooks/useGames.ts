@@ -10,7 +10,7 @@ enum LobbyActions {
     AllGames = 'all-games',
 }
 
-export const useLobbyGames = () => {
+export const useGames = () => {
     const [games, setGames] = useState<GameLobbySummary[]>([]);
     const socket = useContext(socketctx);
     //const connection = useContext(socketctx);

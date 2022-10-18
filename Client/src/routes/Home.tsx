@@ -4,21 +4,25 @@ import {
     UnauthenticatedTemplate,
     useMsalAuthentication,
 } from '@azure/msal-react';
-import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
+import {
+    HttpTransportType,
+    HubConnectionBuilder,
+    LogLevel,
+} from '@microsoft/signalr';
 
 import { AppLayout } from '../components/AppLayout';
 import { SimpleSidebar } from '../components/layouts/Sidebar';
 import { UnauthenticatedLayout } from '../components/layouts/UnauthenticatedLayout';
-import { GameProvider } from '../contexts/GameContext';
 import { QuizHome } from '../features/quiz/';
 import { ConnectionProvider } from '../utils/api/signalr/ContextV2';
 import { acquireAccessToken, msalInstance } from '../utils/auth/MsalKey';
+import { Test } from './Test';
 
 const connection = new HubConnectionBuilder()
-    .withUrl('https://localhost:7069/hub', {
+    .withUrl('https://localhost:7069/hubs/quiz', {
         accessTokenFactory: () => acquireAccessToken(msalInstance),
-        //transport: HttpTransportType.WebSockets,
-        //skipNegotiation: true,
+        transport: HttpTransportType.WebSockets,
+        skipNegotiation: true,
     })
     .configureLogging(LogLevel.Debug)
     //.withAutomaticReconnect()
@@ -34,13 +38,9 @@ export const Home = () => {
         <>
             <AuthenticatedTemplate>
                 <ConnectionProvider connection={connection}>
-                    <GameProvider>
-                        <AppLayout>
-                            <SimpleSidebar>
-                                <QuizHome />
-                            </SimpleSidebar>
-                        </AppLayout>
-                    </GameProvider>
+                    <SimpleSidebar>
+                        <QuizHome />
+                    </SimpleSidebar>
                 </ConnectionProvider>
             </AuthenticatedTemplate>
 

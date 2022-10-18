@@ -15,11 +15,13 @@ public class QuizState : MultiplayerState
 
 public class QuizRuntime
 {
+    public Guid GameId { get; set; }
     public GameStatus Status { get; set; }
     public int NumberOfQuestions { set; get; }
     public int Timeout { get; set; }
     public Guid OwnerId { get; set; }
     public QuizSettings QuizSettings { get; set; } = new();
+    public PlayerStateDto Scoreboard { get; set; } = new();
 }
 
 public class QuizResults

@@ -20,9 +20,9 @@ public class LobbyController : ControllerBase
     private readonly IGrainFactory _factory;
 
     private Guid GetUserId => new(User.Claims.Single(e => e.Type == ClaimTypes.NameIdentifier).Value);
-    private readonly IHubContext<GlobalHub> _hubContext;
+    private readonly IHubContext<QuizHub> _hubContext;
 
-    public LobbyController(IGrainFactory factory, IHubContext<GlobalHub> hubContext)
+    public LobbyController(IGrainFactory factory, IHubContext<QuizHub> hubContext)
     {
         _factory = factory;
         _hubContext = hubContext;

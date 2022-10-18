@@ -36,7 +36,7 @@ export default defineConfig({
             DEBUG: 'false',
 
             // Required: will fail if the API_KEY environment variable is not provided.
-            HUB_CONNECTION_URL: 'https://localhost:7069/hub',
+            HUB_CONNECTION_URL: 'https://localhost:7069/hubs/quiz',
         }),
         //EnvironmentPlugin(['HUB_CONNECTION_URL', 'development']),
     ],

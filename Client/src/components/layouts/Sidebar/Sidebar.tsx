@@ -69,7 +69,7 @@ export const SimpleSidebar = ({ children }: { children: ReactNode }) => {
     const { instance } = useMsal();
 
     return (
-        <Box minH="100vh" bg="gray.800">
+        <Box overflow="hidden" h="100vh" bg="gray.700">
             <SidebarContent
                 onClose={() => onClose}
                 display={{ base: 'none', md: 'block' }}
@@ -101,9 +101,7 @@ interface SidebarProps extends BoxProps {
 const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
     return (
         <Box
-            bg="gray.800"
-            borderRight="1px"
-            borderRightColor={useColorModeValue('gray.200', 'gray.700')}
+            bg="teal.400"
             w={{ base: 'full', md: 60 }}
             pos="fixed"
             h="full"
@@ -115,8 +113,8 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                 mx="8"
                 justifyContent="space-between"
             >
-                <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
-                    Logo
+                <Text fontSize="3xl" fontFamily="monospace" fontWeight="bold">
+                    Playground
                 </Text>
                 <CloseButton
                     display={{ base: 'flex', md: 'none' }}
@@ -147,11 +145,11 @@ const CollapsableItem = ({ link, children }: CollapsableNavItemProps) => {
                     direction="column"
                     as="nav"
                     fontSize="md"
-                    color="gray.600"
+                    color="blue.600"
                     aria-label="Main Navigation"
                 >
                     <NavItem
-                        color="whiteAlpha.900"
+                        color="white"
                         icon={link.icon}
                         onClick={onToggle}
                         isChild={false}
@@ -161,10 +159,10 @@ const CollapsableItem = ({ link, children }: CollapsableNavItemProps) => {
                     </NavItem>
                     {link.children && (
                         <Collapse in={isOpen} animateOpacity>
-                            <Flex direction="column" bg={'gray.700'}>
+                            <Flex direction="column" bg={'teal.500'}>
                                 {link.children.map((item) => (
                                     <NavItem
-                                        color="whiteAlpha.900"
+                                        color="white"
                                         key={item.name}
                                         isChild={item.isChild}
                                         icon={item.icon}
@@ -182,7 +180,7 @@ const CollapsableItem = ({ link, children }: CollapsableNavItemProps) => {
     }
     return (
         <>
-            <NavItem color="whiteAlpha.900" icon={link.icon} onClick={onToggle}>
+            <NavItem icon={link.icon} onClick={onToggle}>
                 {children}
             </NavItem>
         </>
@@ -209,11 +207,10 @@ const NavItem = ({ icon, children, isChild, link, ...rest }: NavItemProps) => {
                     w="full"
                     align="center"
                     p="4"
-                    borderRadius="md"
                     role="group"
                     cursor="pointer"
                     _hover={{
-                        bg: 'gray.500',
+                        bg: 'teal.600',
                         color: 'white',
                     }}
                     {...rest}
@@ -239,11 +236,10 @@ const NavItem = ({ icon, children, isChild, link, ...rest }: NavItemProps) => {
             align="center"
             p="4"
             w="full"
-            borderRadius="lg"
             role="group"
             cursor="pointer"
             _hover={{
-                bg: 'gray.500',
+                bg: 'teal.600',
                 color: 'white',
             }}
             {...rest}
@@ -266,7 +262,7 @@ const NavItem = ({ icon, children, isChild, link, ...rest }: NavItemProps) => {
 const ThemeSwitcher = () => {
     const { colorMode, toggleColorMode } = useColorMode();
     return (
-        <Flex align="center" p="4" mx="4" borderRadius="lg" role="group">
+        <Flex align="center" p="4" mx="4" role="group">
             <Button onClick={toggleColorMode}>
                 {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
             </Button>
@@ -289,7 +285,6 @@ const HomeButton = () => {
                 w="full"
                 align="center"
                 p="4"
-                borderRadius="md"
                 role="group"
                 cursor="pointer"
                 _hover={{

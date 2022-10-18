@@ -7,8 +7,6 @@ import {
 import { Route, Routes } from 'react-router-dom';
 
 import { UnauthenticatedLayout } from '../components/layouts/UnauthenticatedLayout';
-import { LobbyPage } from '../features/lobby';
-import { Quiz, QuizHome, QuizResults } from '../features/quiz/';
 import { UserPage } from '../features/user';
 
 export const AppRoutes = () => {
