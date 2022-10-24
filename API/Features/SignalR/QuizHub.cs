@@ -63,8 +63,9 @@ public class QuizHub : Hub
     {
         try
         {
+            // Fix order
             //await CleanupPlayer();
-            await Clients.Caller.SendAsync(WsEvents.NewGame, gameId);
+            //await Clients.Caller.SendAsync(WsEvents.NewGame, gameId); // Done in quizWorker
             await Groups.AddToGroupAsync(GetConnectionId, gameId);
             var gameGrain = _factory.GetGrain<IMultiplayerGrain>(Guid.Parse(gameId));
             await gameGrain.AddPlayer(GetUserId);
@@ -96,7 +97,7 @@ public class QuizHub : Hub
         await gameGrain.StartGame(GetUserId);
     }
 
-    [HubMethodName("guess")]
+    [HubMethodName("guess-answer")]
     public async Task SubmitAnswer(string answer, string gameId)
     {
         var gameGrain = _factory.GetGrain<IQuizGrain>(Guid.Parse(gameId));

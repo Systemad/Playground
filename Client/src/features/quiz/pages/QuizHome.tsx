@@ -18,15 +18,16 @@ export const QuizHome = () => {
 
     const socket = useContext(socketctx);
     const game = useAppSelector(selectGame);
+    const gameId = game.runtime?.gameId;
 
     const games = useGames();
     const toast = useToast();
 
     const inGame = game.runtime !== undefined;
-    const inProgress = inGame && game.runtime?.gameStatus === 'InProgress';
-    const isWaiting = inGame && game.runtime?.gameStatus === 'AwaitingPlayers';
+    const inProgress = inGame && game.runtime?.status === 'InProgress';
+    const isWaiting = inGame && game.runtime?.status === 'AwaitingPlayers';
     //const isGameReady = inGame && game.gameStatus === 'Ready';
-    const isGameEnded = inGame && game.runtime?.gameStatus === 'Finished';
+    const isGameEnded = inGame && game.runtime?.status === 'Finished';
 
     useEffect(() => {
         const GetGames = async () => {
@@ -52,23 +53,14 @@ export const QuizHome = () => {
         }
     };
 
+    /*
     useEffect(() => {
         return () => {
-            if (inGame) socket?.invoke('leave-game', game.runtime?.gameId);
-            /*
-            const LeaveGame = async (id?: string) => {
-                if (id) {
-                    try {
-                        socket?.invoke('leave-game', id);
-                    } catch {
-                        //navigate('/');
-                    }
-                }
-            };
-            LeaveGame(gameId);
-            */
+            if (gameId) socket?.invoke('leave-game', gameId);
+
         };
-    }, [game, socket, inGame]);
+    }, [gameId, socket]);
+    */
 
     return (
         <>

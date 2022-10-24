@@ -7,6 +7,7 @@ public interface IQuizGrain : IMultiplayerGrain
 {
     Task SubmitAnswer(Guid playerId, string answer);
     Task CreateGame(Guid ownerId, QuizCreationModel settings);
-    
+    Task<QuizRuntime> GetRuntime();
+
     //Task<GameResult> GetQuizResults();
 }

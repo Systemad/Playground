@@ -29,17 +29,9 @@ export const Answer = ({
                 transform: 'scale(1.03)',
                 background: '#81A1C1',
             }}
-            p="28px"
-            lineHeight="1.2"
             borderRadius="md"
-            h="70px"
-            w={['100%']}
-            display="inline-flex"
-            outline="none"
-            position="relative"
-            verticalAlign="middle"
-            justifyContent="center"
-            alignItems="center"
+            h="100px"
+            w="100%"
             transition="all 0.2s cubic-bezier(.08,.52,.52,1)"
             isDisabled={isDisabled}
             onClick={() => onClick(choice)}

@@ -38,20 +38,20 @@ export const QuizLobby = () => {
     const isMeReady = usersReadyList?.find((p) => p.id === myId)?.ready;
     const canStartGame = isMeReady && usersReady && isOwner;
 
-    const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         console.log('invoking handlechange');
-        await connection?.invoke(
+        connection?.invoke(
             'SetPlayerStatus',
             game.runtime?.gameId,
             event.target.checked
         );
     };
 
-    const handleStartAsync = async () => {
+    const handleStartAsync = () => {
         try {
             //if (canStartGame) {
             if (game && game.runtime?.gameId)
-                await connection?.invoke('start-game', game.runtime.gameId);
+                connection?.invoke('start-game', game.runtime.gameId);
             //}
         } catch {
             toast({
@@ -100,18 +100,7 @@ export const QuizLobby = () => {
                                     isChecked={isMeReady}
                                     size="lg"
                                 />
-                                <Button
-                                    isDisabled={!canStartGame}
-                                    borderRadius="md"
-                                    bgColor="#4C566A"
-                                    w="full"
-                                    mx="auto"
-                                    my="auto"
-                                    p={6}
-                                    onClick={handleStartAsync}
-                                >
-                                    Start
-                                </Button>
+
                                 {isOwner && (
                                     <Button
                                         isDisabled={!canStartGame}

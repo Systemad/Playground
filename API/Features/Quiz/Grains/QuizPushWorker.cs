@@ -22,10 +22,10 @@ public class QuizPushWorker : Grain, IQuizPushWorker
         return _hub.Clients.Group(gameId.ToString()).SendAsync(WsEvents.TimerUpdate, timer);
     }
 
-    public Task OnQuizUpdated(Guid gameId, QuizRuntime runtime)
+    public Task OnUpdateGame(Guid gameId, QuizRuntime runtime)
     {
         return _hub.Clients.Group(gameId.ToString())
-            .SendAsync(WsEvents.QuizRuntime, runtime);
+            .SendAsync(WsEvents.GameUpdated, runtime);
     }
 
     public Task OnLobbyUpdated(Guid gameId, List<LobbyPlayer> players)
@@ -34,9 +34,15 @@ public class QuizPushWorker : Grain, IQuizPushWorker
             .SendAsync(WsEvents.LobbyPlayers, players);
     }
 
-    public Task OnNewQuestion(Guid gameId, ProcessedQuestion question)
+    public Task OnStatusUpdate(Guid gameId, GameStatus status)
     {
         return _hub.Clients.Group(gameId.ToString())
+            .SendAsync(WsEvents.UpdateStatus, status);
+    }
+
+    public async Task OnNewQuestion(Guid gameId, ProcessedQuestion question)
+    {
+        await _hub.Clients.Group(gameId.ToString())
             .SendAsync(WsEvents.NewQuestion, question);
     }
 
@@ -56,12 +62,6 @@ public class QuizPushWorker : Grain, IQuizPushWorker
     {
         return _hub.Clients.Group(gameId.ToString())
             .SendAsync(WsEvents.UsersReady, status);
-    }
-
-    public Task OnStatusUpdate(Guid gameId, GameStatus status)
-    {
-        return _hub.Clients.Group(gameId.ToString())
-            .SendAsync(WsEvents.StatusUpdate, status);
     }
 
     public Task OnScoreboardUpdate(Guid gameId, List<PlayerStateDto> scoreboard)

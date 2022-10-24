@@ -71,6 +71,7 @@ export const CreateQuizComponent = () => {
     };
     const handleCreateQuiz = async () => {
         try {
+            console.log('creating game');
             await create({ quizCreationModel: options })
                 .unwrap()
                 .then((payload) => joinGame(payload));

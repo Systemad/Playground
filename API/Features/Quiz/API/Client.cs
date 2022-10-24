@@ -6,26 +6,26 @@ public class OpenTdbClient : IOpenTdbClient
 {
     private readonly HttpClient _httpClient;
 
-    public OpenTdbClient()
+    public OpenTdbClient(HttpClient httpClient)
     {
-        _httpClient = new HttpClient();
+        _httpClient = httpClient;
     }
 
     public async Task<List<Result>> GetQuestions(QuizSettings model)
     {
         string postString;
         if (model.Category == "0" && model.Difficulty == "any")
-            postString = $"https://opentdb.com/api.php?amount={model.Questions}";
+            postString = $"https://opentdb.com/api.php?amount={model.Questions}&type=multiple";
         else if (model.Category == "0")
             postString =
-                $"https://opentdb.com/api.php?amount={model.Questions}&difficulty={model.Difficulty}";
+                $"https://opentdb.com/api.php?amount={model.Questions}&difficulty={model.Difficulty}&type=multiple";
         else if (model.Difficulty == "any")
             postString =
-                $"https://opentdb.com/api.php?amount={model.Questions}&category={model.Category}";
+                $"https://opentdb.com/api.php?amount={model.Questions}&category={model.Category}&type=multiple";
         else
             postString =
-                $"https://opentdb.com/api.php?amount={model.Questions}";
-        ;
+                $"https://opentdb.com/api.php?amount={model.Questions}&type=multiple";
+
         var response = await _httpClient.GetFromJsonAsync<Root>(postString);
         return response.results;
     }

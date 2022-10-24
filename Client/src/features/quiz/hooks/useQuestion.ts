@@ -1,19 +1,24 @@
 import { useContext, useEffect, useState } from 'react';
 
+import store from '../../../providers/store';
+import { updateQuestion } from '../../../redux/quizSlice';
 import { socketctx } from '../../../utils/api/signalr/ContextV2';
 import { ProcessedQuestion } from '../api/quizAPI';
 
-export const useQuestion = () => {
-    const [currentQuestion, setCurrentQuestion] = useState<
-        ProcessedQuestion | undefined
-    >();
-    const connection = useContext(socketctx);
-    useEffect(() => {
-        const newQuestion = (question: ProcessedQuestion) => {
-            console.log('useQuestion: new qustion');
-            setCurrentQuestion(question);
-        };
+const newQuestion = (question: ProcessedQuestion) => {
+    console.log('useQuestion: new qustion');
+    store.dispatch(updateQuestion(question));
+};
 
+const resetQustion = () => {
+    console.log('useQuestion: finish-qeustion');
+    store.dispatch(resetQustion);
+};
+
+export const useQuestion = () => {
+    const connection = useContext(socketctx);
+
+    useEffect(() => {
         connection?.on('new-question', newQuestion);
         return () => {
             connection?.off('new-question', newQuestion);
@@ -21,15 +26,9 @@ export const useQuestion = () => {
     }, [connection]);
 
     useEffect(() => {
-        const resetQustion = () => {
-            console.log('useQuestion: finish-qeustion');
-            setCurrentQuestion(undefined);
-        };
         connection?.on('finish-question', resetQustion);
         return () => {
             connection?.off('finish-question', resetQustion);
         };
     }, [connection]);
-
-    return currentQuestion;
 };

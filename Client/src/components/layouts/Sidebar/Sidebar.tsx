@@ -6,6 +6,7 @@ import {
     Button,
     CloseButton,
     Collapse,
+    Divider,
     Drawer,
     DrawerContent,
     Flex,
@@ -13,10 +14,12 @@ import {
     Icon,
     IconButton,
     Link,
+    StackDivider,
     Text,
     useColorMode,
     useColorModeValue,
     useDisclosure,
+    VStack,
 } from '@chakra-ui/react';
 import React, { ReactNode } from 'react';
 import { IconType } from 'react-icons';
@@ -32,32 +35,48 @@ import { FiHome, FiMenu } from 'react-icons/fi';
 import { Link as ReachLink } from 'react-router-dom';
 
 // TODO: https://reactrouter.com/en/main/hooks/use-match, to highlight active tab / item
-interface LinkItemProps {
+
+interface NavigationChildItem {
     name: string;
     icon: IconType;
     link?: string;
-    collapsable?: boolean;
-    isChild?: boolean;
-    children?: Array<LinkItemProps>;
 }
 
-const LinkItems: Array<LinkItemProps> = [
+interface NavigationItem {
+    name: string;
+    icon: IconType;
+    children: Array<NavigationChildItem>;
+}
+
+const LinkItems: Array<NavigationItem> = [
     {
         name: 'Games',
         icon: MdOutlineGames,
-        link: '/games',
-        collapsable: true,
         children: [
             {
                 name: 'Trivia / Quiz',
                 link: '/quiz',
-                isChild: true,
                 icon: FaRegQuestionCircle,
             },
             {
                 name: 'Guessing Games',
                 link: '/guess',
-                isChild: true,
+                icon: FaRegImage,
+            },
+        ],
+    },
+    {
+        name: 'Acount',
+        icon: MdOutlineGames,
+        children: [
+            {
+                name: 'Profile',
+                link: '/quiz',
+                icon: FaRegQuestionCircle,
+            },
+            {
+                name: 'Settings',
+                link: '/guess',
                 icon: FaRegImage,
             },
         ],
@@ -69,7 +88,7 @@ export const SimpleSidebar = ({ children }: { children: ReactNode }) => {
     const { instance } = useMsal();
 
     return (
-        <Box overflow="hidden" h="100vh" bg="gray.700">
+        <Box overflow="hidden" h="100vh" bg="cupcake.base100">
             <SidebarContent
                 onClose={() => onClose}
                 display={{ base: 'none', md: 'block' }}
@@ -101,7 +120,7 @@ interface SidebarProps extends BoxProps {
 const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
     return (
         <Box
-            bg="teal.400"
+            bg="cupcake.base200"
             w={{ base: 'full', md: 60 }}
             pos="fixed"
             h="full"
@@ -113,7 +132,12 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                 mx="8"
                 justifyContent="space-between"
             >
-                <Text fontSize="3xl" fontFamily="monospace" fontWeight="bold">
+                <Text
+                    color="cupcake.primarycontent"
+                    fontSize="3xl"
+                    fontFamily="monospace"
+                    fontWeight="bold"
+                >
                     Playground
                 </Text>
                 <CloseButton
@@ -122,67 +146,56 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                 />
             </Flex>
             <HomeButton />
-            {LinkItems.map((link) => (
-                <CollapsableItem key={link.name} link={link}>
-                    {link.name}
-                </CollapsableItem>
-            ))}
+            <VStack spacing={2} align="stretch">
+                {LinkItems.map((link) => (
+                    <NavSection
+                        key={link.name}
+                        icon={link.icon}
+                        items={link.children}
+                    >
+                        {link.name}
+                    </NavSection>
+                ))}
+            </VStack>
         </Box>
     );
 };
 
-interface CollapsableNavItemProps extends FlexProps {
-    link: LinkItemProps;
+/*
+
+*/
+interface NavSectionProps extends FlexProps {
+    items: Array<NavigationChildItem>;
+    icon: IconType;
     children: ReactNode;
 }
-const CollapsableItem = ({ link, children }: CollapsableNavItemProps) => {
+const NavSection = ({ items, icon, children }: NavSectionProps) => {
     const { isOpen, onToggle } = useDisclosure();
 
-    if (link.collapsable) {
-        return (
-            <>
-                <Flex
-                    direction="column"
-                    as="nav"
-                    fontSize="md"
-                    color="blue.600"
-                    aria-label="Main Navigation"
-                >
-                    <NavItem
-                        color="white"
-                        icon={link.icon}
-                        onClick={onToggle}
-                        isChild={false}
-                    >
-                        {children}
-                        <Icon as={MdKeyboardArrowRight} ml="auto" />
-                    </NavItem>
-                    {link.children && (
-                        <Collapse in={isOpen} animateOpacity>
-                            <Flex direction="column" bg={'teal.500'}>
-                                {link.children.map((item) => (
-                                    <NavItem
-                                        color="white"
-                                        key={item.name}
-                                        isChild={item.isChild}
-                                        icon={item.icon}
-                                        link={item.link}
-                                    >
-                                        {item.name}
-                                    </NavItem>
-                                ))}
-                            </Flex>
-                        </Collapse>
-                    )}
-                </Flex>
-            </>
-        );
-    }
     return (
         <>
-            <NavItem icon={link.icon} onClick={onToggle}>
-                {children}
-            </NavItem>
+            <Divider borderColor="#dbd4d4" />
+            <Flex
+                direction="column"
+                as="nav"
+                fontSize="md"
+                aria-label="Main Navigation"
+            >
+                <NavItem
+                    color="cupcake.primarycontent"
+                    icon={icon}
+                    onClick={onToggle}
+                >
+                    {children}
+                </NavItem>
+                <Flex direction="column">
+                    {items.map((item) => (
+                        <NavItem key={item.name} icon={item.icon}>
+                            {item.name}
+                        </NavItem>
+                    ))}
+                </Flex>
+            </Flex>
         </>
     );
 };
@@ -191,56 +204,19 @@ const CollapsableItem = ({ link, children }: CollapsableNavItemProps) => {
 interface NavItemProps extends FlexProps {
     icon: IconType;
     children: ReactNode;
-    link?: string;
-    isChild?: boolean;
 }
-const NavItem = ({ icon, children, isChild, link, ...rest }: NavItemProps) => {
-    if (isChild) {
-        return (
-            <Link
-                as={ReachLink}
-                to={link ?? ''}
-                style={{ textDecoration: 'none' }}
-                _focus={{ boxShadow: 'none' }}
-            >
-                <Flex
-                    w="full"
-                    align="center"
-                    p="4"
-                    role="group"
-                    cursor="pointer"
-                    _hover={{
-                        bg: 'teal.600',
-                        color: 'white',
-                    }}
-                    {...rest}
-                >
-                    {icon && (
-                        <Icon
-                            mr="4"
-                            fontSize="16"
-                            _groupHover={{
-                                color: 'white',
-                            }}
-                            as={icon}
-                        />
-                    )}
-                    {children}
-                </Flex>
-            </Link>
-        );
-    }
-
+const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
     return (
         <Flex
             align="center"
             p="4"
-            w="full"
+            color="cupcake.primarycontent"
             role="group"
             cursor="pointer"
+            borderRadius={'xl'}
             _hover={{
-                bg: 'teal.600',
-                color: 'white',
+                bg: 'cupcake.altbase200',
+                color: 'black',
             }}
             {...rest}
         >
@@ -249,7 +225,7 @@ const NavItem = ({ icon, children, isChild, link, ...rest }: NavItemProps) => {
                     mr="4"
                     fontSize="16"
                     _groupHover={{
-                        color: 'white',
+                        color: 'black',
                     }}
                     as={icon}
                 />
@@ -281,29 +257,9 @@ const HomeButton = () => {
             style={{ textDecoration: 'none' }}
             _focus={{ boxShadow: 'none' }}
         >
-            <Flex
-                w="full"
-                align="center"
-                p="4"
-                role="group"
-                cursor="pointer"
-                _hover={{
-                    bg: 'gray.500',
-                    color: 'white',
-                }}
-            >
-                <IconButton
-                    aria-label="Home"
-                    onClick={() => window.location.reload()}
-                    mr="4"
-                    fontSize="16"
-                    _groupHover={{
-                        color: 'white',
-                    }}
-                    icon={<FiHome />}
-                />
+            <NavItem key={'home'} icon={FiHome}>
                 Home
-            </Flex>
+            </NavItem>
         </Link>
     );
 };

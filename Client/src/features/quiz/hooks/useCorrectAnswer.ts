@@ -7,6 +7,7 @@ export const useCorrectAnswer = () => {
     const connection = useContext(socketctx);
     useEffect(() => {
         const setCorrectAnswerListener = (correctAnswer: string) => {
+            console.log('setCorrectAnswerListener');
             setCorrectAnswer(correctAnswer);
         };
         connection?.on('correct-answer', setCorrectAnswerListener);

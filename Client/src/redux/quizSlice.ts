@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { GameStatus } from '../features/game-browser/api/lobbyAPI';
-import { QuizSettings } from '../features/quiz/api/quizAPI';
+import { ProcessedQuestion, QuizSettings } from '../features/quiz/api/quizAPI';
 import { RootState } from '../providers/store';
 
 export type PlayerStateDto = {
@@ -14,13 +14,15 @@ export type PlayerStateDto = {
 
 export type QuizRuntime = {
     gameId: string;
-    gameStatus: GameStatus;
-    numberOfQuestions: string;
-    timout: number;
     ownerId: string;
+    status: GameStatus;
+    numberOfQuestions: number;
+    timout: number;
     settings: QuizSettings;
+    currentQustion: ProcessedQuestion | null;
     scoreboard: PlayerStateDto[];
 };
+
 type QuizState = {
     runtime: QuizRuntime | undefined;
 };
@@ -40,16 +42,28 @@ export const quizSlice = createSlice({
             state.runtime = action.payload;
         },
         setGameStatus: (state, action: PayloadAction<GameStatus>) => {
-            if (state.runtime) state.runtime.gameStatus = action.payload;
+            if (state.runtime) state.runtime.status = action.payload;
         },
         updateScoreboard: (state, action: PayloadAction<PlayerStateDto[]>) => {
             if (state.runtime) state.runtime.scoreboard = action.payload;
         },
+        updateQuestion: (state, action: PayloadAction<ProcessedQuestion>) => {
+            if (state.runtime) state.runtime.currentQustion = action.payload;
+        },
+        resetQuestion: (state) => {
+            if (state.runtime) state.runtime.currentQustion = null;
+        },
     },
 });
 
-export const { leaveGame, setGame, setGameStatus, updateScoreboard } =
-    quizSlice.actions;
+export const {
+    leaveGame,
+    setGame,
+    setGameStatus,
+    updateScoreboard,
+    updateQuestion,
+    resetQuestion,
+} = quizSlice.actions;
 
 export const selectGame = (state: RootState) => state.quizSlice;
 

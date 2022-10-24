@@ -117,10 +117,10 @@ export const Chatbox = () => {
     };
 
     const [value, setValue] = useState('');
-    const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
         event.preventDefault();
         if (event.target.value === '13') {
-            await connection?.invoke('SendMessage', value);
+            connection?.invoke('SendMessage', value);
             setValue('');
         } else {
             setValue(event.target.value);
@@ -131,7 +131,7 @@ export const Chatbox = () => {
         connection?.on('ReceiveMessage', (message: Message) => {
             setMessages((_messages) => [..._messages, message]);
         });
-    });
+    }, [connection]);
 
     return (
         <>

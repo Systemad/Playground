@@ -1,13 +1,18 @@
-﻿namespace API.Features;
+﻿using System.Runtime.Serialization;
+
+namespace API.Features;
 
 [Serializable]
 public enum GameStatus
 {
+
     AwaitingPlayers,
-    Ready,
+
+    //Ready,
     InProgress,
-    Finished,
-    Canceled
+
+    Finished
+    //Canceled
 }
 
 [Serializable]

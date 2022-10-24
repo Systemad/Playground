@@ -39,7 +39,7 @@ export const Home = () => {
             <AuthenticatedTemplate>
                 <ConnectionProvider connection={connection}>
                     <SimpleSidebar>
-                        <QuizHome />
+                        <Test />
                     </SimpleSidebar>
                 </ConnectionProvider>
             </AuthenticatedTemplate>

@@ -1,4 +1,5 @@
-﻿using API.Features.Lobby;
+﻿using System.Text.Json;
+using API.Features.Lobby;
 using API.Features.Player;
 using API.Features.Quiz.API;
 using API.Features.Quiz.Dto;
@@ -16,7 +17,7 @@ public class QuizGrain : Grain, IQuizGrain
     private IPersistentState<QuizState> Game { get; set; }
     private readonly ILogger<QuizGrain> _logger;
     private IQuizPushWorker _worker;
-
+    private IOpenTdbClient _client;
 
     private const int MaxCapacity = 4;
     private int _tick;
@@ -32,10 +33,11 @@ public class QuizGrain : Grain, IQuizGrain
         Game.State.Scoreboard.All(p => p.Value.Ready); // > 2;
 
     public QuizGrain([PersistentState("quiz", nameof(QuizGrain))] IPersistentState<QuizState> game,
-        ILogger<QuizGrain> logger)
+        ILogger<QuizGrain> logger, IOpenTdbClient client)
     {
         Game = game;
         _logger = logger;
+        _client = client;
     }
 
     public override async Task OnActivateAsync()
@@ -57,9 +59,6 @@ public class QuizGrain : Grain, IQuizGrain
         Game.State.Timeout = settings.Timeout;
         Game.State.GameMode = GameMode.Quiz;
         Game.State.GameStatus = GameStatus.AwaitingPlayers;
-        //await _worker.OnStatusUpdate(Game.State.GameId, Game.State.GameStatus);
-        //await Task.Delay(1000);
-        //await SendLobbyPlayers();
         await AddPlayer(ownerId);
         await UpdateGameToLobby();
     }
@@ -81,28 +80,34 @@ public class QuizGrain : Grain, IQuizGrain
         };
         Game.State.Scoreboard[playerId] = newPlayer;
         Game.State.NumberOfPlayers = Game.State.Scoreboard.Keys.Count;
-        await _worker.OnStatusUpdate(Game.State.GameId,
-            Game.State.GameStatus); // configureAwait(false)? instead of delay
-        //await Task.Delay(2000);
+        await SendGameState();
+        //await Task.Delay(1000);
         await SendLobbyPlayers();
         await UpdateGameToLobby();
     }
 
     public async Task RemovePlayer(Guid playerId)
     {
-        if (Game.State.Scoreboard.TryGetValue(playerId, out var value))
-        {
-            Game.State.Scoreboard.Remove(playerId);
-            Game.State.NumberOfPlayers = Game.State.Scoreboard.Count;
-            await SendLobbyPlayers();
-        }
 
-        if (Game.State.NumberOfPlayers < 2) // Potentially split up to new method?
-            Game.State.GameStatus = GameStatus.AwaitingPlayers;
-        await _worker.OnStatusUpdate(Game.State.GameId, Game.State.GameStatus);
-        await UpdateGameToLobby();
-        // If 0, disband lobby, call remove game from lobby grain
-        // return Game.State.Scoreboard.Keys.Count < 1;
+        if (Game.State.Scoreboard.TryRemove(playerId, out var player))
+            _logger.LogInformation($"Removed player {player.Id} - {player.Name}", player.Id, player.Name);
+
+        Game.State.NumberOfPlayers = Game.State.Scoreboard.Count;
+        await SendLobbyPlayers();
+
+
+        if (Game.State.NumberOfPlayers == 0 || Game.State.OwnerId == playerId)
+        {
+            await Disband();
+        }
+        else
+        {
+            if (Game.State.NumberOfPlayers < 2) // Potentially split up to new method?
+                Game.State.GameStatus = GameStatus.AwaitingPlayers;
+
+            await SendGameState();
+            await UpdateGameToLobby();
+        }
     }
 
     public async Task SubmitAnswer(Guid playerId, string answer)
@@ -128,30 +133,52 @@ public class QuizGrain : Grain, IQuizGrain
         await SendLobbyPlayers();
 
         if (AllPlayersReady)
-            //Game.State.GameStatus = GameStatus.Ready;
             await _worker.OnAllPlayersReady(Game.State.GameId, AllPlayersReady); // Allow creator to start game
-        //await _worker.OnStatusUpdate(Game.State.GameId, Game.State.GameStatus);
+    }
+
+    public Task<QuizRuntime> GetRuntime()
+    {
+        var users = Game.State.Scoreboard.Values.Select(user => new PlayerStateDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Score = user.Score,
+                Answered = user.Answered,
+                AnsweredCorrectly = user.AnsweredCorrectly
+            })
+            .ToList();
+        var info = new QuizRuntime
+        {
+            GameId = Game.State.GameId,
+            Status = Game.State.GameStatus,
+            NumberOfQuestions = Game.State.QuizSettings.Questions,
+            Timeout = Game.State.Timeout,
+            OwnerId = Game.State.OwnerId,
+            Settings = Game.State.QuizSettings,
+            CurrentQuestion = null,
+            Scoreboard = users
+        };
+
+        return Task.FromResult(info);
     }
 
     public async Task StartGame(Guid playerId)
     {
         if (!AllPlayersReady && Game.State.OwnerId != playerId)
-            throw new ArgumentException("Can't start game");
-        //if (!AllPlayersReady) throw new ArgumentException("All players not ready");
-        var client = new OpenTdbClient();
-        Game.State.Questions = await client.GetQuestions(Game.State.QuizSettings);
-        Game.State.QuestionStep = 1;
+            throw new InvalidOperationException("Can't start game");
+        if (!AllPlayersReady) throw new InvalidOperationException("All players not ready");
         Game.State.GameStatus = GameStatus.InProgress;
-        // Change status to InProgress
-        await _worker.OnStatusUpdate(Game.State.GameId, Game.State.GameStatus);
-        // Give time for client to setup screen
-        await Task.Delay(2000);
+        Game.State.Questions = await _client.GetQuestions(Game.State.QuizSettings);
+        Game.State.QuestionStep = 1;
 
-        await _worker.OnNewQuestion(Game.State.GameId, Game.State.Questions[Game.State.QuestionStep]
-            .ProcessQuestion(Game.State.QuestionStep));
-        await SendRuntime();
+        //await _worker.OnStatusUpdate(Game.State.GameId, Game.State.GameStatus);
+        await SendGameState();
         await UpdateScoreboard();
-        await UpdateGameToLobby();
+        //await Task.Delay(2000);
+        var q = Game.State.Questions[Game.State.QuestionStep]
+            .ProcessQuestion(Game.State.QuestionStep);
+        await _worker.OnNewQuestion(Game.State.GameId, q);
+        //await UpdateGameToLobby();
     }
 
     private async Task UpdateGameToLobby()
@@ -232,23 +259,16 @@ public class QuizGrain : Grain, IQuizGrain
         await _worker.OnScoreboardUpdate(Game.State.GameId, users);
     }
 
-    private async Task SendRuntime()
+    private async Task SendGameState()
     {
-        var info = new QuizRuntime
-        {
-            //Status = Game.State.GameStatus,
-            NumberOfQuestions = Game.State.QuizSettings.Questions,
-            Timeout = Game.State.Timeout,
-            OwnerId = Game.State.OwnerId,
-            QuizSettings = Game.State.QuizSettings
-        };
-        await _worker.OnQuizUpdated(Game.State.GameId, info);
+        var info = await GetRuntime();
+        await _worker.OnUpdateGame(Game.State.GameId, info);
     }
 
     private async Task EndGame()
     {
         Game.State.GameStatus = GameStatus.Finished;
-        await _worker.OnStatusUpdate(Game.State.GameId, Game.State.GameStatus);
+        await SendGameState();
         //_timer?.Dispose();
         //await Game.ClearStateAsync();
     }
@@ -286,10 +306,9 @@ public class QuizGrain : Grain, IQuizGrain
         {
             await _worker.OnCorrectAnswer(Game.State.GameId,
                 Game.State.Questions[Game.State.QuestionStep].correct_answer);
-            await _worker.OnFinishQuestion(Game.State.GameId);
             await UpdateScoreboard();
             await Task.Delay(5000);
-
+            await _worker.OnFinishQuestion(Game.State.GameId);
             // Reset and go next round
             foreach (var (key, value) in Game.State.Scoreboard)
             {
