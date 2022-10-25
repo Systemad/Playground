@@ -19,6 +19,8 @@ import {
     VStack,
 } from '@chakra-ui/react';
 import { ChangeEvent, useContext, useEffect, useRef, useState } from 'react';
+import { IoMdSend } from 'react-icons/io';
+import { MdSend } from 'react-icons/md';
 
 import { Answer } from '../components/common/AnswerButton';
 import { PlayerState } from '../features/quiz/api/quizAPI';
@@ -31,6 +33,12 @@ import { socketctx } from '../utils/api/signalr/ContextV2';
 /*
  */
 
+// TODO: Fixup MAIN PAGE!!!!
+// TODO: Add category to Header
+// Add progress color scheme and timer from backend!
+
+// Cleanup project and comments backend and frontend
+// Potentially fix websocket multiple calls??
 export type ProcessedQuestion = {
     category: string;
     type: string;
@@ -44,9 +52,10 @@ const question1: ProcessedQuestion = {
     category: 'swe',
     type: 'multiple',
     difficulty: 'hard',
-    question: 'qeustion 1',
+    question:
+        "In the game Dark Souls, what is the name of the region you're in for the majority of the game?",
     number: 1,
-    answers: ['ans1', 'ans2', 'ans3', 'ans4'],
+    answers: ['Drangleic', 'Oolacile', 'Catarina', 'Lordran'],
 };
 export const Test = () => {
     const [selectedAnswer, setSelectedAnswer] = useState<string | undefined>();
@@ -85,6 +94,7 @@ export const Test = () => {
                         </GridItem>
 
                         <GridItem
+                            p="0.35rem"
                             rounded={'md'}
                             area={'main'}
                             bg="cupcake.base200"
@@ -146,6 +156,29 @@ interface Message {
     content: string;
 }
 
+const msg1: Message = {
+    id: '1',
+    name: 'Dan',
+    content: 'My first game ever here!',
+};
+const msg2: Message = {
+    id: '2',
+    name: 'Panos',
+    content: 'Mine too, excited to play!',
+};
+const msg3: Message = {
+    id: '3',
+    name: 'Josef',
+    content: 'Hello, I am just writing random stuff',
+};
+
+const msg4: Message = {
+    id: '4',
+    name: 'Tugs',
+    content: 'I am best guesser ever',
+};
+
+const messageList = [msg1, msg4, msg3, msg2, msg3, msg1, msg4];
 /*
    id: string;
     name: string;
@@ -156,7 +189,7 @@ interface Message {
 
 const player1: PlayerStateDto = {
     id: '1',
-    name: 'player1',
+    name: 'Dan',
     score: 1,
     answered: true,
     answeredCorrectly: true,
@@ -164,7 +197,7 @@ const player1: PlayerStateDto = {
 
 const player2: PlayerStateDto = {
     id: '2',
-    name: 'player2',
+    name: 'Josef',
     score: 4,
     answered: true,
     answeredCorrectly: false,
@@ -172,7 +205,7 @@ const player2: PlayerStateDto = {
 
 const player3: PlayerStateDto = {
     id: '3',
-    name: 'player3',
+    name: 'Tugs',
     score: 10,
     answered: false,
     answeredCorrectly: undefined,
@@ -180,10 +213,10 @@ const player3: PlayerStateDto = {
 
 const player4: PlayerStateDto = {
     id: '4',
-    name: 'player4',
+    name: 'Panos',
     score: 5,
     answered: true,
-    answeredCorrectly: false,
+    answeredCorrectly: undefined,
 };
 
 const scoreboard = [player1, player2, player3, player4];
@@ -210,15 +243,21 @@ type PlayerCardProps = {
 
 const CardBackground = (
     answered?: boolean,
-    answeredCorrectly?: boolean | null
+    answeredCorrectly?: boolean
 ): string => {
-    if (answered && answeredCorrectly === null) return 'blue.700';
-    if (answered && answeredCorrectly && answeredCorrectly !== null)
+    if (answered && answeredCorrectly === true) {
+        // Answered and correct
         return 'cupcake.success';
-    if (answered && (!answeredCorrectly !== answeredCorrectly) !== null)
+    } else if (answered && answeredCorrectly === false) {
+        // Answered and not correct
         return 'cupcake.error';
-
-    return 'grey.700';
+    } else if (answered && answeredCorrectly === undefined) {
+        // Answered but waiting for round result
+        return 'cupcake.info';
+    } else {
+        // Not answered
+        return 'cupcake.base200';
+    }
 };
 
 const PlayerCard = ({ player }: PlayerCardProps) => {
@@ -290,49 +329,69 @@ const Chatbox = () => {
                 rounded={'md'}
                 h="full"
                 bg="cupcake.base200"
-                overflowY="scroll"
-                sx={{
-                    '&::-webkit-scrollbar': {
-                        width: '10px',
-                        borderRadius: 'md',
-                        backgroundColor: '#4C566A',
-                    },
-                }}
+                overflow="hidden"
             >
-                <Flex flexDir="column" key="1" justify="flex-end">
-                    {messages.map((item, index) => (
-                        <Flex
-                            key={index}
-                            bg="gray.600" // TODO: remove this
-                            w="100%"
-                            my="0.5"
-                            p="0.5"
-                        >
-                            {item.name}: {item.content}
-                        </Flex>
-                    ))}
-                </Flex>
+                <Box position="absolute" bottom="2px">
+                    <Box
+                        overflowY="scroll"
+                        sx={{
+                            '&::-webkit-scrollbar': {
+                                width: '5px',
+                                borderRadius: 'md',
+                                backgroundColor: '#dbd4d4',
+                            },
+                            '&::-webkit-scrollbar-track': {
+                                height: '10px',
+                                width: '5px',
+                                borderRadius: 'md',
+                                backgroundColor: '#dbd4d4',
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                height: '10px',
+                                width: '5px',
+                                borderRadius: 'md',
+                                backgroundColor: '#dbd4d4',
+                            },
+                        }}
+                        flexDir="column"
+                        wordBreak={'break-word'}
+                    >
+                        {messageList.map((item, index) => (
+                            <Flex
+                                borderRadius={'md'}
+                                key={index}
+                                bg="#dbd4d4" // TODO: remove this
+                                w="100%"
+                                my="0.5"
+                                p="0.5"
+                                textColor="black"
+                            >
+                                {item.name}: {item.content}
+                            </Flex>
+                        ))}
+                    </Box>
 
-                <VStack position="absolute" bottom="2px">
-                    <Divider borderColor="cupcake.primarycontent" />
-                    <InputGroup p="2px">
-                        <Input
-                            textColor="cupcake.primarycontent"
-                            variant="filled"
-                            value={value}
-                            onChange={handleChange}
-                            placeholder="Enter your message"
-                            size="lg"
-                            _placeholder={{ opacity: 1, color: 'inherit' }}
-                        />
-                        <InputRightElement
-                            // eslint-disable-next-line react/no-children-prop
-                            children={<CheckIcon color="green.500" />}
-                        />
-                    </InputGroup>
-                </VStack>
+                    <VStack>
+                        <Divider borderColor="#dbd4d4" />
+                        <InputGroup p="2px">
+                            <Input
+                                textColor="cupcake.primarycontent"
+                                variant="filled"
+                                value={value}
+                                onChange={handleChange}
+                                placeholder="Enter your message"
+                                size="md"
+                                _placeholder={{ opacity: 1, color: 'inherit' }}
+                            />
+                            <InputRightElement
+                                // eslint-disable-next-line react/no-children-prop
+                                children={<MdSend color="black" />}
+                            />
+                        </InputGroup>
+                    </VStack>
 
-                <AlwaysScrollToBottom />
+                    <AlwaysScrollToBottom />
+                </Box>
             </Box>
         </>
     );

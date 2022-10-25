@@ -1,4 +1,4 @@
-import { Button } from '@chakra-ui/react';
+import { Button, useStyleConfig } from '@chakra-ui/react';
 export type Props = {
     choice: string;
     isDisabled: boolean;
@@ -14,8 +14,23 @@ export const Answer = ({
     selected,
     onClick,
 }: Props) => {
+    //const styles = useStyleConfig('Button', { TextAnswerButton });
     return (
         <Button
+            variant="textAnswerButton"
+            name={choice}
+            backgroundColor={colorStatus}
+            isDisabled={isDisabled}
+            onClick={() => onClick(choice)}
+        >
+            {choice}
+        </Button>
+    );
+};
+
+/*
+        <Button
+            variant="textAnswerButton"
             fontSize="md"
             name={choice}
             as="button"
@@ -38,5 +53,4 @@ export const Answer = ({
         >
             {choice}
         </Button>
-    );
-};
+*/
