@@ -9,13 +9,13 @@ export const buttonStatus = (
         correctAnswer !== undefined && correctAnswer !== thisAnswer;
 
     if (answerIsCorrect) {
-        return 'cupcake.error';
+        return 'cupcake.success';
     } else if (isSelectedAnswer && answerIsIncorrect) {
         return 'cupcake.error';
     } else if (isSelectedAnswer) {
-        return 'cupcake.error';
+        return 'blue.700';
     } else {
-        return 'cupcake.error';
+        return 'blue.200';
     }
 };
 

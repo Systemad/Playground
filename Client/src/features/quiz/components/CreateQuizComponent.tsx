@@ -93,25 +93,53 @@ export const CreateQuizComponent = () => {
         content = (
             <>
                 <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
-                    <Box rounded={'lg'} bg={bgColor} boxShadow={'lg'} p={8}>
+                    <Box
+                        rounded={'md'}
+                        bg={'cupcake.base200'}
+                        boxShadow={'md'}
+                        p={8}
+                    >
                         <Stack spacing={4}>
                             <Stack align={'center'}>
-                                <Heading fontSize={'4xl'}>Create Quiz</Heading>
+                                <Heading
+                                    textColor={'cupcake.primarycontent'}
+                                    fontSize={'4xl'}
+                                >
+                                    Create Quiz
+                                </Heading>
                             </Stack>
-                            <Heading fontSize={'1xl'}>Name</Heading>
+                            <Heading
+                                textColor={'cupcake.primarycontent'}
+                                fontSize={'1xl'}
+                            >
+                                Name
+                            </Heading>
                             <Input
+                                bgColor="cupcake.base100"
+                                outlineColor={'#dbd4d4'}
+                                color={'cupcake.primarycontent'}
                                 value={options.name}
                                 onChange={handleChange}
                                 placeholder="Leave empty for a random name"
                                 size="md"
                             />
-                            <Heading fontSize={'1xl'}>Category</Heading>
+                            <Heading
+                                textColor={'cupcake.primarycontent'}
+                                fontSize={'1xl'}
+                            >
+                                Category
+                            </Heading>
                             <SelectionChooser
                                 label="category"
                                 selections={data?.trivia_categories}
                                 onChange={handleCategoryChange}
                             />
-                            <Heading fontSize={'1xl'}>Difficulty</Heading>
+                            <Heading
+                                textColor={'cupcake.primarycontent'}
+                                fontSize={'1xl'}
+                            >
+                                Difficulty
+                            </Heading>
                             <SelectionChooser
                                 label="difficulty"
                                 selections={difficulties}

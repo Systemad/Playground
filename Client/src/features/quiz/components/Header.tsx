@@ -1,13 +1,20 @@
-import { Box, Flex, Progress, Spacer, Text } from '@chakra-ui/react';
-import React from 'react';
+import { Box, Flex, Progress, Text } from '@chakra-ui/react';
 
 type Props = {
     currentQuestion?: string;
     step: number;
     total?: number;
+    category: string;
+    difficulty: string;
 };
 
-export const Header = ({ currentQuestion, step, total }: Props) => {
+export const Header = ({
+    currentQuestion,
+    step,
+    total,
+    category,
+    difficulty,
+}: Props) => {
     return (
         <Box
             borderRadius="md"
@@ -17,11 +24,16 @@ export const Header = ({ currentQuestion, step, total }: Props) => {
             my="auto"
             p={6}
         >
-            <Flex h="10vh">
+            <Flex h="10vh" justifyContent={'space-between'}>
                 <Text color="cupcake.primarycontent" size="lg">
                     Question {step + 1}/{total}
                 </Text>
-                <Spacer />
+                <Text color="cupcake.primarycontent" size="lg">
+                    {category}
+                </Text>
+                <Text color="cupcake.primarycontent" size="lg">
+                    {difficulty}
+                </Text>
             </Flex>
             <Box>
                 <Text
@@ -34,11 +46,7 @@ export const Header = ({ currentQuestion, step, total }: Props) => {
             </Box>
 
             <Box pt={20} mx="auto" my="auto">
-                <Progress
-                    colorScheme={'cupcake'}
-                    borderRadius="md"
-                    value={20}
-                />
+                <Progress colorScheme={'red'} borderRadius="md" value={20} />
             </Box>
         </Box>
     );

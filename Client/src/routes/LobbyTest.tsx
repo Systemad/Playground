@@ -16,55 +16,50 @@ import {
 } from '@chakra-ui/react';
 import React, { useContext } from 'react';
 
-import { useAppSelector } from '../../../providers/store';
-import { selectGame } from '../../../redux/quizSlice';
-import { socketctx } from '../../../utils/api/signalr/ContextV2';
-import { LobbyPlayer, useLobbyPlayers } from '../hooks/useLobbyPlayers';
-import { useUsersReady } from '../hooks/useUsersReady';
+import { LobbyPlayer } from '../features/quiz/hooks/useLobbyPlayers';
 
+const player1: LobbyPlayer = {
+    id: '1',
+    name: 'Dan',
+    ready: true,
+};
+
+const player2: LobbyPlayer = {
+    id: '2',
+    name: 'Josef',
+    ready: true,
+};
+
+const player3: LobbyPlayer = {
+    id: '3',
+    name: 'Tugs',
+    ready: false,
+};
+
+const player4: LobbyPlayer = {
+    id: '4',
+    name: 'Panos',
+    ready: false,
+};
+
+const lobbyPlayers = [player1, player2, player3, player4];
 type PlayerProps = {
     player: LobbyPlayer;
 };
 
-export const QuizLobby = () => {
-    const game = useAppSelector(selectGame);
-    const usersReady = useUsersReady();
-    const connection = useContext(socketctx);
-    const usersReadyList = useLobbyPlayers();
-
+export const LobbyTest = () => {
     const { instance } = useMsal();
     const toast = useToast();
 
-    const myId = instance.getActiveAccount()?.localAccountId;
-    const isOwner = myId === game.runtime?.ownerId;
-    const isMeReady = usersReadyList?.find((p) => p.id === myId)?.ready;
-    const canStartGame = isMeReady && usersReady && isOwner;
+    const isOwner = true;
+    const canStartGame = true;
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log('invoking handlechange');
-        connection?.invoke(
-            'SetPlayerStatus',
-            game.runtime?.gameId,
-            event.target.checked
-        );
+        //
     };
 
     const handleStartAsync = () => {
-        try {
-            //if (canStartGame) {
-            if (game && game.runtime?.gameId)
-                connection?.invoke('start-game', game.runtime.gameId);
-            //}
-        } catch {
-            toast({
-                title: 'An error occurred',
-                description:
-                    'Could start the game game, not everyone is ready!',
-                status: 'error',
-                duration: 2500,
-                isClosable: true,
-            });
-        }
+        ///
     };
 
     const GameInfo = () => {
@@ -93,7 +88,7 @@ export const QuizLobby = () => {
     };
 
     const PlayerCard = ({ player }: PlayerProps) => {
-        const isMe = myId === player?.id;
+        const isMe = true;
         return (
             <Center borderColor="black">
                 <Box
@@ -130,7 +125,7 @@ export const QuizLobby = () => {
                             <>
                                 <Switch
                                     onChange={handleChange}
-                                    isChecked={player.ready}
+                                    isChecked={true}
                                     size="lg"
                                 />
 
@@ -159,7 +154,7 @@ export const QuizLobby = () => {
     return (
         <SimpleGrid borderRadius="md" columns={2} spacing={8} p="0.35rem">
             <SimpleGrid columns={2} spacing={4} h="full">
-                {usersReadyList?.map((item) => (
+                {lobbyPlayers?.map((item) => (
                     <PlayerCard key={item.id} player={item} />
                 ))}
             </SimpleGrid>

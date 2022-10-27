@@ -18,6 +18,7 @@ export const Answer = ({
     return (
         <Button
             variant="textAnswerButton"
+            whiteSpace="break-spaces"
             name={choice}
             backgroundColor={colorStatus}
             isDisabled={isDisabled}

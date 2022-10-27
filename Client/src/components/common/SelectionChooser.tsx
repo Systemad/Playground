@@ -17,6 +17,9 @@ export const SelectionChooser = <TValue extends Base>({
     onChange,
 }: Props<TValue>) => (
     <Select
+        bgColor="cupcake.base100"
+        outlineColor={'#dbd4d4'}
+        color={'cupcake.primarycontent'}
         defaultValue={label}
         id={label}
         name={label}
@@ -25,7 +28,12 @@ export const SelectionChooser = <TValue extends Base>({
         style={{ textAlign: 'center', textTransform: 'capitalize' }}
     >
         {selections?.map((category) => (
-            <option key={category.id} value={category.id}>
+            <option
+                style={{ backgroundColor: 'white' }}
+                color={'cupcake.primarycontent'}
+                key={category.id}
+                value={category.id}
+            >
                 {category.name}
             </option>
         ))}

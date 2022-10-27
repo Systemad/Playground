@@ -32,7 +32,7 @@ import { socketctx } from '../utils/api/signalr/ContextV2';
 
 /*
  */
-
+// ADD ANIMATION??
 // TODO: Fixup MAIN PAGE!!!!
 // TODO: Add category to Header
 // Add progress color scheme and timer from backend!
@@ -103,6 +103,8 @@ export const Test = () => {
                                 currentQuestion={question1.question}
                                 step={question1.number}
                                 total={10}
+                                category={'Games and'}
+                                difficulty={'Hard'}
                             />
 
                             <SimpleGrid

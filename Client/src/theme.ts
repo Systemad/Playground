@@ -3,7 +3,7 @@ import { extendTheme, ThemeConfig } from '@chakra-ui/react';
 import { buttonTheme } from './theme/buttons/button';
 
 const config: ThemeConfig = {
-    initialColorMode: 'system',
+    initialColorMode: 'light',
 };
 
 const colors = {

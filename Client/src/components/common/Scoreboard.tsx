@@ -1,13 +1,20 @@
 import {
     Box,
     Center,
+    Divider,
     Flex,
     Heading,
     HStack,
     Input,
+    InputGroup,
+    InputRightElement,
     Stack,
+    StackDivider,
+    Text,
+    VStack,
 } from '@chakra-ui/react';
 import { ChangeEvent, useContext, useEffect, useRef, useState } from 'react';
+import { MdSend } from 'react-icons/md';
 
 import { useAppSelector } from '../../providers/store';
 import { PlayerStateDto, selectGame } from '../../redux/quizSlice';
@@ -22,83 +29,70 @@ interface Message {
 export const GameScoreboard = () => {
     const scoreboard = useAppSelector(selectGame).runtime?.scoreboard;
     return (
-        <Flex
-            overflow="hidden"
-            borderRadius="md"
-            h="20vh"
+        <VStack
+            divider={<StackDivider borderColor="cupcake.base100" />}
+            h="full"
             w="full"
-            bg="blue.800"
+            align="center"
+            justify="space-evenly"
         >
-            <HStack
-                borderRadius="md"
-                p={1}
-                w="full"
-                align="center"
-                justify="space-evenly"
-            >
-                {scoreboard?.map((item) => (
-                    <PlayerCard key={item.id} player={item} />
-                ))}
-            </HStack>
-            <Chatbox />
-        </Flex>
+            {scoreboard?.map((item) => (
+                <PlayerCard key={item.id} player={item} />
+            ))}
+        </VStack>
     );
 };
 
 type PlayerCardProps = {
     player?: PlayerStateDto;
 };
-
 const CardBackground = (
     answered?: boolean,
-    answeredCorrectly?: boolean | null
+    answeredCorrectly?: boolean
 ): string => {
-    if (answered && answeredCorrectly === null) return 'blue.700';
-    if (answered && answeredCorrectly && answeredCorrectly !== null)
-        return 'green.700';
-    if (answered && (!answeredCorrectly !== answeredCorrectly) !== null)
-        return 'red.700';
-
-    return 'grey.700';
+    if (answered && answeredCorrectly === true) {
+        // Answered and correct
+        return 'cupcake.success';
+    } else if (answered && answeredCorrectly === false) {
+        // Answered and not correct
+        return 'cupcake.error';
+    } else if (answered && answeredCorrectly === undefined) {
+        // Answered but waiting for round result
+        return 'cupcake.info';
+    } else {
+        // Not answered
+        return 'cupcake.base200';
+    }
 };
 
 const PlayerCard = ({ player }: PlayerCardProps) => {
     return (
-        <Center w="full" h="full">
-            <Box
-                h="full"
-                w={'full'}
-                bg={CardBackground(player?.answered, player?.answeredCorrectly)}
-                rounded={'md'}
-                px={4}
-                textAlign={'center'}
-            >
-                <Stack my={5} direction={'row'} align={'center'}>
-                    {/*
-                                            <Avatar
-                        size={'md'}
-                        src={
-                            'https://images.unsplash.com/photo-1520810627419-35e362c5dc07?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&ixid=eyJhcHBfaWQiOjE3Nzg0fQ'
-                        }
-                        pos={'relative'}
-                    />
-                        */}
-                    <Heading fontSize={'md'} fontFamily={'body'}>
-                        {player?.name}
-                    </Heading>
-                </Stack>
-                <Box
-                    w="full"
-                    bg="green.700"
-                    mt={6}
-                    flex={1}
-                    fontSize={'sm'}
-                    rounded={'md'}
+        <Box
+            p="30px"
+            h="full"
+            w="full"
+            bg={CardBackground(player?.answered, player?.answeredCorrectly)}
+            rounded={'md'}
+            justifyContent="center"
+            textAlign={'center'}
+        >
+            <VStack>
+                <Heading
+                    color="cupcake.primarycontent"
+                    fontSize={'xl'}
+                    fontFamily={'body'}
                 >
-                    {player?.score}
-                </Box>
-            </Box>
-        </Center>
+                    {player?.name}
+                </Heading>
+                <Text color="cupcake.primarycontent" fontSize={'md'}>
+                    Score: {player?.score}
+                </Text>
+
+                <Text color="cupcake.primarycontent" fontSize={'md'}>
+                    {player?.answered ? 'Answered' : 'Not Answered'}
+                </Text>
+            </VStack>
+        </Box>
     );
 };
 
@@ -136,45 +130,73 @@ export const Chatbox = () => {
     return (
         <>
             <Box
-                h="100%"
-                w="40%"
-                bg="gray.500"
-                overflowY="scroll"
-                sx={{
-                    '&::-webkit-scrollbar': {
-                        width: '10px',
-                        borderRadius: 'md',
-                        backgroundColor: '#4C566A',
-                    },
-                }}
+                position="relative"
+                rounded={'md'}
+                h="full"
+                bg="cupcake.base200"
+                overflow="hidden"
             >
-                <Flex
-                    flexDir="column"
-                    key="1"
-                    w="100%"
-                    h="75%"
-                    justify="flex-start"
-                >
-                    {messages.map((item, index) => (
-                        <Flex
-                            key={index}
-                            bg="gray.600" // TODO: remove this
-                            w="100%"
-                            my="0.5"
-                            p="0.5"
-                        >
-                            {item.name}: {item.content}
-                        </Flex>
-                    ))}
-                </Flex>
-                <Input
-                    variant="filled"
-                    value={value}
-                    onChange={handleChange}
-                    placeholder="Enter your message"
-                    size="sm"
-                />
-                <AlwaysScrollToBottom />
+                <Box position="absolute" bottom="2px">
+                    <Box
+                        overflowY="scroll"
+                        sx={{
+                            '&::-webkit-scrollbar': {
+                                width: '5px',
+                                borderRadius: 'md',
+                                backgroundColor: '#dbd4d4',
+                            },
+                            '&::-webkit-scrollbar-track': {
+                                height: '10px',
+                                width: '5px',
+                                borderRadius: 'md',
+                                backgroundColor: '#dbd4d4',
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                height: '10px',
+                                width: '5px',
+                                borderRadius: 'md',
+                                backgroundColor: '#dbd4d4',
+                            },
+                        }}
+                        flexDir="column"
+                        wordBreak={'break-word'}
+                    >
+                        {messages.map((item, index) => (
+                            <Flex
+                                borderRadius={'md'}
+                                key={index}
+                                bg="#dbd4d4" // TODO: remove this
+                                w="100%"
+                                my="0.5"
+                                p="0.5"
+                                textColor="black"
+                            >
+                                {item.name}: {item.content}
+                            </Flex>
+                        ))}
+                    </Box>
+
+                    <VStack>
+                        <Divider borderColor="#dbd4d4" />
+                        <InputGroup p="2px">
+                            <Input
+                                textColor="cupcake.primarycontent"
+                                variant="filled"
+                                value={value}
+                                onChange={handleChange}
+                                placeholder="Enter your message"
+                                size="md"
+                                _placeholder={{ opacity: 1, color: 'inherit' }}
+                            />
+                            <InputRightElement
+                                // eslint-disable-next-line react/no-children-prop
+                                children={<MdSend color="black" />}
+                            />
+                        </InputGroup>
+                    </VStack>
+
+                    <AlwaysScrollToBottom />
+                </Box>
             </Box>
         </>
     );

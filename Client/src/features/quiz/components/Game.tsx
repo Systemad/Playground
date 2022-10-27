@@ -1,8 +1,8 @@
-import { Box, SimpleGrid } from '@chakra-ui/react';
+import { Box, Grid, GridItem, SimpleGrid } from '@chakra-ui/react';
 import { useContext, useEffect, useState } from 'react';
 
 import { Answer } from '../../../components/common/AnswerButton';
-import { GameScoreboard } from '../../../components/common/Scoreboard';
+import { Chatbox, GameScoreboard } from '../../../components/common/Scoreboard';
 import { useAppSelector } from '../../../providers/store';
 import { selectGame } from '../../../redux/quizSlice';
 import { socketctx } from '../../../utils/api/signalr/ContextV2';
@@ -63,43 +63,72 @@ export const Game = () => {
         <>
             {game.runtime?.currentQustion ? (
                 <>
-                    <Header
-                        currentQuestion={game.runtime?.currentQustion.question}
-                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        step={game.runtime?.currentQustion.number}
-                        total={game.runtime?.numberOfQuestions}
-                    />
+                    <Grid
+                        templateAreas={'"score main chat"'}
+                        gridTemplateRows={'90vh'}
+                        gridTemplateColumns={'1fr 3fr 1fr'}
+                        gap="4"
+                    >
+                        <GridItem
+                            rounded={'md'}
+                            area={'score'}
+                            bg="cupcake.base200"
+                        >
+                            <GameScoreboard />
+                        </GridItem>
+                        <GridItem
+                            p="0.35rem"
+                            rounded={'md'}
+                            area={'main'}
+                            bg="cupcake.base200"
+                        >
+                            <Header
+                                currentQuestion={
+                                    game.runtime?.currentQustion.question
+                                }
+                                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                                step={game.runtime?.currentQustion.number}
+                                total={game.runtime?.numberOfQuestions}
+                                category={game.runtime.settings.category}
+                                difficulty={game.runtime.settings.difficulty}
+                            />
 
-                    <Box my={12}>
-                        <SimpleGrid columns={[1, 2]} spacing={[4, 8]}>
-                            {game.runtime?.currentQustion.answers.map(
-                                (answer, index) => (
-                                    // TODO: Add ifficulty and category
-                                    <Answer
-                                        key={answer}
-                                        choice={answer}
-                                        colorStatus={buttonStatus(
-                                            answer,
-                                            selectedAnswer,
-                                            correctAnswer
-                                        )}
-                                        selected={
-                                            answer === selectedAnswer
-                                                ? true
-                                                : false
-                                        }
-                                        isDisabled={isButtonDisabled(
-                                            answer,
-                                            selectedAnswer,
-                                            correctAnswer
-                                        )}
-                                        onClick={handleAnswer}
-                                    />
-                                )
-                            )}
-                        </SimpleGrid>
-                    </Box>
-                    <GameScoreboard />
+                            <SimpleGrid columns={[1, 2]} spacing={[4, 8]}>
+                                {game.runtime?.currentQustion.answers.map(
+                                    (answer, index) => (
+                                        // TODO: Add ifficulty and category
+                                        <Answer
+                                            key={answer}
+                                            choice={answer}
+                                            colorStatus={buttonStatus(
+                                                answer,
+                                                selectedAnswer,
+                                                correctAnswer
+                                            )}
+                                            selected={
+                                                answer === selectedAnswer
+                                                    ? true
+                                                    : false
+                                            }
+                                            isDisabled={isButtonDisabled(
+                                                answer,
+                                                selectedAnswer,
+                                                correctAnswer
+                                            )}
+                                            onClick={handleAnswer}
+                                        />
+                                    )
+                                )}
+                            </SimpleGrid>
+                        </GridItem>
+                        <GridItem
+                            rounded={'md'}
+                            area={'chat'}
+                            bg="cupcake.base200"
+                        >
+                            <Chatbox />
+                        </GridItem>
+                    </Grid>
                 </>
             ) : (
                 'Erorr question'

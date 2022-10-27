@@ -72,11 +72,11 @@ export const GameCard = ({
             <Center>
                 <Stack
                     borderWidth="1px"
-                    borderRadius="lg"
+                    borderRadius="md"
                     w={{ sm: '100%', md: '375px' }}
                     height={{ sm: '450px', md: '12.5rem' }}
                     direction={{ base: 'column', md: 'row' }}
-                    bg={useColorModeValue('white', 'gray.900')}
+                    bg={useColorModeValue('white', 'cupcake.base200')}
                     boxShadow={'md'}
                     padding={2}
                 >
@@ -89,9 +89,6 @@ export const GameCard = ({
                         p="2"
                     >
                         {bubbles}
-                        {bubbles}
-                        {bubbles}
-                        {bubbles}
                     </SimpleGrid>
 
                     <Stack
@@ -102,7 +99,11 @@ export const GameCard = ({
                         p={1}
                         pt={2}
                     >
-                        <Heading fontSize={'2xl'} fontFamily={'body'}>
+                        <Heading
+                            textColor={'cupcake.primarycontent'}
+                            fontSize={'2xl'}
+                            fontFamily={'body'}
+                        >
                             {name}
                         </Heading>
                         <Stack
@@ -114,8 +115,12 @@ export const GameCard = ({
                             <Badge
                                 px={2}
                                 py={1}
-                                bg={useColorModeValue('gray.50', 'gray.800')}
+                                bg={useColorModeValue(
+                                    'gray.50',
+                                    'cupcake.base100'
+                                )}
                                 fontWeight={'400'}
+                                textColor="cupcake.primarycontent"
                             >
                                 {gameMode}
                             </Badge>
@@ -123,8 +128,12 @@ export const GameCard = ({
                             <Badge
                                 px={2}
                                 py={1}
-                                bg={useColorModeValue('gray.50', 'gray.800')}
+                                bg={useColorModeValue(
+                                    'gray.50',
+                                    'cupcake.base100'
+                                )}
                                 fontWeight={'400'}
+                                textColor="cupcake.primarycontent"
                             >
                                 {gameStatus}
                             </Badge>
@@ -132,8 +141,9 @@ export const GameCard = ({
                                 <Badge
                                     px={2}
                                     py={1}
-                                    bg={badgeColor}
+                                    bg={'cupcake.base100'}
                                     fontWeight={'400'}
+                                    textColor="cupcake.primarycontent"
                                 >
                                     {difficulty}
                                 </Badge>
@@ -149,9 +159,11 @@ export const GameCard = ({
                             alignItems={'center'}
                         >
                             <Button
+                                color="blue"
+                                textColor={'cupcake.primarycontent'}
                                 onClick={() => onClick(id)}
                                 flex={1}
-                                fontSize={'sm'}
+                                fontSize={'md'}
                                 rounded={'full'}
                                 _focus={{
                                     bg: 'gray.200',
