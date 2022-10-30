@@ -23,10 +23,10 @@ const textAnswerButton = defineStyle({
     //transition: 'all 0.2s cubic-bezier(.08,.52,.52,1)',
 
     // let's also provide dark mode alternatives
-    _dark: {
-        background: 'orange.300',
-        color: 'orange.800',
-    },
+    //_dark: {
+    //    background: 'orange.300',
+    //    color: 'orange.800',
+    //},
 });
 
 const Button1 = defineStyle({

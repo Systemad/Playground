@@ -159,7 +159,7 @@ export const GameCard = ({
                             alignItems={'center'}
                         >
                             <Button
-                                color="blue"
+                                bgColor="blue"
                                 textColor={'cupcake.primarycontent'}
                                 onClick={() => onClick(id)}
                                 flex={1}

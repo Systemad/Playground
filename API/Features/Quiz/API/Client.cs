@@ -14,9 +14,9 @@ public class OpenTdbClient : IOpenTdbClient
     public async Task<List<Result>> GetQuestions(QuizSettings model)
     {
         string postString;
-        if (model.Category == "0" && model.Difficulty == "any")
+        if (model.Category == "999" && model.Difficulty == "random")
             postString = $"https://opentdb.com/api.php?amount={model.Questions}&type=multiple";
-        else if (model.Category == "0")
+        else if (model.Category == "999")
             postString =
                 $"https://opentdb.com/api.php?amount={model.Questions}&difficulty={model.Difficulty}&type=multiple";
         else if (model.Difficulty == "any")

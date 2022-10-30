@@ -6,11 +6,9 @@ import {
     Input,
     Progress,
     Stack,
-    useColorModeValue,
     useToast,
 } from '@chakra-ui/react';
 import { ChangeEvent, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { SelectionChooser } from '../../../components/common/SelectionChooser';
 import { useAppDispatch, useAppSelector } from '../../../providers/store';
@@ -30,7 +28,7 @@ export interface DifficultyLevel {
 }
 
 const difficulties: DifficultyLevel[] = [
-    { id: 'any', name: 'Any' },
+    { id: 'random', name: 'Random' },
     { id: 'easy', name: 'Easy' },
     { id: 'medium', name: 'Medium' },
     { id: 'hard', name: 'Hard' },
@@ -39,9 +37,7 @@ const difficulties: DifficultyLevel[] = [
 export const CreateQuizComponent = () => {
     let content;
 
-    const bgColor = useColorModeValue('white', 'gray.800');
     const dispatch = useAppDispatch();
-    const navigate = useNavigate();
     const toast = useToast();
     const options = useAppSelector(selectQuizOptions);
     const [create, result] = useQuizCreateGameMutation();
@@ -71,11 +67,9 @@ export const CreateQuizComponent = () => {
     };
     const handleCreateQuiz = async () => {
         try {
-            console.log('creating game');
             await create({ quizCreationModel: options })
                 .unwrap()
                 .then((payload) => joinGame(payload));
-            //.then(() => navigate('/quiz'));
         } catch {
             toast({
                 title: 'An error occurred',

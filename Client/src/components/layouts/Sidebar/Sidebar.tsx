@@ -5,33 +5,26 @@ import {
     BoxProps,
     Button,
     CloseButton,
-    Collapse,
     Divider,
     Drawer,
     DrawerContent,
     Flex,
     FlexProps,
     Icon,
-    IconButton,
     Link,
-    StackDivider,
     Text,
     useColorMode,
-    useColorModeValue,
     useDisclosure,
     VStack,
 } from '@chakra-ui/react';
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
 import {
-    BsMoonStarsFill,
-    BsSun,
     FaRegImage,
     FaRegQuestionCircle,
-    MdKeyboardArrowRight,
     MdOutlineGames,
 } from 'react-icons/all';
-import { FiHome, FiMenu } from 'react-icons/fi';
+import { FiHome } from 'react-icons/fi';
 import { Link as ReachLink } from 'react-router-dom';
 
 // TODO: https://reactrouter.com/en/main/hooks/use-match, to highlight active tab / item

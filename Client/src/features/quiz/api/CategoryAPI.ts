@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const opentdbSlice = createApi({
     reducerPath: 'opentdbApi',
@@ -11,16 +11,28 @@ export const opentdbSlice = createApi({
             QuizGetCategoriesApiArg
         >({
             query: () => ({ url: 'api_category.php' }),
+            transformResponse: (returnValue: QuizGetCategoriesResponse) => {
+                const random: TriviaCategory = {
+                    id: '0',
+                    name: 'Random',
+                };
+                returnValue.trivia_categories.unshift({
+                    id: '0',
+                    name: 'Random',
+                });
+
+                return returnValue;
+            },
         }),
     }),
-})
-export const { useGetCategoriesQuery } = opentdbSlice
-export type QuizGetCategoriesResponse = Categories
-export type QuizGetCategoriesApiArg = void
+});
+export const { useGetCategoriesQuery } = opentdbSlice;
+export type QuizGetCategoriesResponse = Categories;
+export type QuizGetCategoriesApiArg = void;
 export type Categories = {
-    trivia_categories: TriviaCategory[]
-}
+    trivia_categories: TriviaCategory[];
+};
 export type TriviaCategory = {
-    id: string
-    name: string
-}
+    id: string;
+    name: string;
+};

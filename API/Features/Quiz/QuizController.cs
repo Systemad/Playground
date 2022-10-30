@@ -36,4 +36,14 @@ public class QuizController : ControllerBase
         await gameGrain.CreateGame(GetUserId, settings);
         return Ok(gameGuid);
     }
+
+    [HttpPost("results", Name = "Get game results")]
+    [ProducesResponseType(typeof(QuizResults), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetGameResults([FromBody] Guid id)
+    {
+        var gameGuid = Guid.NewGuid();
+        var gameGrain = _factory.GetGrain<IQuizGrain>(gameGuid);
+        var results = await gameGrain.GetResults();
+        return Ok(results);
+    }
 }

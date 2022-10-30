@@ -93,17 +93,13 @@ export type QuizRuntime = {
     quizSettings: QuizSettings;
 };
 export type PlayerResult = {
-    id?: string;
-    name?: string;
-    score?: number;
+    id: string;
+    name: string;
+    score: number;
 };
 export type GameResult = {
-    gameId?: string;
-    name?: string;
-    scoreboard?: PlayerResult[];
-    category?: string;
-    difficulty?: string;
-    questions?: number;
+    winner: string;
+    scoreboard: PlayerResult[];
 };
 export const {
     useQuizCreateGameMutation,

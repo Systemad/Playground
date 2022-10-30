@@ -1,12 +1,13 @@
 import { Avatar, Box, Center, Heading, HStack, VStack } from '@chakra-ui/react';
 
-import { useAppSelector } from '../../../providers/store';
-import { selectGame } from '../../../redux/quizSlice';
-import { useQuizGetGameResultsQuery } from '../api/quizAPI';
+import { useQuizGetGameResultsQuery } from '../features/quiz/api/quizAPI';
+import { useAppSelector } from '../providers/store';
+import { selectGame } from '../redux/quizSlice';
 
-export const QuizResults = () => {
+export const ResultTest = () => {
+    //const gameresults = usegetresults
     const game = useAppSelector(selectGame);
-    const gameId = game.runtime?.gameId;
+    const gameId = game && game.runtime?.gameId;
 
     const { data: results } = useQuizGetGameResultsQuery({ gameId: gameId });
 

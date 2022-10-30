@@ -41,7 +41,6 @@ export const QuizLobby = () => {
     const canStartGame = isMeReady && usersReady && isOwner;
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log('invoking handlechange');
         connection?.invoke(
             'SetPlayerStatus',
             game.runtime?.gameId,
@@ -79,13 +78,13 @@ export const QuizLobby = () => {
                         Game Mode: Quiz
                     </Text>
                     <Text textColor="cupcake.primarycontent" fontSize={'2xl'}>
-                        Difficulty: Hard
+                        Difficulty: {game.runtime?.settings.difficulty}
                     </Text>
                     <Text textColor="cupcake.primarycontent" fontSize={'2xl'}>
-                        Category: Sports
+                        Category: {game.runtime?.settings.category}
                     </Text>
                     <Text textColor="cupcake.primarycontent" fontSize={'2xl'}>
-                        Questions: 10
+                        Questions: {game.runtime?.settings.questions}
                     </Text>
                 </VStack>
             </Center>
@@ -138,7 +137,7 @@ export const QuizLobby = () => {
                                     <Button
                                         isDisabled={!canStartGame}
                                         borderRadius="md"
-                                        bgColor="#4C566A"
+                                        bgColor="cupcake.base200"
                                         w="full"
                                         mx="auto"
                                         my="auto"

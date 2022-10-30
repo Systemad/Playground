@@ -1,33 +1,25 @@
-import { CheckIcon } from '@chakra-ui/icons';
 import {
     Box,
-    Center,
     Divider,
     Flex,
     Grid,
     GridItem,
     Heading,
-    HStack,
     Input,
     InputGroup,
-    InputLeftElement,
     InputRightElement,
     SimpleGrid,
-    Stack,
     StackDivider,
     Text,
     VStack,
 } from '@chakra-ui/react';
 import { ChangeEvent, useContext, useEffect, useRef, useState } from 'react';
-import { IoMdSend } from 'react-icons/io';
 import { MdSend } from 'react-icons/md';
 
 import { Answer } from '../components/common/AnswerButton';
-import { PlayerState } from '../features/quiz/api/quizAPI';
 import { Header } from '../features/quiz/components/Header';
 import { buttonStatus, isButtonDisabled } from '../features/quiz/utils/Helper';
-import { useAppSelector } from '../providers/store';
-import { PlayerStateDto, selectGame } from '../redux/quizSlice';
+import { PlayerStateDto } from '../redux/quizSlice';
 import { socketctx } from '../utils/api/signalr/ContextV2';
 
 /*
@@ -160,27 +152,27 @@ interface Message {
 
 const msg1: Message = {
     id: '1',
-    name: 'Dan',
+    name: 'Adam',
     content: 'My first game ever here!',
 };
 const msg2: Message = {
     id: '2',
-    name: 'Panos',
+    name: 'Jones',
     content: 'Mine too, excited to play!',
 };
 const msg3: Message = {
     id: '3',
-    name: 'Josef',
+    name: 'Chief',
     content: 'Hello, I am just writing random stuff',
 };
 
 const msg4: Message = {
     id: '4',
-    name: 'Tugs',
+    name: 'Boe',
     content: 'I am best guesser ever',
 };
 
-const messageList = [msg1, msg4, msg3, msg2, msg3, msg1, msg4];
+const messageList = [msg1, msg2, msg3, msg4];
 /*
    id: string;
     name: string;
@@ -191,7 +183,7 @@ const messageList = [msg1, msg4, msg3, msg2, msg3, msg1, msg4];
 
 const player1: PlayerStateDto = {
     id: '1',
-    name: 'Dan',
+    name: 'Adam',
     score: 1,
     answered: true,
     answeredCorrectly: true,
@@ -199,7 +191,7 @@ const player1: PlayerStateDto = {
 
 const player2: PlayerStateDto = {
     id: '2',
-    name: 'Josef',
+    name: 'Boe',
     score: 4,
     answered: true,
     answeredCorrectly: false,
@@ -207,7 +199,7 @@ const player2: PlayerStateDto = {
 
 const player3: PlayerStateDto = {
     id: '3',
-    name: 'Tugs',
+    name: 'Jones',
     score: 10,
     answered: false,
     answeredCorrectly: undefined,
@@ -215,7 +207,7 @@ const player3: PlayerStateDto = {
 
 const player4: PlayerStateDto = {
     id: '4',
-    name: 'Panos',
+    name: 'Chief',
     score: 5,
     answered: true,
     answeredCorrectly: undefined,

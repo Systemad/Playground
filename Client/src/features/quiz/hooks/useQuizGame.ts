@@ -20,12 +20,6 @@ const gameUpdateListener = (game: QuizRuntime) => {
     console.log('updategamelistener: ' + game.gameId + game.status);
 };
 
-const gameStatusListener = (status: GameStatus) => {
-    //setGame(gameId);
-    store.dispatch(setGameStatus(status));
-    console.log('updategamelistener: ' + status);
-};
-
 export const useQuizGame = () => {
     const connection = useContext(socketctx);
 
@@ -38,7 +32,7 @@ export const useQuizGame = () => {
             console.log('updategamelistener: ' + game.gameId + game.status);
         };
         */
-        connection?.on('update-status', gameStatusListener);
+
         connection?.on('update-game', gameUpdateListener);
         return () => {
             connection?.off('update-game', gameUpdateListener);

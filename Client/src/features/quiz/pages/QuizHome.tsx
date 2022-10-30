@@ -1,6 +1,6 @@
-import { Box, Flex, SimpleGrid, Stack, useToast } from '@chakra-ui/react';
+import { Flex, SimpleGrid, Stack, useToast } from '@chakra-ui/react';
 import { HubConnectionState } from '@microsoft/signalr';
-import React, { useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 
 import { useAppSelector } from '../../../providers/store';
 import { selectGame } from '../../../redux/quizSlice';
@@ -11,6 +11,7 @@ import { CreateQuizComponent } from '../components/CreateQuizComponent';
 import { Game } from '../components/Game';
 import { QuizLobby } from '../components/QuizLobby';
 import { useQuizGame } from '../hooks/useQuizGame';
+import { QuizResults } from './QuizResults';
 
 // Add Leave button to navbar?
 export const QuizHome = () => {
@@ -68,7 +69,7 @@ export const QuizHome = () => {
 
             {isWaiting && <QuizLobby />}
 
-            {isGameEnded && <>Game finished, fetch results</>}
+            {isGameEnded && <QuizResults />}
 
             {!inGame && (
                 <>

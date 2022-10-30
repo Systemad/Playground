@@ -19,7 +19,6 @@ export const Header = ({
         <Box
             borderRadius="md"
             bgColor="cupcake.altbase200"
-            w="full"
             mx="auto"
             my="auto"
             p={6}
@@ -36,11 +35,7 @@ export const Header = ({
                 </Text>
             </Flex>
             <Box>
-                <Text
-                    fontSize={['xl', '2xl', '4xl']}
-                    color="cupcake.primarycontent"
-                    h="60%"
-                >
+                <Text fontSize={['2xl']} color="cupcake.primarycontent" h="60%">
                     {currentQuestion}
                 </Text>
             </Box>

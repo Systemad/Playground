@@ -1,4 +1,4 @@
-import { Box, Grid, GridItem, SimpleGrid } from '@chakra-ui/react';
+import { Grid, GridItem, SimpleGrid } from '@chakra-ui/react';
 import { useContext, useEffect, useState } from 'react';
 
 import { Answer } from '../../../components/common/AnswerButton';
@@ -12,7 +12,6 @@ import { useQuestion } from '../hooks/useQuestion';
 import { useScoreboard } from '../hooks/useScoreboard';
 import { buttonStatus, isButtonDisabled } from '../utils/Helper';
 
-// This somehow causes rerender?? of parent
 export const Game = () => {
     useScoreboard();
 
@@ -24,23 +23,18 @@ export const Game = () => {
     useQuestion();
     const correctAnswer = useCorrectAnswer();
 
-    const usersAnswered = game.runtime?.scoreboard.find((v) => v.answered);
-
     const handleAnswer = (answer: string) => {
         const isNoPreviouslySelectedAnswer = selectedAnswer === undefined;
         const isSelectedAnswer = selectedAnswer !== undefined;
 
-        console.log('handle answer');
         if (isNoPreviouslySelectedAnswer) {
             setSelectedAnswer(answer);
-            console.log('invoking guess: selected answer');
+
             connection?.invoke(
                 'guess-answer',
                 selectedAnswer,
                 game?.runtime?.gameId
             );
-
-            console.log('selected answer');
         }
     };
 
@@ -50,15 +44,6 @@ export const Game = () => {
         connection?.on('finish-question', resetAnswerListener);
     }, [connection]);
 
-    /*
-    useEffect(() => {
-        const isSelectedAnswer = selectedAnswer !== undefined;
-        if (isSelectedAnswer) {
-            console.log('invoking guess: selected answer');
-            connection?.invoke('guess', selectedAnswer, game?.runtime?.gameId);
-        }
-    }, [connection, game?.runtime?.gameId, selectedAnswer]);
-    */
     return (
         <>
             {game.runtime?.currentQustion ? (
@@ -86,17 +71,21 @@ export const Game = () => {
                                 currentQuestion={
                                     game.runtime?.currentQustion.question
                                 }
-                                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                                 step={game.runtime?.currentQustion.number}
                                 total={game.runtime?.numberOfQuestions}
-                                category={game.runtime.settings.category}
-                                difficulty={game.runtime.settings.difficulty}
+                                category={game.runtime?.currentQustion.category}
+                                difficulty={
+                                    game.runtime?.currentQustion.difficulty
+                                }
                             />
 
-                            <SimpleGrid columns={[1, 2]} spacing={[4, 8]}>
+                            <SimpleGrid
+                                columns={[1, 2]}
+                                my="1rem"
+                                spacing={[4, 8]}
+                            >
                                 {game.runtime?.currentQustion.answers.map(
                                     (answer, index) => (
-                                        // TODO: Add ifficulty and category
                                         <Answer
                                             key={answer}
                                             choice={answer}
@@ -136,5 +125,3 @@ export const Game = () => {
         </>
     );
 };
-
-//                     <GameScoreboard />

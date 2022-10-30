@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using API.Features.Lobby;
+﻿using API.Features.Lobby;
 using API.Features.Player;
 using API.Features.Quiz.API;
 using API.Features.Quiz.Dto;
@@ -11,6 +10,7 @@ using Orleans.Runtime;
 
 namespace API.Features.Quiz.Grains;
 
+// TODO: Fix end game and score
 [Reentrant]
 public class QuizGrain : Grain, IQuizGrain
 {
@@ -52,6 +52,12 @@ public class QuizGrain : Grain, IQuizGrain
         if (Game.RecordExists)
             throw new InvalidOperationException("Couldn't create game, it already exist");
         Game.State.OwnerId = ownerId;
+        // FIX?? shows up as one
+        if (settings.Category == "1")
+            Game.State.QuizSettings.Category = "random";
+        else
+            Game.State.QuizSettings.Category = settings.Category.ReturnCategoryString();
+
         Game.State.QuizSettings.Difficulty = settings.Difficulty;
         Game.State.QuizSettings.Type = settings.Type;
         Game.State.QuizSettings.Questions = settings.Questions;
@@ -93,9 +99,6 @@ public class QuizGrain : Grain, IQuizGrain
             _logger.LogInformation($"Removed player {player.Id} - {player.Name}", player.Id, player.Name);
 
         Game.State.NumberOfPlayers = Game.State.Scoreboard.Count;
-        await SendLobbyPlayers();
-
-
         if (Game.State.NumberOfPlayers == 0 || Game.State.OwnerId == playerId)
         {
             await Disband();
@@ -106,16 +109,22 @@ public class QuizGrain : Grain, IQuizGrain
                 Game.State.GameStatus = GameStatus.AwaitingPlayers;
 
             await SendGameState();
+            await SendLobbyPlayers();
             await UpdateGameToLobby();
         }
     }
 
     public async Task SubmitAnswer(Guid playerId, string answer)
     {
+        var pl = new PlayerState();
         EnsureGameIsInProgress();
         if (IsCorrect(answer))
         {
-            Game.State.Scoreboard[playerId].Score++;
+            _ = Game.State.Scoreboard.AddOrUpdate(playerId, pl, (_, old) =>
+            {
+                old.Score += 1;
+                return old;
+            }); // [playerId]. Score++;
             Game.State.Scoreboard[playerId].AnsweredCorrectly = true;
         }
 
@@ -281,18 +290,17 @@ public class QuizGrain : Grain, IQuizGrain
         await _worker.OnLobbyUpdated(Game.State.GameId, usersReady);
     }
 
-    private Task CalculateAndReturnResults()
+    public Task<QuizResults> GetResults()
     {
         var scoreboard = Game.State.Scoreboard.Values.ToList();
         var playeresults = scoreboard.Select(player => new PlayerResult
             { Id = player.Id, Name = player.Name, Score = player.Score }).OrderByDescending(v => v.Score).ToList();
-        ;
+
         var results = new QuizResults
         {
             Winner = playeresults.First().Name,
             Scoreboard = playeresults
         };
-
         return Task.FromResult(results);
     }
 

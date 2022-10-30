@@ -17,6 +17,7 @@ import { QuizHome } from '../features/quiz/';
 import { ConnectionProvider } from '../utils/api/signalr/ContextV2';
 import { acquireAccessToken, msalInstance } from '../utils/auth/MsalKey';
 import { LobbyTest } from './LobbyTest';
+import { ResultTest } from './ResultTest';
 import { Test } from './Test';
 
 const connection = new HubConnectionBuilder()
@@ -40,7 +41,7 @@ export const Home = () => {
             <AuthenticatedTemplate>
                 <ConnectionProvider connection={connection}>
                     <SimpleSidebar>
-                        <QuizHome />
+                        <Test />
                     </SimpleSidebar>
                 </ConnectionProvider>
             </AuthenticatedTemplate>
