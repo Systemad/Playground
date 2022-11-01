@@ -10,18 +10,16 @@ import {
     LogLevel,
 } from '@microsoft/signalr';
 
-import { AppLayout } from '../components/AppLayout';
 import { SimpleSidebar } from '../components/layouts/Sidebar';
 import { UnauthenticatedLayout } from '../components/layouts/UnauthenticatedLayout';
 import { QuizHome } from '../features/quiz/';
 import { ConnectionProvider } from '../utils/api/signalr/ContextV2';
 import { acquireAccessToken, msalInstance } from '../utils/auth/MsalKey';
-import { LobbyTest } from './LobbyTest';
-import { ResultTest } from './ResultTest';
-import { Test } from './Test';
+
+const connectionUrl = process.env.HUB_CONNECTION_URL;
 
 const connection = new HubConnectionBuilder()
-    .withUrl('https://localhost:7069/hubs/quiz', {
+    .withUrl(connectionUrl ?? '', {
         accessTokenFactory: () => acquireAccessToken(msalInstance),
         transport: HttpTransportType.WebSockets,
         skipNegotiation: true,
@@ -41,7 +39,7 @@ export const Home = () => {
             <AuthenticatedTemplate>
                 <ConnectionProvider connection={connection}>
                     <SimpleSidebar>
-                        <Test />
+                        <QuizHome />
                     </SimpleSidebar>
                 </ConnectionProvider>
             </AuthenticatedTemplate>

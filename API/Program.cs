@@ -52,7 +52,7 @@ builder.Services.AddSignalR(options => { options.EnableDetailedErrors = true; })
 {
     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
-builder.Services.AddCorsService();
+builder.Services.AddCorsService(builder.Configuration);
 builder.Services.AddOpenApiServiceOath(builder.Configuration);
 builder.Services.AddRazorPages()
     .AddMicrosoftIdentityUI();
